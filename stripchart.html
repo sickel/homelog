@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xml:lang="en-US" xmlns="http://www.w3.org/1999/xhtml" lang="en-US"><head> 
+
+<!--
+ååå   // to force utf8
+$Id: header.tpl 703 2011-02-15 09:09:07Z radioecology $
+-->
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="createdby" content="Morten A. Kolberg Sickel">
+
+<title>Measurements</title>
+	<link rel="stylesheet" type="text/css" media="print" href="print.css">
+	<link rel="stylesheet" type="text/css" media="screen,projection" href="msi_smarty.css" charset="utf-8">
+		<!-- <script type="text/javascript" src="svg.js" data-path="."></script> -->
+		<script type="text/javascript" src="/libs/prototype.js"></script>
+		<script type="text/javascript" src="chart.js"></script>
+		<script type="text/javascript" src="stripchart.js"></script>
+	
+</head><body>
+<!--
+
+(c) Morten Sickel February 2011 licenced under the GNU GPL 2 or later
+
+
+-->
+<div id="main">
+
+
+<div id="stripdiv0" class="stripchartdiv">
+<p> 
+<label class="left" for="max0">Max:</label><input value="100" size="3" id="stripchart0max" class="maxsetter">
+<select class="paramchooser" id="paramchoose0" name="paramchoose0">
+	<option label="&nbsp;" value="0">&nbsp;</option>
+	<option selected="selected" label="Cs" value="Cs">Cs</option>
+	<option label="K" value="K">K</option>
+	<option label="U" value="U">U</option>
+	<option label="Th" value="Th">Th</option>
+</select><span id="logvalue0">&nbsp;</span> 
+</p>
+<!--[if !IE]>-->
+  <object style="visibility: visible; overflow: hidden;" data="stripchart.svg" type="image/svg+xml" class="svg" id="stripchart0" name="stripchart" width="430" height="300"> 
+<!--<![endif]-->
+<!--[if lt IE 9]>
+  <object src="stripchart.svg" classid="image/svg+xml" class="svg"
+     width="275" height="430" id="stripchart0" name="stripchart"> 
+<![endif]-->
+<!--[if gte IE 9]>
+  <object data="stripchart.svg" type="image/svg+xml" class="svg"
+    width="275" height="430" id="stripchart0" name="stripchart">
+<![endif]-->
+ </object>
+</div>
+</div>
+<div id="footer">
+
+<p> <span id="log"> </span> <span id="error" class="errormsg"> </span><span id="p_status"> </span></p>
+<hr>
+<ul class="horizmenu">
+</ul></div>
+</body></html>

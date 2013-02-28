@@ -1,0 +1,54 @@
+<svg height="280" width="470" viewBox="-20 -20 450 260"
+     xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     xmlns:in="http://www.anomaly.org/2003/instruments"
+    >
+
+<!--
+
+$Id: stripchart.svg 707 2011-02-16 14:08:23Z radioecology $
+(c) Morten Sickel February 2011 licenced under the GNU GPL 2 or later
+
+-->
+	
+	<g  class="buttonactivate">
+		<!-- Chart background. -->
+		<rect x="0" y="0" width="420" height="230" stroke-width="2"
+						fill="lightgray"/>
+		<line x1="0" y1="0" x2="0" y2="230" stroke="black"/>
+	
+		<rect x="0" y="0" height="230" width="420" stroke="black" fill="none" />
+		
+		<!-- Label the X axis. -->
+		<line x1="0" y1="0" x2="500" y2="0" stroke-width="5" />
+		<g id="xlabels" transform="translate(0, 230)">
+			<text id="xorig" x="-5" y="15" >0</text> 
+			<text id="xhalf" x="95" y="15" >1</text> 
+			<text id="xfull" x="195" y="15" >2</text>
+			<text id="xfull" x="295" y="15" >3</text>
+			<text id="xfull" x="395" y="15" >4</text>
+		</g>
+
+		<!-- X axis grid lines. -->
+		<line x1="0" y1="400" x2="500" y2="400" stroke-width="1" />
+		<g id="chartstyle" transform="translate(0, 220)"
+					stroke-dasharray="3,3" stroke="black">
+			<line x1="0" y1="0" x2="0" y2="0" />
+			<line x1="100" y1="10" x2="100" y2="-220" />
+			<line x1="200" y1="10" x2="200" y2="-220" />
+			<line x1="300" y1="10" x2="300" y2="-220" />
+			<line x1="400" y1="10" x2="400" y2="-220" />
+			<line x1="500" y1="10" x2="500" y2="-220" />
+		</g>
+
+		
+		
+		<!-- Chart 1 line. -->
+		<g  transform="translate(0, 200)">
+                <g transform="scale(1,-2)">
+			<polyline id="temp1" fill="none" stroke="blue" stroke-width="1" 
+         	   points="0,-3 1,4 2,7 3,19 4,6" />
+		</g>
+		</g>
+	</g>
+</svg>

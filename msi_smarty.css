@@ -1,0 +1,162 @@
+﻿/*
+$Id: msi_smarty.css 707 2011-02-16 14:08:23Z radioecology $
+*/
+
+html { height: 100% }
+body { height: 100%}
+#map_canvas { height: 100% }
+
+#filinfo{
+	border: black 1px;
+	border-style: solid;
+	background: white; 
+	padding-left: 0px;
+	width: 45%;
+	position: absolute; 
+	top: 0px; 
+	left: 52.5%;
+  margin: 0;
+}
+
+#filinfo  ol {
+  padding: 0;
+}
+#filinfo   li {
+  list-style: none;
+  margin: 0;
+}
+
+.button a {
+	text-decoration: none;
+	color: black;
+}	
+
+.button{
+	background: buttonface;
+	padding-left: 2pt;
+	padding-right: 2pt;
+	/*
+	border-bottom: black 2px;
+	border-right: black 2px;
+	border-top: white 1px;
+	border-left: white 1px;
+	border-style: solid;
+	*/
+	border: 2px outset;
+}
+
+#filinfo li .header{ 
+	display: inline-block;
+	font-weight: bold;
+	width: 70pt;
+	}
+
+dt{width: 540pt;}
+dd{padding-left: 0pt;
+	margin-left:0pt;
+	}
+tr.even{background: white;}
+tr.odd{background: #ddd;}
+
+
+ul.horizmenu{
+	margin-left: 0;
+	padding-left: 0;
+	white-space: nowrap;
+}
+
+.horizmenu li{
+	display: inline;
+	list-style-type: none;
+	padding: 10px 0px;
+}
+
+
+#footer{
+	position: absolute;
+	bottom: 0;
+}
+
+.errormsg{
+	color: red;
+}
+
+
+.menu  a:link, .menu a:visited, .horizmenu a:link, .horizmenu a:visited{
+	color: #fff;
+	background-color: #aaa;
+	text-decoration: none;
+}
+
+.horizmenu a:hover, .menu a:hover{
+	color: #fff;
+	background-color: #999;
+	text-decoration: none;
+}
+
+.vertmenu li{
+	list-style-type: none;
+}
+
+.buttons li{
+	padding: 10px 0px;
+}
+
+p .label {
+  vertical-align: top;
+}
+
+dt{
+	font-weight: bold; 
+	display:inline; 
+}
+
+dd{display:inline;}
+
+
+
+
+.nodot li{
+	
+	margin-left: 0;
+	padding-left: 0;
+	padding-top: 0.2em;
+	line-height: 1.5em;
+	list-style-type: none;
+}
+
+.stripchartdiv{
+	float: left;
+}
+
+ label.left{
+    text-align: left;
+	clear: none;
+	float:none;
+  
+}
+
+label {
+  vertical-align: top;
+  width: 10em;
+  float:left;
+  text-align: right;
+  margin: 0 1em 0.1em 0;
+  clear: both;
+}
+
+.nobreaklabel label{
+	float:none;
+	clear: none;
+}
+
+.numbercell{
+	padding-left: 2em;
+	margin-left: 2em;
+	text-align: right;
+}
+
+
+.newfile{
+	background-color: #aaa ;
+}
