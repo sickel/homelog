@@ -3,11 +3,18 @@
 $dbtype='pgsql';
 include('dbconn.php');
 require_once $_SERVER['DOCUMENT_ROOT'].'/../libs/dblibs2.php';
-$sqh=$dbh->prepare("select  * from temps order by id desc limit 10");
-print_r($dbh->errorInfo());
-$sqh->execute();
-print_r($sqh->fetchAll());
+$sql='select temp as "value",datetime as "at" from temp_stream where name=? and datetime>? and datetime < ?';
+$sql='select temp as "value",to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from temp_stream where name=? and datetime>? and datetime < ?';
 
-print_r(json_encode(fetchdata("select  * from temps order by id desc limit 10",'',PDO::FETCH_ASSOC)));
+#$sqh=$dbh->prepare($sql);
+#$sqh->execute(array($_GET['stream'],$_GET['from'],$_GET['to']);
+$data=fetchset($sql,array($_GET['stream'],$_GET['from'],$_GET['to']),PDO::FETCH_ASSOC);
+if($_GET['type']=='svg'){
 
+}else{
+	print('{
+  	"datapoints":');
+	print(json_encode($data));
+	print('}');
+}
 ?>

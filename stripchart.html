@@ -26,16 +26,17 @@ $Id: header.tpl 703 2011-02-15 09:09:07Z radioecology $
 -->
 <div id="main">
 
+<label for="from">From</label><input value="2013-02-20 00:00:00" id="from"><br />
+<label for="from">To</label><input value="2013-03-20 00:00:00" id="to"><br />
+<button id="btLoad">Load Data</button>
 
 <div id="stripdiv0" class="stripchartdiv">
 <p> 
 <label class="left" for="max0">Max:</label><input value="100" size="3" id="stripchart0max" class="maxsetter">
 <select class="paramchooser" id="paramchoose0" name="paramchoose0">
 	<option label="&nbsp;" value="0">&nbsp;</option>
-	<option selected="selected" label="Cs" value="Cs">Cs</option>
-	<option label="K" value="K">K</option>
-	<option label="U" value="U">U</option>
-	<option label="Th" value="Th">Th</option>
+	<option selected="selected" label="Inne" value="Inne">Inne</option>
+	<option label="Ute" value="K">Ute</option>
 </select><span id="logvalue0">&nbsp;</span> 
 </p>
 <!--[if !IE]>-->
@@ -50,6 +51,8 @@ $Id: header.tpl 703 2011-02-15 09:09:07Z radioecology $
     width="275" height="430" id="stripchart0" name="stripchart">
 <![endif]-->
  </object>
+<span id="minval"> </span>
+<span id="maxval"> </span>
 </div>
 </div>
 <div id="footer">
