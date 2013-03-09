@@ -1,3 +1,4 @@
+
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xml:lang="en-US" xmlns="http://www.w3.org/1999/xhtml" lang="en-US"><head> 
 
@@ -32,13 +33,10 @@ $Id: header.tpl 703 2011-02-15 09:09:07Z radioecology $
 
 <div id="stripdiv0" class="stripchartdiv">
 <p> 
-<label class="left" for="max0">Max:</label><input value="100" size="3" id="stripchart0max" class="maxsetter">
 <select class="paramchooser" id="paramchoose0" name="paramchoose0">
-	<option label="&nbsp;" value="0">&nbsp;</option>
-	<option selected="selected" label="Inne" value="Inne">Inne</option>
-	<option label="Ute" value="K">Ute</option>
-</select><span id="logvalue0">&nbsp;</span> 
-</p>
+	<option label="Inne" value="Inne">Inne</option>
+	<option selected="selected" label="Ute" value="Ute">Ute</option>
+</select></p>
 <!--[if !IE]>-->
   <object style="visibility: visible; overflow: hidden;" data="stripchart.svg" type="image/svg+xml" class="svg" id="stripchart0" name="stripchart" width="430" height="300"> 
 <!--<![endif]-->
@@ -50,9 +48,10 @@ $Id: header.tpl 703 2011-02-15 09:09:07Z radioecology $
   <object data="stripchart.svg" type="image/svg+xml" class="svg"
     width="275" height="430" id="stripchart0" name="stripchart">
 <![endif]-->
- </object>
-<span id="minval"> </span>
-<span id="maxval"> </span>
+ </object><br/>
+Minimum: <span id="minval"> </span> Maximum: 
+<span id="maxval"> </span><br />
+Last value: <span id="logvalue0">&nbsp;</span> 
 </div>
 </div>
 <div id="footer">

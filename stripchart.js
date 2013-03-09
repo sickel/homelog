@@ -1,6 +1,5 @@
 /*
 
-$Id: stripchart.js 707 2011-02-16 14:08:23Z radioecology $
 (c) Morten Sickel February 2011 licenced under the GNU GPL 2 or later
 */
 
@@ -25,9 +24,6 @@ function pageonload(event){
 //    $('btLoad').onclick=fetchdata;
     Event.observe($('btLoad'),'click',fetchData);
     svginit(event);
-  $$('.maxsetter').each(function(setter){
-	    Event.observe(setter,'change',setmax);
-    }); 
     $$('.paramchooser').each(function(chooser){
 	Event.observe(chooser,'change',setparam);
     });
@@ -71,7 +67,8 @@ function svginit(event){
 	for(i=0;i<1;i++){
 		charts[i]=new chart('stripchart'+i,'logvalue'+i);
 		charts[i].setparameter($('paramchoose'+i).value);
-		charts[i].setmax($('stripchart'+i+'max').value);
+	    //	charts[i].setmax($('stripchart'+i+'max').value);
+		charts[i].setmax(100);
 	}
 }	
 
@@ -109,7 +106,7 @@ var prevsent; // the dataset id it was asked for last time
 function fetchData(event){ // This is called by the periodical executer
     param=$H({ // All these values are dependent on the backend server...
 	a: 'tempdata'
-	,stream: stream
+	,stream: $('paramchoose0').value
 	,from: $('from').value
 	,to: $('to').value
     });
