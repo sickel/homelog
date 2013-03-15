@@ -22,9 +22,8 @@ function chart(svgobjid,loggerid){
     this.resetpnts=resetpnts; // resets the plot
     this.minvalue=1E18;
     this.maxvalue=-1E18;
-    this.first=0;
-    this.last=0;
     this.createtempline=createtempline;
+    this.unit="&deg;C";
 }
 
 function getsvgid(){
@@ -34,8 +33,8 @@ function getsvgid(){
 
 function setmaxvalue(newmax){
     this.factor=this.defaultmax/newmax;
-    this.svgobj.getElementById('xfull').firstChild.nodeValue=newmax;
-    this.svgobj.getElementById('xhalf').firstChild.nodeValue=newmax/2;
+//    this.svgobj.getElementById('xfull').firstChild.nodeValue=newmax;
+//    this.svgobj.getElementById('xhalf').firstChild.nodeValue=newmax/2;
     
 }
 
@@ -52,12 +51,12 @@ function setparameter(param){
 
 function createline(x1,x2,y1,y2,svg,color){
     color=typeof color !== 'undefined' ? color : 'blue';
-        line=svg.createElementNS("http://www.w3.org/2000/svg",'line');
-        line.setAttribute('x1',x1);
-        line.setAttribute('x2',x2);
-        line.setAttribute('y1',y1);
-        line.setAttribute('y2',y2);
-        line.setAttribute('class','ROIline');
+    line=svg.createElementNS("http://www.w3.org/2000/svg",'line');
+    line.setAttribute('x1',x1);
+    line.setAttribute('x2',x2);
+    line.setAttribute('y1',y1);
+    line.setAttribute('y2',y2);
+    line.setAttribute('class','ROIline');
     line.setAttribute('stroke',color);
     line.setAttribute('stroke-width','0.1');
     return line;
@@ -76,31 +75,40 @@ function drawstrip(){
     // resets the over/under indicators:
     //	this.svgobj.getElementById('underload').setAttribute("fill", "none" );
     //	this.svgobj.getElementById('overload').setAttribute("fill", "none" );
-    $('maxval').innerHTML=this.maxvalue;
-    $('minval').innerHTML=this.minvalue;
+    $('maxval').innerHTML=this.maxvalue+this.unit;
+    $('minval').innerHTML=this.minvalue+this.unit;
     valspan=this.maxvalue-this.minvalue;
     yscale=80/valspan;
     var g=svg.getElementById('transformer');
     g.setAttribute('transform',"scale(1,-"+yscale+")");
     var ymove=10+this.maxvalue*yscale*this.factor;
-    $('p_status').innerHTML=':'+this.factor;
+//    $('p_status').innerHTML=':'+yscale;
     svg.getElementById('translater').setAttribute('transform','translate(0,'+ymove+')');
     if(this.maxvalue>0 && this.minvalue < 0){
-	var line=createline(0,420,0,0,svg);
+ 	var line=createline(0,420,0,0,svg);
 	g.appendChild(line);
     }
-//    var temps=[-30.-20,-10,10,20,30];
-    for(var i=-3;i<4;i++){
-	if(10*i>this.minvalue && 10*i < this.maxvalue){
-	    line=this.createtempline(i*10,svg,'grey');
-	    g.appendChild(line);
-	}
+    var hl=svg.getElementById('horizlines');
+    var lf;
+    if (valspan > 30){lf = 10;}
+    else if(valspan > 10){lf = 5;}
+    else if(valspan > 5){lf = 2;}
+    else {lf=1;}
+    for(var i=Math.ceil(this.minvalue/lf);i<Math.ceil(this.maxvalue/lf);i++){
+	var text=svg.createElementNS("http://www.w3.org/2000/svg",'text');
+	text.appendChild(svg.createTextNode(lf*i));
+	text.setAttribute("x",-20/yscale);
+	text.setAttribute("y",-1*lf*i*this.factor+this.factor*2);
+	text.setAttribute("font-size",50/(this.factor*yscale));
+	text.setAttribute("transform","scale(1,-1)");
+	hl.appendChild(text);
+	line=this.createtempline(i*lf,svg,'grey');
+	hl.appendChild(line);
     }
-    
+    var starttime=this.timestamps[0];
     if(this.pnts.length >0){
 	var i=0;
 	var xfact=timespan/maxlength;
-	var starttime=this.timestamps[0];
 	for (i=1;i<= this.pnts.length-1; i++){
 	    xcrd=Math.round((this.timestamps[i]-starttime)/xfact*10)/10;
 	    path=xcrd+","+(this.pnts[i-1])*this.factor+" "+path;
@@ -108,8 +116,46 @@ function drawstrip(){
 	    // path+=i+","+(this.pnts[i-1])*this.factor+" ";		
 	}
     }
-    this.svgobj.getElementById('temp1').setAttribute("points", path );
+    var chartline=this.svgobj.getElementById('temp1');
+    chartline.setAttribute("points", path );
+    var wfact=yscale<10?20:50;
+    var swidth=Math.round(wfact/yscale)/10;
+    chartline.setAttribute('stroke-width',swidth);
+    var linetime=new Date(this.timestamps[0]);
+    linetime.setHours(0,0,0,0);
+    var g=svg.getElementById('xlines');
+    linetime=Date.parse(linetime);
+// 	<line x1="100" y1="10" x2="100" y2="-220" />	
+    var stoptime=this.timestamps[this.timestamps.length-1];
+    var hstep=24;
+    var hlfstep=hstep*3600*500;
+    while(linetime<stoptime-hlfstep){
+	linetime+=hlfstep;
+	if(xfact>0){
+	    var xcrd=Math.round((linetime-starttime)/xfact*10)/10;
+	    line=createline(xcrd,xcrd,10,-220,svg,'black');
+	    //line=createline(150,150,10,-220,svg,'black');
+	    line.setAttribute('stroke-width','0.5');
+	    g.appendChild(line);
+	    linetime+=hlfstep;
+	    xcrd=Math.round((linetime-starttime)/xfact*10)/10;
+	    var text=svg.createElementNS("http://www.w3.org/2000/svg",'text');
+	    var d=new Date(linetime);
+	    text.appendChild(svg.createTextNode(''+(d.getYear()+1900)+'/'+(d.getMonth()+1)+'/'+(d.getDate()+1)));
+	    text.setAttribute("x",xcrd-20);
+	    text.setAttribute("y",20);
+	    text.setAttribute("font-size",12);
+	    g.appendChild(text);
+ 	    line=createline(xcrd,xcrd,10,-220,svg,'grey');
+	    line.setAttribute('stroke-width','0.5');
+	    g.appendChild(line);
+	}else{
+	    linetime+=hlfstep;
+
+	}
+    }
     // updates the polyline in the svg - thereby forcing a redraw.
+     
 }
 
 function addpoint(dataset){
@@ -120,7 +166,7 @@ function addpoint(dataset){
     if(value>this.maxvalue){this.maxvalue=value;}
     if(!(Object.isUndefined(value))){
 	this.pnts.push(value);      // puts the new point at the head /use push to add data at the end
-	this.logger.innerHTML=Math.round(value*100)/100; // prints the value
+	this.logger.innerHTML=" "+Math.round(value*100)/100+this.unit+" at "+dataset["at"]; // prints the value
     }
 }
 
@@ -129,6 +175,15 @@ function resetpnts(){
     this.timestamps=new Array();
     this.maxvalue=-1E9;
     this.minvalue=1E9;
-    this.first=0;
-    this.last=0;
+    // Cleans up the horizontal lines:
+    var svg=$(this.id).contentDocument;
+    var g=svg.getElementById('horizlines');
+    while (g.firstChild) {
+	g.removeChild(g.firstChild);
+    }
+    g=svg.getElementById('xlines');
+    while (g.firstChild) {
+	g.removeChild(g.firstChild);
+    }
+
 }

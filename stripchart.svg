@@ -23,23 +23,21 @@ $Id: stripchart.svg 707 2011-02-16 14:08:23Z radioecology $
 		<!-- Label the X axis. -->
 		<line x1="0" y1="0" x2="500" y2="0" stroke-width="5" />
 		<g id="xlabels" transform="translate(0, 230)">
-			<text id="xorig" x="-5" y="15" >0</text> 
+	<!--		<text id="xorig" x="-5" y="15" >0</text> 
 			<text id="xhalf" x="95" y="15" >1</text> 
 			<text id="xfull" x="195" y="15" >2</text>
 			<text id="xfull" x="295" y="15" >3</text>
-			<text id="xfull" x="395" y="15" >4</text>
+			<text id="xfull" x="395" y="15" >4</text> -->
 		</g>
 
 		<!-- X axis grid lines. -->
 		<line x1="0" y1="400" x2="500" y2="400" stroke-width="1" />
-		<g id="chartstyle" transform="translate(0, 220)"
-					stroke-dasharray="3,3" stroke="black">
-			<line x1="0" y1="0" x2="0" y2="0" />
-			<line x1="100" y1="10" x2="100" y2="-220" />
-			<line x1="200" y1="10" x2="200" y2="-220" />
-			<line x1="300" y1="10" x2="300" y2="-220" />
+		<g id="xlines" transform="translate(0, 220)" 
+		   stroke-dasharray="3,3" stroke="black">
+<!--			<line x1="0" y1="0" x2="0" y2="0" />-->
+<!--			<line x1="300" y1="10" x2="300" y2="-220" />
 			<line x1="400" y1="10" x2="400" y2="-220" />
-			<line x1="500" y1="10" x2="500" y2="-220" />
+			<line x1="500" y1="10" x2="500" y2="-220" />-->
 		</g>
 
 		
@@ -47,8 +45,8 @@ $Id: stripchart.svg 707 2011-02-16 14:08:23Z radioecology $
 		<!-- Chart 1 line. -->
 		<g id="translater" transform="translate(0, 150)">
                 <g id="transformer" transform="scale(1,-2)">
-			<polyline id="temp1" fill="none" stroke="blue" stroke-width="1" 
-         	   points="0,0 0,0" />
+			<polyline id="temp1" fill="none" stroke="blue" stroke-width="1"     	   points="0,0 0,0" />
+			<g id="horizlines"> </g>
 		</g>
 		</g>
 	</g>
