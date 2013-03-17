@@ -24,6 +24,12 @@ function chart(svgobjid,loggerid){
     this.maxvalue=-1E18;
     this.createtempline=createtempline;
     this.unit="&deg;C";
+    this.setvlinespacing=setvlinespacing; // Sets the spacing between vertical lines
+    // i.e time markers
+    // max time (in days), days between main markers, 
+    // submarkers from one main maker to next (one included) 
+    this.vlinespc=$A([[0,24,12],[3,24,6],[7,24,4],[10,24,2],[15,24*7,7]]);
+   
 }
 
 function getsvgid(){
@@ -36,6 +42,21 @@ function setmaxvalue(newmax){
 //    this.svgobj.getElementById('xfull').firstChild.nodeValue=newmax;
 //    this.svgobj.getElementById('xhalf').firstChild.nodeValue=newmax/2;
     
+}
+
+function setvlinespacing(span){ 
+    
+    var hstep=30*24;
+    var pstep=15;
+    this.vlinespc.each(function(sps){
+	if (span>sps[0]*24*3600*1000){
+	    hstep=sps[1];
+	    pstep=sps[2];
+	}
+    }); 
+    return {hstep:hstep,
+	    pstep:pstep};
+   
 }
 
 
@@ -127,31 +148,39 @@ function drawstrip(){
     linetime=Date.parse(linetime);
 // 	<line x1="100" y1="10" x2="100" y2="-220" />	
     var stoptime=this.timestamps[this.timestamps.length-1];
-    var hstep=24;
-    var hlfstep=hstep*3600*500;
-    while(linetime<stoptime-hlfstep){
-	linetime+=hlfstep;
-	if(xfact>0){
-	    var xcrd=Math.round((linetime-starttime)/xfact*10)/10;
-	    line=createline(xcrd,xcrd,10,-220,svg,'black');
-	    //line=createline(150,150,10,-220,svg,'black');
-	    line.setAttribute('stroke-width','0.5');
-	    g.appendChild(line);
-	    linetime+=hlfstep;
-	    xcrd=Math.round((linetime-starttime)/xfact*10)/10;
-	    var text=svg.createElementNS("http://www.w3.org/2000/svg",'text');
-	    var d=new Date(linetime);
-	    text.appendChild(svg.createTextNode(''+(d.getYear()+1900)+'/'+(d.getMonth()+1)+'/'+(d.getDate()+1)));
-	    text.setAttribute("x",xcrd-20);
-	    text.setAttribute("y",20);
-	    text.setAttribute("font-size",12);
-	    g.appendChild(text);
- 	    line=createline(xcrd,xcrd,10,-220,svg,'grey');
-	    line.setAttribute('stroke-width','0.5');
-	    g.appendChild(line);
-	}else{
-	    linetime+=hlfstep;
+    var stps=this.setvlinespacing(timespan)
+    var hstep=stps.hstep;
+    var pstep=stps.pstep;
+   // var pstep=12;  // number of partial steps in timestep incl. htstep 
+    var sstep=hstep*3600*1000;
+    var partstep=sstep/pstep;
+    while(linetime<stoptime){
+	for(nstep=0;nstep<pstep;nstep++){
+	    linetime+=partstep;
+	    if(xfact>0){
+		var xcrd=Math.round((linetime-starttime)/xfact*10)/10;
+		if(xcrd >0){
+		    if(nstep==pstep-1){
+			line=createline(xcrd,xcrd,10,-220,svg,'black');
+			xcrd=Math.round((linetime-starttime)/xfact*10)/10;
+			var text=svg.createElementNS("http://www.w3.org/2000/svg",'text');
+		    var d=new Date(linetime);
+		    // text.appendChild(svg.createTextNode(''+(d.getYear()+1900)+'/'+(d.getMonth()+1)+'/'+(d.getDate()+1)));
+		    text.appendChild(svg.createTextNode(''+(d.getMonth()+1)+'/'+
+							(d.getDate()+1)));
+		    text.setAttribute("x",xcrd-20);
+		    text.setAttribute("y",20);
+		    text.setAttribute("font-size",12);
+		    g.appendChild(text);
+		    line.setAttribute('stroke-width','1');
 
+ 		    }else{
+			line=createline(xcrd,xcrd,10,-220,svg,'grey');
+			line.setAttribute('stroke-width','0.5');
+		    }
+		    g.appendChild(line);
+		}
+	    } 
 	}
     }
     // updates the polyline in the svg - thereby forcing a redraw.
