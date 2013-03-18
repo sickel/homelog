@@ -20,6 +20,11 @@ var n=0;              // counts number of datasets fetched in the present file
 var charts=new Array();  // array to hold the chart objects
 var calid=0;          // used by the server
 var stream="Ute";
+
+function formattime(date){
+    return(''+(date.getYear()+1900)+'-'+(date.getMonth()+1)+'-'+date.getDate()+' 00:00:00');
+}
+
 function pageonload(event){
 //    $('btLoad').onclick=fetchdata;
     Event.observe($('btLoad'),'click',fetchData);
@@ -27,6 +32,14 @@ function pageonload(event){
     $$('.paramchooser').each(function(chooser){
 	Event.observe(chooser,'change',setparam);
     });
+    // sets default: Fetches data for the last week
+    // TODO: use get-parameters
+    var date=new Date();
+    date.setHours(0,0,0,0);
+    date.setTime(date.getTime()+24*3600*1000);
+    $('to').value=formattime(date);
+    date.setTime(date.getTime()-8*24*3600*1000);
+    $('from').value=formattime(date);
     fetchData(event);
 }
 

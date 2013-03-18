@@ -167,7 +167,7 @@ function drawstrip(){
 		    var d=new Date(linetime);
 		    // text.appendChild(svg.createTextNode(''+(d.getYear()+1900)+'/'+(d.getMonth()+1)+'/'+(d.getDate()+1)));
 		    text.appendChild(svg.createTextNode(''+(d.getMonth()+1)+'/'+
-							(d.getDate()+1)));
+							(d.getDate())));
 		    text.setAttribute("x",xcrd-20);
 		    text.setAttribute("y",20);
 		    text.setAttribute("font-size",12);
