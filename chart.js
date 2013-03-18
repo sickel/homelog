@@ -29,7 +29,7 @@ function chart(svgobjid,loggerid){
     // max time (in days), days between main markers, 
     // submarkers from one main maker to next (one included) 
     this.vlinespc=$A([[0,12,12],[2,24,12],[3,24,6],[5,24,4],[8,24,2],[10,24*2,4],[14,24*7,7]]);
-   
+    this.yscale=0;
 }
 
 function getsvgid(){
@@ -85,78 +85,68 @@ function createline(x1,x2,y1,y2,svg,color){
 
 function createtempline(temp,svg,color){
     var x=temp*this.factor;
+    //line=createline(0,420,x,x,$(this.id),color);
     line=createline(0,420,x,x,svg,color);
     return line;
 }
+
+
+
 
 function drawstrip(){
     var timespan=this.timestamps.slice(-1)[0]-this.timestamps[0];
     var svg=$(this.id).contentDocument;
     var path=''; // a text string in which the path is constructed
-    // resets the over/under indicators:
-    //	this.svgobj.getElementById('underload').setAttribute("fill", "none" );
-    //	this.svgobj.getElementById('overload').setAttribute("fill", "none" );
     $('maxval').innerHTML=this.maxvalue+this.unit;
     $('minval').innerHTML=this.minvalue+this.unit;
     valspan=this.maxvalue-this.minvalue;
-    yscale=80/valspan;
-    var g=svg.getElementById('transformer');
-    g.setAttribute('transform',"scale(1,-"+yscale+")");
-    var ymove=10+this.maxvalue*yscale*this.factor;
-//    $('p_status').innerHTML=':'+yscale;
-    svg.getElementById('translater').setAttribute('transform','translate(0,'+ymove+')');
+    var yscale=220/valspan;
+    var ymove=5+this.maxvalue*yscale;
     var hl=svg.getElementById('horizlines');
-    var lf;
+    var lf; // number of units between horizontal lines.
     if (valspan > 30){lf = 10;}
     else if(valspan > 10){lf = 5;}
     else if(valspan > 5){lf = 2;}
     else {lf=1;}
     for(var i=Math.ceil(this.minvalue/lf);i<Math.ceil(this.maxvalue/lf);i++){
 	var text=svg.createElementNS("http://www.w3.org/2000/svg",'text');
+	var ycrd=ymove-i*lf*yscale;
 	text.appendChild(svg.createTextNode(lf*i));
-	text.setAttribute("x",-40/yscale);
-	text.setAttribute("y",-1*lf*i*this.factor*2+this.factor*2);
-	text.setAttribute("font-size",50/(this.factor*yscale));
-	text.setAttribute("transform","scale(1,-0.5)");
-	hl.appendChild(text);
+	text.setAttribute("x",-25);
+	text.setAttribute("y",ycrd+5);
+	text.setAttribute("font-size",12);
+	hl.appendChild(text);	   
 	if(i==0){
-	    line=this.createtempline(i*lf,svg,'red');
-	    line.setAttribute('stroke-width','0.2');
+	    line=createline(0,420,ycrd,ycrd,svg,'red');
+	    
 	}else{
-	    line=this.createtempline(i*lf,svg,'grey');
+	    line=createline(0,420,ycrd,ycrd,svg,'grey')
 	}
+	line.setAttribute('stroke-width','0.3');
 	hl.appendChild(line);
     }
     var starttime=this.timestamps[0];
-    /*
-      Make line of temperature measurements:
-    */
-   
     if(this.pnts.length >0){
 	var i=0;
 	var xfact=timespan/maxlength;
 	for (i=1;i<= this.pnts.length; i++){
 	    xcrd=Math.round((this.timestamps[i-1]-starttime)/xfact*10)/10;
-	    path=xcrd+","+(this.pnts[i-1])*this.factor+" "+path;
+	    ycrd=ymove-this.pnts[i-1]*yscale;
+	    path=''+xcrd+","+ycrd+" "+path;
 	    // to make a horisontal rather than a vertical point, use
 	    // path+=i+","+(this.pnts[i-1])*this.factor+" ";		
 	}
     }
     var chartline=this.svgobj.getElementById('temp1');
     chartline.setAttribute("points", path );
-    var wfact=yscale<10?20:50;
-    var swidth=Math.round(wfact/yscale)/10;
-    chartline.setAttribute('stroke-width',swidth);
     var linetime=new Date(this.timestamps[0]);
     linetime.setHours(0,0,0,0);
     var g=svg.getElementById('xlines');
     linetime=Date.parse(linetime);
-// 	<line x1="100" y1="10" x2="100" y2="-220" />	
     var stoptime=this.timestamps[this.timestamps.length-1];
     var stps=this.setvlinespacing(timespan)
     var hstep=stps.hstep;
     var pstep=stps.pstep;
-   // var pstep=12;  // number of partial steps in timestep incl. htstep 
     var sstep=hstep*3600*1000;
     var partstep=sstep/pstep;
     while(linetime<stoptime){
@@ -172,7 +162,7 @@ function drawstrip(){
 							(d.getDate())));
 		text.setAttribute("x",xcrd-20);
 		text.setAttribute("y",20);
-		text.setAttribute("font-size",11);
+		text.setAttribute("font-size",12);
 		g.appendChild(text);
 		line.setAttribute('stroke-width','1');
 	    }else{
