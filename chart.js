@@ -28,7 +28,7 @@ function chart(svgobjid,loggerid){
     // i.e time markers
     // max time (in days), days between main markers, 
     // submarkers from one main maker to next (one included) 
-    this.vlinespc=$A([[0,24,12],[3,24,6],[7,24,4],[10,24,2],[15,24*7,7]]);
+    this.vlinespc=$A([[0,12,12],[2,24,12],[3,24,6],[5,24,4],[8,24,2],[10,24*2,4],[14,24*7,7]]);
    
 }
 
@@ -105,10 +105,6 @@ function drawstrip(){
     var ymove=10+this.maxvalue*yscale*this.factor;
 //    $('p_status').innerHTML=':'+yscale;
     svg.getElementById('translater').setAttribute('transform','translate(0,'+ymove+')');
-    if(this.maxvalue>0 && this.minvalue < 0){
- 	var line=createline(0,420,0,0,svg);
-	g.appendChild(line);
-    }
     var hl=svg.getElementById('horizlines');
     var lf;
     if (valspan > 30){lf = 10;}
@@ -118,20 +114,29 @@ function drawstrip(){
     for(var i=Math.ceil(this.minvalue/lf);i<Math.ceil(this.maxvalue/lf);i++){
 	var text=svg.createElementNS("http://www.w3.org/2000/svg",'text');
 	text.appendChild(svg.createTextNode(lf*i));
-	text.setAttribute("x",-20/yscale);
-	text.setAttribute("y",-1*lf*i*this.factor+this.factor*2);
+	text.setAttribute("x",-40/yscale);
+	text.setAttribute("y",-1*lf*i*this.factor*2+this.factor*2);
 	text.setAttribute("font-size",50/(this.factor*yscale));
-	text.setAttribute("transform","scale(1,-1)");
+	text.setAttribute("transform","scale(1,-0.5)");
 	hl.appendChild(text);
-	line=this.createtempline(i*lf,svg,'grey');
+	if(i==0){
+	    line=this.createtempline(i*lf,svg,'red');
+	    line.setAttribute('stroke-width','0.2');
+	}else{
+	    line=this.createtempline(i*lf,svg,'grey');
+	}
 	hl.appendChild(line);
     }
     var starttime=this.timestamps[0];
+    /*
+      Make line of temperature measurements:
+    */
+   
     if(this.pnts.length >0){
 	var i=0;
 	var xfact=timespan/maxlength;
-	for (i=1;i<= this.pnts.length-1; i++){
-	    xcrd=Math.round((this.timestamps[i]-starttime)/xfact*10)/10;
+	for (i=1;i<= this.pnts.length; i++){
+	    xcrd=Math.round((this.timestamps[i-1]-starttime)/xfact*10)/10;
 	    path=xcrd+","+(this.pnts[i-1])*this.factor+" "+path;
 	    // to make a horisontal rather than a vertical point, use
 	    // path+=i+","+(this.pnts[i-1])*this.factor+" ";		
@@ -157,30 +162,25 @@ function drawstrip(){
     while(linetime<stoptime){
 	for(nstep=0;nstep<pstep;nstep++){
 	    linetime+=partstep;
-	    if(xfact>0){
-		var xcrd=Math.round((linetime-starttime)/xfact*10)/10;
-		if(xcrd >0){
-		    if(nstep==pstep-1){
-			line=createline(xcrd,xcrd,10,-220,svg,'black');
-			xcrd=Math.round((linetime-starttime)/xfact*10)/10;
-			var text=svg.createElementNS("http://www.w3.org/2000/svg",'text');
-		    var d=new Date(linetime);
-		    // text.appendChild(svg.createTextNode(''+(d.getYear()+1900)+'/'+(d.getMonth()+1)+'/'+(d.getDate()+1)));
-		    text.appendChild(svg.createTextNode(''+(d.getMonth()+1)+'/'+
+	    var xcrd=Math.round((linetime-starttime)/xfact*10)/10;
+	    if((nstep==pstep-1) ||(xcrd==0)){
+		line=createline(xcrd,xcrd,10,-220,svg,'black');
+		var text=svg.createElementNS("http://www.w3.org/2000/svg",'text');
+		var d=new Date(linetime);
+		// text.appendChild(svg.createTextNode(''+(d.getYear()+1900)+'/'+(d.getMonth()+1)+'/'+(d.getDate()+1)));
+		text.appendChild(svg.createTextNode(''+(d.getMonth()+1)+'/'+
 							(d.getDate())));
-		    text.setAttribute("x",xcrd-20);
-		    text.setAttribute("y",20);
-		    text.setAttribute("font-size",12);
-		    g.appendChild(text);
-		    line.setAttribute('stroke-width','1');
-
- 		    }else{
-			line=createline(xcrd,xcrd,10,-220,svg,'grey');
-			line.setAttribute('stroke-width','0.5');
-		    }
-		    g.appendChild(line);
-		}
-	    } 
+		text.setAttribute("x",xcrd-20);
+		text.setAttribute("y",20);
+		text.setAttribute("font-size",11);
+		g.appendChild(text);
+		line.setAttribute('stroke-width','1');
+	    }else{
+		line=createline(xcrd,xcrd,10,-220,svg,'grey');
+		line.setAttribute('stroke-width','0.5');
+	    }
+	    g.appendChild(line);		
+	     
 	}
     }
     // updates the polyline in the svg - thereby forcing a redraw.

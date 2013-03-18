@@ -12,7 +12,7 @@ var pe;            // the periodical executer - must be available
 var running=false; // flags if the pe is running - or can check if it exists
 var url="ajaxserver.php";  // The url of the program that serves the data to be presented
 var lastid=0;         // id of the last fetched dataset
-var maxlength=420;    // maximum length of the polyline
+var maxlength=418;    // maximum length of the polyline
 var datasetsize=0;        // size of dataset
 var comp="eq";        // used by the server 
 var oldfileid=-1;     // id of datafile in which the last set did belong
@@ -46,7 +46,7 @@ function pageonload(event){
 function setparam(event){
     var target=event.element();
     //alert(target.value);
-    var chartid=target.parentNode.next('object').id;
+ //   var chartid=target.parentNode.next('object').id;
     var targetchart;
     charts.each(function(chart){
 	// must find the right object to work on
