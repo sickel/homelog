@@ -19,11 +19,16 @@ try{
     exit( "<p>Cannot connect - $message</p>");
   }
 
-$sql='select temp as "value",datetime as "at" from temp_stream where name=? and datetime>? and datetime < ?';
-$sql='select temp as "value",to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from temp_stream where name=? and datetime>? and datetime < ? order by datetime';
+$sql='select temp as "value",to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from temp_stream where name=? and datetime>? order by datetime';
 
+$params=array($_GET['stream'],$_GET['from']);
+if($_GET['to']*1>1){
+	$params[]=$_GET['to'];
+	$sql='select temp as "value",to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from temp_stream where name=? and datetime>? and datetime < ? order by datetime';
+}
 $sqh=$dbh->prepare($sql);
-$sqh->execute(array($_GET['stream'],$_GET['from'],$_GET['to']));
+	
+$sqh->execute($params);
 $data=$sqh->fetchAll(PDO::FETCH_ASSOC);
 
 if($_GET['type']=='svg'){

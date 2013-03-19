@@ -36,8 +36,6 @@ function pageonload(event){
     // TODO: use get-parameters
     var date=new Date();
     date.setHours(0,0,0,0);
-    date.setTime(date.getTime()+24*3600*1000);
-    $('to').value=formattime(date);
     date.setTime(date.getTime()-8*24*3600*1000);
     $('from').value=formattime(date);
     fetchData(event);
