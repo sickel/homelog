@@ -11,6 +11,32 @@ SET escape_string_warning = off;
 
 SET search_path = public, pg_catalog;
 
+--
+-- Name: round_sec(timestamp without time zone); Type: FUNCTION; Schema: public; Owner: default
+--
+
+CREATE FUNCTION round_sec(timestamp without time zone) RETURNS timestamp without time zone
+    LANGUAGE sql IMMUTABLE
+    AS $_$
+select date_trunc('second', $1+interval '0.5 second')
+$_$;
+
+
+ALTER FUNCTION public.round_sec(timestamp without time zone) OWNER TO default;
+
+--
+-- Name: round_sec(timestamp with time zone); Type: FUNCTION; Schema: public; Owner: default
+--
+
+CREATE FUNCTION round_sec(timestamp with time zone) RETURNS timestamp with time zone
+    LANGUAGE sql IMMUTABLE
+    AS $_$
+select date_trunc('second', $1+interval '0.5 second')
+$_$;
+
+
+ALTER FUNCTION public.round_sec(timestamp with time zone) OWNER TO default;
+
 SET default_tablespace = '';
 
 SET default_with_oids = false;
@@ -26,6 +52,8 @@ CREATE TABLE sensor (
 );
 
 
+ALTER TABLE public.sensor OWNER TO default;
+
 --
 -- Name: sensor_id_seq; Type: SEQUENCE; Schema: public; Owner: default
 --
@@ -38,6 +66,7 @@ CREATE SEQUENCE sensor_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.sensor_id_seq OWNER TO default;
 
 --
 -- Name: sensor_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: default
@@ -59,6 +88,7 @@ CREATE TABLE temps (
 );
 
 
+ALTER TABLE public.temps OWNER TO default;
 
 --
 -- Name: temp_stream; Type: VIEW; Schema: public; Owner: default
@@ -68,6 +98,17 @@ CREATE VIEW temp_stream AS
     SELECT temps.temp, temps.datetime, sensor.name FROM temps, sensor WHERE ((sensor.sensoraddr)::text = (temps.sensoraddr)::text);
 
 
+ALTER TABLE public.temp_stream OWNER TO default;
+
+--
+-- Name: tempdiff; Type: VIEW; Schema: public; Owner: default
+--
+
+CREATE VIEW tempdiff AS
+    SELECT (i.temp - u.temp) AS value, to_char(timezone('UTC'::text, i.datetime), 'yyyy-mm-dd"T"HH24:MI:SS"Z"'::text) AS at, i.datetime FROM temp_stream i, temp_stream u WHERE (((round_sec(u.datetime) = round_sec(i.datetime)) AND ((u.name)::text = 'Ute'::text)) AND ((i.name)::text = 'Inne'::text));
+
+
+ALTER TABLE public.tempdiff OWNER TO default;
 
 --
 -- Name: temps_id_seq; Type: SEQUENCE; Schema: public; Owner: default
@@ -81,6 +122,7 @@ CREATE SEQUENCE temps_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.temps_id_seq OWNER TO default;
 
 --
 -- Name: temps_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: default
@@ -117,6 +159,34 @@ ALTER TABLE ONLY sensor
 
 ALTER TABLE ONLY temps
     ADD CONSTRAINT temps_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: idx_temps_datetime; Type: INDEX; Schema: public; Owner: default; Tablespace: 
+--
+
+CREATE INDEX idx_temps_datetime ON temps USING btree (datetime);
+
+
+--
+-- Name: idx_temps_datetimesec; Type: INDEX; Schema: public; Owner: default; Tablespace: 
+--
+
+CREATE INDEX idx_temps_datetimesec ON temps USING btree (round_sec(datetime));
+
+
+--
+-- Name: idx_temps_sensoraddr; Type: INDEX; Schema: public; Owner: default; Tablespace: 
+--
+
+CREATE INDEX idx_temps_sensoraddr ON temps USING btree (sensoraddr);
+
+
+--
+-- Name: idx_temps_termid; Type: INDEX; Schema: public; Owner: default; Tablespace: 
+--
+
+CREATE INDEX idx_temps_termid ON temps USING btree (termid);
 
 
 --
