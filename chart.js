@@ -126,9 +126,9 @@ function drawstrip(){
 	hl.appendChild(line);
     }
     var starttime=this.timestamps[0];
+    var xfact=timespan/maxlength;
     if(this.pnts.length >0){
 	var i=0;
-	var xfact=timespan/maxlength;
 	for (i=1;i<= this.pnts.length; i++){
 	    xcrd=Math.round((this.timestamps[i-1]-starttime)/xfact*10)/10;
 	    ycrd=ymove-this.pnts[i-1]*yscale;
@@ -153,24 +153,25 @@ function drawstrip(){
 	for(nstep=0;nstep<pstep;nstep++){
 	    linetime+=partstep;
 	    var xcrd=Math.round((linetime-starttime)/xfact*10)/10;
-	    if((nstep==pstep-1) ||(xcrd==0)){
-		line=createline(xcrd,xcrd,10,-220,svg,'black');
-		var text=svg.createElementNS("http://www.w3.org/2000/svg",'text');
-		var d=new Date(linetime);
-		// text.appendChild(svg.createTextNode(''+(d.getYear()+1900)+'/'+(d.getMonth()+1)+'/'+(d.getDate()+1)));
-		text.appendChild(svg.createTextNode(''+(d.getMonth()+1)+'/'+
-							(d.getDate())));
-		text.setAttribute("x",xcrd-20);
-		text.setAttribute("y",20);
-		text.setAttribute("font-size",12);
-		g.appendChild(text);
-		line.setAttribute('stroke-width','1');
-	    }else{
-		line=createline(xcrd,xcrd,10,-220,svg,'grey');
-		line.setAttribute('stroke-width','0.5');
-	    }
-	    g.appendChild(line);		
-	     
+		if(xcrd<maxlength){
+		    if((nstep==pstep-1) ||(xcrd==0) ){
+			line=createline(xcrd,xcrd,10,-220,svg,'black');
+			var text=svg.createElementNS("http://www.w3.org/2000/svg",'text');
+			var d=new Date(linetime);
+			// text.appendChild(svg.createTextNode(''+(d.getYear()+1900)+'/'+(d.getMonth()+1)+'/'+(d.getDate()+1)));
+			text.appendChild(svg.createTextNode(''+(d.getMonth()+1)+'/'+
+							    (d.getDate())));
+			text.setAttribute("x",xcrd-20);
+			text.setAttribute("y",20);
+			text.setAttribute("font-size",12);
+			g.appendChild(text);
+			line.setAttribute('stroke-width','1');
+		    }else{
+			line=createline(xcrd,xcrd,10,-220,svg,'grey');
+			line.setAttribute('stroke-width','0.5');
+		    }
+		g.appendChild(line);		
+		}
 	}
     }
     // updates the polyline in the svg - thereby forcing a redraw.
