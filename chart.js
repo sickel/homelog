@@ -104,9 +104,9 @@ function drawstrip(){
     var ymove=5+this.maxvalue*yscale;
     var hl=svg.getElementById('horizlines');
     var lf; // number of units between horizontal lines.
-    if (valspan > 30){lf = 10;}
-    else if(valspan > 10){lf = 5;}
-    else if(valspan > 5){lf = 2;}
+    if (valspan > 40){lf = 10;}
+    else if(valspan > 20){lf = 5;}
+    else if(valspan > 10){lf = 2;}
     else {lf=1;}
     for(var i=Math.ceil(this.minvalue/lf);i<Math.ceil(this.maxvalue/lf);i++){
 	var text=svg.createElementNS("http://www.w3.org/2000/svg",'text');
