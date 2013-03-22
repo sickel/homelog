@@ -94,12 +94,16 @@ function createtempline(temp,svg,color){
 
 
 function drawstrip(){
-    var timespan=this.timestamps.slice(-1)[0]-this.timestamps[0];
+    var lastts=this.timestamps.slice(-1)[0];
+    var lastdate=new Date(lastts);
+    var timespan=lastts-this.timestamps[0];
     var svg=$(this.id).contentDocument;
     var path=''; // a text string in which the path is constructed
     $('maxval').innerHTML=this.maxvalue+this.unit;
     $('minval').innerHTML=this.minvalue+this.unit;
-    valspan=this.maxvalue-this.minvalue;
+    this.logger.innerHTML=" "+Math.round(this.pnts.slice(-1)[0]*100)/100
+	+this.unit+" at "+lastdate.toLocaleTimeString();
+    var valspan=this.maxvalue-this.minvalue;
     var yscale=220/valspan;
     var ymove=5+this.maxvalue*yscale;
     var hl=svg.getElementById('horizlines');
@@ -161,8 +165,8 @@ function drawstrip(){
 			// text.appendChild(svg.createTextNode(''+(d.getYear()+1900)+'/'+(d.getMonth()+1)+'/'+(d.getDate()+1)));
 			text.appendChild(svg.createTextNode(''+(d.getMonth()+1)+'/'+
 							    (d.getDate())));
-			text.setAttribute("x",xcrd-20);
-			text.setAttribute("y",20);
+			text.setAttribute("x",xcrd-12);
+			text.setAttribute("y",25);
 			text.setAttribute("font-size",12);
 			g.appendChild(text);
 			line.setAttribute('stroke-width','1');
@@ -181,12 +185,13 @@ function drawstrip(){
 function addpoint(dataset){
     // Just adds data into a temporary array, the plot is redrawn later
     var value=dataset["value"]*1; // picks out the parameter to be plotted here
-    this.timestamps.push(Date.parse(dataset["at"]));
+    var ts=Date.parse(dataset["at"]);
+    this.timestamps.push(ts);
     if(value<this.minvalue){this.minvalue=value;}
     if(value>this.maxvalue){this.maxvalue=value;}
     if(!(Object.isUndefined(value))){
 	this.pnts.push(value);      // puts the new point at the head /use push to add data at the end
-	this.logger.innerHTML=" "+Math.round(value*100)/100+this.unit+" at "+dataset["at"]; // prints the value
+//	this.logger.innerHTML=" "+Math.round(value*100)/100+this.unit+" at "+ts.getHour(); // prints the value
     }
 }
 

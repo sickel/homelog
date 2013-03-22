@@ -132,7 +132,7 @@ function hHR_receiveddata(response,json){ // The response function to the ajax c
     if(Object.inspect(json)){
 	charts.each(function(chart){
 	    chart.resetpnts();
-	    chart.drawstrip();
+//	    chart.drawstrip();
 	});
 	jsondata=response.responseText.evalJSON();
 	if(jsondata.error>''){
