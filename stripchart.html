@@ -13,10 +13,12 @@ $Id: header.tpl 703 2011-02-15 09:09:07Z radioecology $
 <title>Measurements</title>
 	<link rel="stylesheet" type="text/css" media="print" href="print.css">
 	<link rel="stylesheet" type="text/css" media="screen,projection" href="msi_smarty.css" charset="utf-8">
-		<!-- <script type="text/javascript" src="svg.js" data-path="."></script> -->
-		<script type="text/javascript" src="/libs/prototype.js"></script>
-		<script type="text/javascript" src="chart.js"></script>
-		<script type="text/javascript" src="stripchart.js"></script>
+	  <!-- <script type="text/javascript" src="svg.js" data-path="."></script> -->
+	  <script type="text/javascript" src="/libs/prototype.js"></script>
+	  <script src="/libs/moment.js"></script>
+<!--	  <script type="text/javascript" src="/libs/momentum.js"></script> -->
+	  <script type="text/javascript" src="chart.js"></script>
+	  <script type="text/javascript" src="stripchart.js"></script>
 	
 </head><body>
 <!--
@@ -50,7 +52,7 @@ $Id: header.tpl 703 2011-02-15 09:09:07Z radioecology $
     width="275" height="430" id="stripchart0" name="stripchart">
 <![endif]-->
  </object><br/>
-Minimum: <span id="minval"> </span> Maximum: 
+Minimum: <span id="minval"> </span> <br />Maximum: 
 <span id="maxval"> </span><br />
 Last value: <span id="logvalue0">&nbsp;</span> 
 </div>

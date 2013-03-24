@@ -22,6 +22,8 @@ function chart(svgobjid,loggerid){
     this.resetpnts=resetpnts; // resets the plot
     this.minvalue=1E18;
     this.maxvalue=-1E18;
+    this.mintime;
+    this.maxtime;
     this.createtempline=createtempline;
     this.unit="&deg;C";
     this.setvlinespacing=setvlinespacing; // Sets the spacing between vertical lines
@@ -91,7 +93,12 @@ function createtempline(temp,svg,color){
 }
 
 
-
+function datestring(ts){
+    ts=new Date(ts);
+    return(ts.getMonth()+1+'/'+ts.getDate()+' '+ts.getHours()+':'+ts.getMinutes());
+  //  return(ts.format("dddd, MMMM Do YYYY, h:mm:ss a"))
+    
+}
 
 function drawstrip(){
     var lastts=this.timestamps.slice(-1)[0];
@@ -99,8 +106,8 @@ function drawstrip(){
     var timespan=lastts-this.timestamps[0];
     var svg=$(this.id).contentDocument;
     var path=''; // a text string in which the path is constructed
-    $('maxval').innerHTML=this.maxvalue+this.unit;
-    $('minval').innerHTML=this.minvalue+this.unit;
+    $('maxval').innerHTML=this.maxvalue+this.unit+' at '+datestring(this.maxtime);
+    $('minval').innerHTML=this.minvalue+this.unit+' at '+datestring(this.mintime);
     this.logger.innerHTML=" "+Math.round(this.pnts.slice(-1)[0]*100)/100
 	+this.unit+" at "+lastdate.toLocaleTimeString();
     var valspan=this.maxvalue-this.minvalue;
@@ -187,8 +194,13 @@ function addpoint(dataset){
     var value=dataset["value"]*1; // picks out the parameter to be plotted here
     var ts=Date.parse(dataset["at"]);
     this.timestamps.push(ts);
-    if(value<this.minvalue){this.minvalue=value;}
-    if(value>this.maxvalue){this.maxvalue=value;}
+    if(value<this.minvalue){
+	this.minvalue=value;
+	this.mintime=ts;
+    }
+    if(value>this.maxvalue){
+	this.maxvalue=value;
+	this.maxtime=ts;}
     if(!(Object.isUndefined(value))){
 	this.pnts.push(value);      // puts the new point at the head /use push to add data at the end
 //	this.logger.innerHTML=" "+Math.round(value*100)/100+this.unit+" at "+ts.getHour(); // prints the value
