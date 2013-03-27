@@ -32,12 +32,37 @@ function chart(svgobjid,loggerid){
     // submarkers from one main maker to next (one included) 
     this.vlinespc=$A([[0,12,12],[2,24,12],[3,24,6],[5,24,4],[8,24,2],[10,24*2,4],[14,24*7,7]]);
     this.yscale=0;
+    this.svgobj.transpy=transpy;
+    this.svgobj.onclick=clickhandler;
+   
 }
 
 function getsvgid(){
     return(this.id);
 }
 
+function mousemove(){
+}
+
+function transpy(y){ // calculates the real value from y coordinate
+//  ycrd=this.ymove-this.pnts[i-1]*this.yscale;
+    y=y-23;
+    y=y*230/246
+    y=(y-this.ymove)/this.yscale*-1;
+    return(Math.round(y*10)/10);
+}
+
+function clickhandler(event){
+//    event=winevent(event);
+    var x = event.clientX;
+    var y = event.clientY;   
+    if (false) { // grab the x-y pos.s if browser is old IE         
+        x = event.offsetX;
+        y = event.offsetY;
+    }
+    y=this.transpy(y)
+    alert(x+','+y);
+}
 
 function setmaxvalue(newmax){
     this.factor=this.defaultmax/newmax;
@@ -124,8 +149,10 @@ function drawstrip(){
     this.logger.innerHTML=" "+Math.round(this.pnts.slice(-1)[0]*100)/100
 	+this.unit+" at "+timestring(lastdate);
     var valspan=this.maxvalue-this.minvalue;
-    var yscale=220/valspan;
-    var ymove=5+this.maxvalue*yscale;
+    this.yscale=220/valspan;
+    this.svgobj.yscale=this.yscale;
+    this.ymove=5+this.maxvalue*this.yscale;
+    this.svgobj.ymove=this.ymove;
     var hl=svg.getElementById('horizlines');
     var lf; // number of units between horizontal lines.
     if (valspan > 40){lf = 10;}
@@ -134,7 +161,7 @@ function drawstrip(){
     else {lf=1;}
     for(var i=Math.ceil(this.minvalue/lf);i<Math.ceil(this.maxvalue/lf);i++){
 	var text=svg.createElementNS("http://www.w3.org/2000/svg",'text');
-	var ycrd=ymove-i*lf*yscale;
+	var ycrd=this.ymove-i*lf*this.yscale;
 	text.appendChild(svg.createTextNode(lf*i));
 	text.setAttribute("x",-25);
 	text.setAttribute("y",ycrd+5);
@@ -155,7 +182,7 @@ function drawstrip(){
 	var i=0;
 	for (i=1;i<= this.pnts.length; i++){
 	    xcrd=Math.round((this.timestamps[i-1]-starttime)/xfact*10)/10;
-	    ycrd=ymove-this.pnts[i-1]*yscale;
+	    ycrd=this.ymove-this.pnts[i-1]*this.yscale;
 	    path=''+xcrd+","+ycrd+" "+path;
 	    // to make a horisontal rather than a vertical point, use
 	    // path+=i+","+(this.pnts[i-1])*this.factor+" ";		
