@@ -35,10 +35,10 @@ function pageonload(event){
     // sets default: Fetches data for the last week
     // TODO: use get-parameters
     var date=new Date();
-    date.setHours(0,0,0,0);
-    date.setTime(date.getTime()-8*24*3600*1000);
+    date.setHours(0,0,0,0); // from midnight
+    date.setTime(date.getTime()-7*24*3600*1000); // back one whole week
     $('from').value=formattime(date);
-    fetchData(event);
+    fetchData(event); 
 }
 
 function setparam(event){
