@@ -92,12 +92,25 @@ function createtempline(temp,svg,color){
     return line;
 }
 
+function zpad(n){
+    if (n==0){return('00');}
+    if(n<10){return('0'+n);}
+    return(n);
+}
 
 function datestring(ts){
     ts=new Date(ts);
-    return(ts.getMonth()+1+'/'+ts.getDate()+' '+ts.getHours()+':'+ts.getMinutes());
+    var hr=zpad(ts.getHours());
+    var mn=zpad(ts.getMinutes());
+    return(ts.getDate()+'/'+(ts.getMonth()+1)+' '+hr+':'+mn);
   //  return(ts.format("dddd, MMMM Do YYYY, h:mm:ss a"))
     
+}
+
+function timestring(ts){
+    var hr=zpad(ts.getHours());
+    var mn=zpad(ts.getMinutes());
+    return(hr+':'+mn);
 }
 
 function drawstrip(){
@@ -109,7 +122,7 @@ function drawstrip(){
     $('maxval').innerHTML=this.maxvalue+this.unit+' at '+datestring(this.maxtime);
     $('minval').innerHTML=this.minvalue+this.unit+' at '+datestring(this.mintime);
     this.logger.innerHTML=" "+Math.round(this.pnts.slice(-1)[0]*100)/100
-	+this.unit+" at "+lastdate.toLocaleTimeString();
+	+this.unit+" at "+timestring(lastdate);
     var valspan=this.maxvalue-this.minvalue;
     var yscale=220/valspan;
     var ymove=5+this.maxvalue*yscale;
