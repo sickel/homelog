@@ -33,6 +33,7 @@ function chart(svgobjid,loggerid){
     this.vlinespc=$A([[0,12,12],[2,24,12],[3,24,6],[5,24,4],[8,24,2],[10,24*2,4],[14,24*7,7]]);
     this.yscale=0;
     this.svgobj.transpy=transpy;
+    this.svgobj.transpx=transpx;
     this.svgobj.onclick=clickhandler;
    
 }
@@ -47,9 +48,17 @@ function mousemove(){
 function transpy(y){ // calculates the real value from y coordinate
 //  ycrd=this.ymove-this.pnts[i-1]*this.yscale;
     y=y-23;
-    y=y*230/246
+    y=y*230/250;
     y=(y-this.ymove)/this.yscale*-1;
     return(Math.round(y*10)/10);
+}
+
+function transpx(x){ 
+    x=x-45;
+    x=x/1.071;
+// xcrd=Math.round((this.timestamps[i-1]-this.starttime)/this.xfact*10)/10;
+    x=x*this.xfact+this.starttime;
+    return(x);
 }
 
 function clickhandler(event){
@@ -60,8 +69,11 @@ function clickhandler(event){
         x = event.offsetX;
         y = event.offsetY;
     }
-    y=this.transpy(y)
-    alert(x+','+y);
+    y=this.transpy(y);
+    x=this.transpx(x);
+    x=new Date(x);
+    $('mousex0').innerHTML=x+' - ';
+    $('mousey0').innerHTML=''+y+"&deg;C";
 }
 
 function setmaxvalue(newmax){
@@ -163,12 +175,14 @@ function drawstrip(){
 	line.setAttribute('stroke-width','0.3');
 	hl.appendChild(line);
     }
-    var starttime=this.timestamps[0];
-    var xfact=timespan/maxlength;
+    this.starttime=this.timestamps[0];
+    this.svgobj.starttime=this.starttime;
+    this.xfact=timespan/maxlength;
+    this.svgobj.xfact=this.xfact;
     if(this.pnts.length >0){
 	var i=0;
 	for (i=1;i<= this.pnts.length; i++){
-	    xcrd=Math.round((this.timestamps[i-1]-starttime)/xfact*10)/10;
+	    xcrd=Math.round((this.timestamps[i-1]-this.starttime)/this.xfact*10)/10;
 	    ycrd=this.ymove-this.pnts[i-1]*this.yscale;
 	    path=''+xcrd+","+ycrd+" "+path;
 	    // to make a horisontal rather than a vertical point, use
@@ -190,7 +204,7 @@ function drawstrip(){
     while(linetime<stoptime){
 	for(nstep=0;nstep<pstep;nstep++){
 	    linetime+=partstep;
-	    var xcrd=Math.round((linetime-starttime)/xfact*10)/10;
+	    var xcrd=Math.round((linetime-this.starttime)/this.xfact*10)/10;
 		if(xcrd<maxlength){
 		    if((nstep==pstep-1) ||(xcrd==0) ){
 			line=createline(xcrd,xcrd,10,-220,svg,'black');
