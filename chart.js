@@ -35,7 +35,7 @@ function chart(svgobjid,loggerid){
     this.svgobj.transpy=transpy;
     this.svgobj.transpx=transpx;
     this.svgobj.onclick=clickhandler;
-   
+	this.reportvals=$('reportval');   
 }
 
 function getsvgid(){
@@ -75,8 +75,9 @@ function clickhandler(event){
      y=this.transpy(y);
     x=this.transpx(x);
     x=new Date(x);
-    $('mousex0').innerHTML=x+' - ';
-    $('mousey0').innerHTML=''+y+"&deg;C";
+    $('reportvals').innerHTML=''+y+"&deg;C - " +x;
+/*	$('mousex0').innerHTML=x+' - ';
+    $('mousey0').innerHTML=''+y+"&deg;C";*/
 }
 
 function setmaxvalue(newmax){
@@ -279,5 +280,7 @@ function resetpnts(){
     while (g.firstChild) {
 	g.removeChild(g.firstChild);
     }
-
+    g=svg.getElementById('xbox');
+    g.setAttribute('class','invisible');
+    $('reportvals').innerHTML='';
 }
