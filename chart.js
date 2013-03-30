@@ -69,15 +69,16 @@ function clickhandler(event){
         x = event.offsetX;
         y = event.offsetY;
     }
-    var crossbox=this.getElementById('xbox');    
-    crossbox.setAttribute('class','outline');
-    crossbox.setAttribute('transform','translate('+((x-45)/1.071-5)+','+((y-23)*233/250-5)+')') 
-     y=this.transpy(y);
-    x=this.transpx(x);
-    x=new Date(x);
-    $('reportvals').innerHTML=''+y+"&deg;C - " +x;
-/*	$('mousex0').innerHTML=x+' - ';
-    $('mousey0').innerHTML=''+y+"&deg;C";*/
+//    $('p_status').innerHTML=''+x+','+y;
+    if(x>40 && x < 500 && y>25 && y<270){	 // Do not report if clicked outside the chart
+	var crossbox=this.getElementById('xbox');    
+        crossbox.setAttribute('class','outline');
+        crossbox.setAttribute('transform','translate('+((x-45)/1.071-5)+','+((y-23)*233/250-5)+')') 
+        y=this.transpy(y);
+        x=this.transpx(x);
+        x=new Date(x);
+        $('reportvals').innerHTML=''+y+"&deg;C - " +x;
+    }
 }
 
 function setmaxvalue(newmax){
