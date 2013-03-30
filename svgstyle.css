@@ -1,0 +1,74 @@
+/*
+$Id: svgstyle.css 741 2011-04-05 12:06:15Z radioecology $
+*/
+
+.style1 rect{
+	fill: #555;
+	stroke: none;
+}
+
+.style2 rect{
+	fill: #F00;
+	stroke: none;
+}
+.style3 rect{
+	fill: #AA0;
+	stroke: none;
+}
+.style4 rect{
+	fill: #0F0;
+	stroke: none;
+}
+.style5 rect{
+	fill: #0AA;
+	stroke: none;
+}
+.style6 rect{
+	fill: #00F;
+	stroke: none;
+}
+
+/*rect.invisible{
+	stroke: none;
+	fill: none;
+	color: none;	
+}*/
+
+
+rect.invisible{
+	stroke: none;
+	fill: none;
+	color: none;	
+}
+
+
+
+
+style1 rect, 
+.invisible, .invisible rect, .invisible line{
+	stroke: none;
+	fill: none;
+	color: none;	
+}
+
+.error{
+	color: #F00;
+}
+
+
+/* .ROIbox{
+	stroke: blue;
+	stroke-width:1;
+	fill:none;	
+}
+
+.outline rect, .outline line{
+	stroke:#A0A;
+	fill: none;
+}
+
+.ROIline{
+	stroke: green;
+	stroke-width:1;
+}
+*/

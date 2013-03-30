@@ -48,7 +48,7 @@ function mousemove(){
 function transpy(y){ // calculates the real value from y coordinate
 //  ycrd=this.ymove-this.pnts[i-1]*this.yscale;
     y=y-23;
-    y=y*230/250;
+    y=y*233/250;
     y=(y-this.ymove)/this.yscale*-1;
     return(Math.round(y*10)/10);
 }
@@ -69,7 +69,10 @@ function clickhandler(event){
         x = event.offsetX;
         y = event.offsetY;
     }
-    y=this.transpy(y);
+    var crossbox=this.getElementById('xbox');    
+    crossbox.setAttribute('class','outline');
+    crossbox.setAttribute('transform','translate('+((x-45)/1.071-5)+','+((y-23)*233/250-5)+')') 
+     y=this.transpy(y);
     x=this.transpx(x);
     x=new Date(x);
     $('mousex0').innerHTML=x+' - ';
