@@ -36,9 +36,7 @@ $data=split("\n",$data); // To split the header and json
 $jsondata=json_decode($data[3]); // the json string is in $data[3]
 header("X-ApiKey: $apikey");
 
-/* having more sensors, this conversion should be rewritten to have an 
-   array with the ids and make a loop over the values */
-
+/* Setting up stream names and min and max values for each sensor */
 $streams=array(
    array("NA",0,0),
    array("Inne",-80,80),
@@ -50,6 +48,7 @@ $i=0;
 $arry=array();
 foreach($streams as $st){
   if($st[1]<$st[2]){
+// TODO - check for max value
 $arry[]=sprintf('{"id":"%s", "current_value":"%.2f"}',$st[0],$jsondata->temp[$i]);
   }
 $i++;
