@@ -70,7 +70,7 @@ function clickhandler(event){
         y = event.offsetY;
     }
 //    $('p_status').innerHTML=''+x+','+y;
-    if(x>40 && x < 500 && y>25 && y<270){	 // Do not report if clicked outside the chart
+    if(x>40 && x < 496 && y>25 && y<270){	 // Do not report if clicked outside the chart
 	var crossbox=this.getElementById('xbox');    
         crossbox.setAttribute('class','outline');
         crossbox.setAttribute('transform','translate('+((x-45)/1.071-5)+','+((y-23)*233/250-5)+')') 
