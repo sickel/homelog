@@ -74,7 +74,8 @@ ul.horizmenu{
 
 #footer{
 	position: absolute;
-	bottom: 0;
+	top:450px;
+/*	bottom: 0; */
 }
 
 .errormsg{
