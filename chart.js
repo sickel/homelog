@@ -180,7 +180,8 @@ function drawstrip(){
 	var text=svg.createElementNS("http://www.w3.org/2000/svg",'text');
 	var ycrd=this.ymove-i*lf*this.yscale;
 	text.appendChild(svg.createTextNode(lf*i));
-	text.setAttribute("x",-25);
+	text.setAttribute("x",-5);
+	text.setAttribute("text-anchor","end");
 	text.setAttribute("y",ycrd+5);
 	text.setAttribute("font-size",12);
 	hl.appendChild(text);	   
