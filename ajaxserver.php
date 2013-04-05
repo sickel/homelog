@@ -24,10 +24,10 @@ try{
 $params=array($_GET['from']);
 if($_GET['stream']=='Inne-Ute'){
   $sql="select value,at from tempdiff where datetime >?";
- }elseif($_GET['stream']=='Pressure'){
+ }elseif($_GET['stream']=='Trykk'){
   $sql='select value/100 as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure where sensorid=4 and datetime>?';
- 
-  
+}elseif($_GET['stream']=='Fuktighet'){
+  $sql='select value as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure where sensorid=5 and datetime>?';
 	
 }else{
   array_unshift($params,$_GET['stream']);
