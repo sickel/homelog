@@ -19,13 +19,17 @@ try{
     exit( "<p>Cannot connect - $message</p>");
   }
 
-$sql='select temp as "value",to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from temp_stream where name=? and datetime>?';
+  $sql='select temp as "value",to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from temp_stream where name=? and datetime>?';
 
 $params=array($_GET['from']);
 if($_GET['stream']=='Inne-Ute'){
   $sql="select value,at from tempdiff where datetime >?";
+ }elseif($_GET['stream']=='Pressure'){
+  $sql='select value/100 as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure where sensorid=4 and datetime>?';
+ 
+  
+	
 }else{
-
   array_unshift($params,$_GET['stream']);
 }
 if($_GET['to']*1>1){
