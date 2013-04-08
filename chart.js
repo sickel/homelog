@@ -26,6 +26,7 @@ function chart(svgobjid,loggerid){
     this.maxtime;
     this.createtempline=createtempline;
     this.unit="&deg;C";
+    this.setunit=setunit;
     this.setvlinespacing=setvlinespacing; // Sets the spacing between vertical lines
     // i.e time markers
     // max time (in days), days between main markers, 
@@ -43,6 +44,10 @@ function getsvgid(){
 }
 
 function mousemove(){
+}
+
+function setunit(unit){
+    this.unit=unit;
 }
 
 function transpy(y){ // calculates the real value from y coordinate
@@ -224,15 +229,15 @@ function drawstrip(){
 	for(nstep=0;nstep<pstep;nstep++){
 	    linetime+=partstep;
 	    var xcrd=Math.round((linetime-this.starttime)/this.xfact*10)/10;
-		if(xcrd<maxlength){
+		if(xcrd > 0 && xcrd<maxlength){ // Only want lines within the plotting area...
 		    if((nstep==pstep-1) ||(xcrd==0) ){
 			line=createline(xcrd,xcrd,10,-220,svg,'black');
 			var text=svg.createElementNS("http://www.w3.org/2000/svg",'text');
 			var d=new Date(linetime);
 			// text.appendChild(svg.createTextNode(''+(d.getYear()+1900)+'/'+(d.getMonth()+1)+'/'+(d.getDate()+1)));
-			text.appendChild(svg.createTextNode(''+(d.getMonth()+1)+'/'+
-							    (d.getDate())));
-			text.setAttribute("x",xcrd-12);
+			text.appendChild(svg.createTextNode(''+d.getDate()+'/'+(d.getMonth()+1)));
+			text.setAttribute("text-anchor","middle");
+			text.setAttribute("x",xcrd);
 			text.setAttribute("y",25);
 			text.setAttribute("font-size",12);
 			g.appendChild(text);
