@@ -30,7 +30,8 @@ if($_GET['stream']=='Inne-Ute'){
   $sql='select value/100+12*0.45 as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure where sensorid=4 and datetime>?';
 }elseif($_GET['stream']=='Fuktighet'){
   $sql='select value as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure where sensorid=5 and datetime>?';
-	
+}elseif($_GET['stream']=='Forbruk'){
+  $sql='select kwh/hours as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from powerdraw where datetime >?';	
 }else{
   array_unshift($params,$_GET['stream']);
 }
