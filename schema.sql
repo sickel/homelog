@@ -78,6 +78,41 @@ ALTER SEQUENCE measure_id_seq OWNED BY measure.id;
 
 
 --
+-- Name: powerreading; Type: TABLE; Schema: public; Owner: morten; Tablespace: 
+--
+
+CREATE TABLE powerreading (
+    id integer NOT NULL,
+    datetime timestamp with time zone,
+    reading integer,
+    read boolean DEFAULT true
+);
+
+
+ALTER TABLE public.powerreading OWNER TO morten;
+
+--
+-- Name: powerreading_id_seq; Type: SEQUENCE; Schema: public; Owner: morten
+--
+
+CREATE SEQUENCE powerreading_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.powerreading_id_seq OWNER TO morten;
+
+--
+-- Name: powerreading_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: morten
+--
+
+ALTER SEQUENCE powerreading_id_seq OWNED BY powerreading.id;
+
+
+--
 -- Name: sensor; Type: TABLE; Schema: public; Owner: morten; Tablespace: 
 --
 
@@ -213,6 +248,13 @@ ALTER TABLE ONLY measure ALTER COLUMN id SET DEFAULT nextval('measure_id_seq'::r
 -- Name: id; Type: DEFAULT; Schema: public; Owner: morten
 --
 
+ALTER TABLE ONLY powerreading ALTER COLUMN id SET DEFAULT nextval('powerreading_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: morten
+--
+
 ALTER TABLE ONLY sensor ALTER COLUMN id SET DEFAULT nextval('sensor_id_seq'::regclass);
 
 
@@ -236,6 +278,14 @@ ALTER TABLE ONLY type ALTER COLUMN id SET DEFAULT nextval('type_id_seq'::regclas
 
 ALTER TABLE ONLY measure
     ADD CONSTRAINT measure_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: powerreading_pkey; Type: CONSTRAINT; Schema: public; Owner: morten; Tablespace: 
+--
+
+ALTER TABLE ONLY powerreading
+    ADD CONSTRAINT powerreading_pkey PRIMARY KEY (id);
 
 
 --
