@@ -9,7 +9,40 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 SET escape_string_warning = off;
 
+--
+-- Name: plpgsql; Type: PROCEDURAL LANGUAGE; Schema: -; Owner: morten
+--
+
+CREATE PROCEDURAL LANGUAGE plpgsql;
+
+
+ALTER PROCEDURAL LANGUAGE plpgsql OWNER TO morten;
+
 SET search_path = public, pg_catalog;
+
+--
+-- Name: addreading(integer); Type: FUNCTION; Schema: public; Owner: morten
+--
+
+CREATE FUNCTION addreading(integer) RETURNS timestamp with time zone
+    LANGUAGE plpgsql
+    AS $_$
+declare
+kwh integer :=$1;
+ts timestamp:='now';
+mx integer;
+begin
+select into mx max(reading) from powerreading;
+while (kwh < mx)
+loop
+kwh:=kwh+100000;
+end loop;
+insert into powerreading (datetime,reading) values(ts,kwh);
+return ts;
+end;$_$;
+
+
+ALTER FUNCTION public.addreading(integer) OWNER TO morten;
 
 --
 -- Name: round_sec(timestamp without time zone); Type: FUNCTION; Schema: public; Owner: morten
@@ -96,7 +129,7 @@ ALTER TABLE public.powerreading OWNER TO morten;
 --
 
 CREATE VIEW powerdraw AS
-    SELECT powerreading.id, powerreading.datetime AS "to", lag(powerreading.datetime) OVER (ORDER BY powerreading.id) AS "from", (powerreading.reading - lag(powerreading.reading) OVER (ORDER BY powerreading.id)) AS kwh, (date_part('epoch'::text, (powerreading.datetime - lag(powerreading.datetime) OVER (ORDER BY powerreading.id))) / (3600)::double precision) AS hours FROM powerreading;
+    SELECT powerreading.id, powerreading.datetime, lag(powerreading.datetime) OVER (ORDER BY powerreading.id) AS starttime, (powerreading.reading - lag(powerreading.reading) OVER (ORDER BY powerreading.id)) AS kwh, (date_part('epoch'::text, (powerreading.datetime - lag(powerreading.datetime) OVER (ORDER BY powerreading.id))) / (3600)::double precision) AS hours FROM powerreading;
 
 
 ALTER TABLE public.powerdraw OWNER TO morten;
