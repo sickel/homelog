@@ -92,6 +92,16 @@ CREATE TABLE powerreading (
 ALTER TABLE public.powerreading OWNER TO morten;
 
 --
+-- Name: powerdraw; Type: VIEW; Schema: public; Owner: morten
+--
+
+CREATE VIEW powerdraw AS
+    SELECT powerreading.id, powerreading.datetime AS "to", lag(powerreading.datetime) OVER (ORDER BY powerreading.id) AS "from", (powerreading.reading - lag(powerreading.reading) OVER (ORDER BY powerreading.id)) AS kwh, (date_part('epoch'::text, (powerreading.datetime - lag(powerreading.datetime) OVER (ORDER BY powerreading.id))) / (3600)::double precision) AS hours FROM powerreading;
+
+
+ALTER TABLE public.powerdraw OWNER TO morten;
+
+--
 -- Name: powerreading_id_seq; Type: SEQUENCE; Schema: public; Owner: morten
 --
 
