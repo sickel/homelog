@@ -4,7 +4,7 @@ $dbtype='pgsql';
 include('dbconn.php');
 // sets the values username, server, database and password
 
-
+$unit="&deg;C";
 try{
     $connectstring=$dbtype.':host='.$server.';dbname='.$database;
     $dbh = new PDO($connectstring, $username, $password);
@@ -26,6 +26,8 @@ if($_GET['stream']=='Inne-Ute'){
   $sql="select value,at from tempdiff where datetime >?";
  }elseif($_GET['stream']=='Trykk'){
   $sql='select value/100 as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure where sensorid=4 and datetime>?';
+}elseif($_GET['stream']=='Trykk - 0m'){
+  $sql='select value/100+12*0.45 as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure where sensorid=4 and datetime>?';
 }elseif($_GET['stream']=='Fuktighet'){
   $sql='select value as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure where sensorid=5 and datetime>?';
 	
@@ -50,6 +52,6 @@ if($_GET['type']=='svg'){
 	print('{
   	"datapoints":');
 	print(json_encode($data));
-	print('}');
+	print(",\"unit\":\"$unit\"}");
 }
 ?>
