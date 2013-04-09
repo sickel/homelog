@@ -130,10 +130,6 @@ function fetchData(event){ // This is called by the periodical executer
 
 function hHR_receiveddata(response,json){ // The response function to the ajax call
     if(Object.inspect(json)){
-	charts.each(function(chart){
-	    chart.resetpnts();
-//	    chart.drawstrip();
-	});
 	jsondata=response.responseText.evalJSON();
 	if(jsondata.error>''){
 	    $('error').innerHTML=jsondata.error;
@@ -143,6 +139,11 @@ function hHR_receiveddata(response,json){ // The response function to the ajax c
 	    $('log').innerHTML=dataset.size();
 	    datasetsize=dataset.size();
 	}
+	charts.each(function(chart){
+	    chart.resetpnts();
+//	    chart.drawstrip();
+	    chart.setunit(jsondata.unit);
+	});
 	/* TODO - check out how to add options...
 	   var paramid=$('paramchoose1');
 	   if(paramid.options.length<2){  // sets new parameters to choose for the strip charts

@@ -36,6 +36,7 @@ function chart(svgobjid,loggerid){
     this.svgobj.transpy=transpy;
     this.svgobj.transpx=transpx;
     this.svgobj.onclick=clickhandler;
+    this.svgobj.unit=this.unit;
 	this.reportvals=$('reportval');   
 }
 
@@ -48,6 +49,7 @@ function mousemove(){
 
 function setunit(unit){
     this.unit=unit;
+    this.svgobj.unit=unit;
 }
 
 function transpy(y){ // calculates the real value from y coordinate
@@ -82,7 +84,7 @@ function clickhandler(event){
         y=this.transpy(y);
         x=this.transpx(x);
         x=new Date(x);
-        $('reportvals').innerHTML=''+y+"&deg;C - " +x;
+        $('reportvals').innerHTML=''+y+this.unit+" "+x;
     }
 }
 
