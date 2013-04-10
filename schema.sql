@@ -117,7 +117,7 @@ ALTER SEQUENCE measure_id_seq OWNED BY measure.id;
 CREATE TABLE powerreading (
     id integer NOT NULL,
     datetime timestamp with time zone,
-    reading integer,
+    reading double precision,
     read boolean DEFAULT true
 );
 
