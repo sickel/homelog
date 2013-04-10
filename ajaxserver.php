@@ -35,7 +35,7 @@ if($_GET['stream']=='Inne-Ute'){
   $sql='select value as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure where sensorid=5 and datetime>?';
   $unit="%";
 }elseif($_GET['stream']=='Forbruk'){
-  $sql='select kwh/hours as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from powerdraw where datetime >?';	
+  $sql='select round(100*kwh/hours)/100 as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from powerdraw where datetime >?';	
   $unit='kW';
 }else{
   array_unshift($params,$_GET['stream']);
