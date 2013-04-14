@@ -42,18 +42,18 @@ function pageonload(event){
 }
 
 function setparam(event){
-    var target=event.element();
+  /*  var target=event.element();
     //alert(target.value);
  //   var chartid=target.parentNode.next('object').id;
     var targetchart;
     charts.each(function(chart){
 	// must find the right object to work on
-	if(chart.getsvgid()==chartid){
+//	if(chart.getsvgid()==chartid){
 			targetchart=chart;
 	}
-    });
-    targetchart.setparameter(target.value);
-    
+    }); 
+  //  targetchart.setparameter(target.value);
+    */
 }
 
 function setmax(event){
