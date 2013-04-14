@@ -34,6 +34,18 @@ if($_GET['stream']=='Inne-Ute'){
 }elseif($_GET['stream']=='Fuktighet'){
   $sql='select value as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure where sensorid=5 and datetime>?';
   $unit="%";
+}elseif($_GET['stream']=='Fuktighet DHT22'){
+  $sql='select value as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure where sensorid=9 and datetime>?';
+  $unit="%";
+}elseif($_GET['stream']=='Temp DHT22'){
+  $sql='select value as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure where sensorid=8 and datetime>?';
+  $unit="&degC";
+}elseif($_GET['stream']=='Temp DHT11'){
+  $sql='select value as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure where sensorid=6 and datetime>?';
+  $unit="&degC";
+}elseif($_GET['stream']=='Temp BHP085'){
+  $sql='select value as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure where sensorid=3 and datetime>?';
+  $unit="&degC";
 }elseif($_GET['stream']=='Forbruk'){
   $sql='select round(100*kwh/hours)/100 as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from powerdraw where datetime >?';	
   $unit='kW';
@@ -55,6 +67,11 @@ if($_GET['type']=='svg'){
 // for future use
 }else{
 // return json
+   if($_GET['DEBUG']){
+	$data['debug']['sql']=$sql;
+	$data['debug']['name']=$_GET['stream'];
+	$data['debug']['from']=$_GET['from'];
+}	
 	print('{
   	"datapoints":');
 	print(json_encode($data));
