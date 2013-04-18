@@ -35,7 +35,7 @@ if($read>0 && $read < 100000){
     exit($message);
   }
 }else{print("
-<html><head></head><body><form><input name='kwh'/><input type='submit'/></form>
+<html><head></head><body><form method=\"post\"><input name='kwh'/><input type='submit'/></form>
 </body></html>");
 }
 
