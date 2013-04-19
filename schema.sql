@@ -21,28 +21,74 @@ ALTER PROCEDURAL LANGUAGE plpgsql OWNER TO morten;
 SET search_path = public, pg_catalog;
 
 --
--- Name: addreading(integer); Type: FUNCTION; Schema: public; Owner: morten
+-- Name: addmeasure(double precision, integer); Type: FUNCTION; Schema: public; Owner: morten
 --
 
-CREATE FUNCTION addreading(integer) RETURNS timestamp with time zone
+CREATE FUNCTION addmeasure(double precision, integer) RETURNS integer
+    LANGUAGE plpgsql
+    AS $_$ declare
+sval float:=$1;
+sid integer:=$2;
+mx float;
+mn float;
+
+begin
+select minvalue,maxvalue into mn,mx from sensor where id=$2;
+insert into measure(sensorid,value,use) values(sid,sval,mn<sval and mx >sval);
+return 0;
+end;
+$_$;
+
+
+ALTER FUNCTION public.addmeasure(double precision, integer) OWNER TO morten;
+
+--
+-- Name: addreading(numeric); Type: FUNCTION; Schema: public; Owner: morten
+--
+
+CREATE FUNCTION addreading(numeric) RETURNS timestamp with time zone
     LANGUAGE plpgsql
     AS $_$
 declare
-kwh integer :=$1;
+kwh numeric :=$1;
 ts timestamp:='now';
-mx integer;
+mx numeric;
 begin
 select into mx max(reading) from powerreading;
 while (kwh < mx)
 loop
 kwh:=kwh+100000;
 end loop;
-insert into powerreading (datetime,reading) values(ts,kwh);
+insert into powerreading (datetime,reading,read) values(ts,kwh,false);
 return ts;
 end;$_$;
 
 
-ALTER FUNCTION public.addreading(integer) OWNER TO morten;
+ALTER FUNCTION public.addreading(numeric) OWNER TO morten;
+
+--
+-- Name: powerreading(); Type: FUNCTION; Schema: public; Owner: morten
+--
+
+CREATE FUNCTION powerreading() RETURNS timestamp without time zone
+    LANGUAGE plpgsql
+    AS $_$
+declare kwh numeric := $1;
+ts timestamp:='now';
+mx numeric;                                                   
+begin                                                         
+select into mx max(reading) from powerreading;                
+while (kwh < mx)                                              
+loop                                                          
+kwh:=kwh+100000;                                              
+ end loop;                                                     
+insert into powerreading (datetime,reading) values(ts,kwh);   
+                                  return ts;                                                    
+ end;                                                          
+$_$;
+
+
+ALTER FUNCTION public.powerreading() OWNER TO morten;
 
 --
 -- Name: round_sec(timestamp without time zone); Type: FUNCTION; Schema: public; Owner: morten
@@ -83,7 +129,8 @@ CREATE TABLE measure (
     sensorid integer,
     typeid integer,
     value double precision,
-    datetime timestamp with time zone DEFAULT now()
+    datetime timestamp with time zone DEFAULT now(),
+    use boolean DEFAULT true
 );
 
 
@@ -109,6 +156,16 @@ ALTER TABLE public.measure_id_seq OWNER TO morten;
 
 ALTER SEQUENCE measure_id_seq OWNED BY measure.id;
 
+
+--
+-- Name: measure_qa; Type: VIEW; Schema: public; Owner: morten
+--
+
+CREATE VIEW measure_qa AS
+    SELECT measure.id, measure.sensorid, measure.typeid, measure.value, measure.datetime, measure.use FROM measure WHERE (measure.use = true);
+
+
+ALTER TABLE public.measure_qa OWNER TO morten;
 
 --
 -- Name: powerreading; Type: TABLE; Schema: public; Owner: morten; Tablespace: 
@@ -163,7 +220,11 @@ CREATE TABLE sensor (
     id integer NOT NULL,
     name character varying(255) NOT NULL,
     sensoraddr character varying(255) NOT NULL,
-    type character varying
+    type character varying,
+    minvalue double precision,
+    maxvalue double precision,
+    maxdelta double precision,
+    typeid integer
 );
 
 
