@@ -20,8 +20,7 @@
 $url="http://192.168.0.177/json";
 $database='wdb';
 $dbserver='localhost';
-$username='';
-$password='';
+include('dbconn.php');
 $dbtype='pgsql';
 try{
     $connectstring=$dbtype.':host='.$dbserver.';dbname='.$database;
@@ -55,7 +54,8 @@ if (!$fp) {
 }
 $data=split("\n",$data);
 $jsondata=json_decode($data[3]);
-$sql="insert into temps(temp,sensoraddr)values(?,?)";
+# $sql="insert into temps(temp,sensoraddr)values(?,?)";
+$sql="select addmeasure(?,(select id::integer from sensor where sensoraddr=?))";
 $sh=$dbh->prepare($sql);
 for($i=0;$i<count($jsondata->temp);$i++){
 	$sh->execute(array($jsondata->temp[$i],$jsondata->address[$i]));
