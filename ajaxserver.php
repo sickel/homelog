@@ -19,13 +19,24 @@ try{
     exit( "<p>Cannot connect - $message</p>");
   }
 
-#  $sql='select temp as "value",to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from temp_stream where name=? and datetime>?';
- $sql='select value, to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure_qa where sensorid=? and datetime>?';
+$sql='select value, to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure_qa where sensorid=? and datetime>?';
 $params=array($_GET['from']);
-if($_GET['stream']=='Inne'){
-   array_unshift($params,2);
-}elseif($_GET['stream']=='Ute'){
-   array_unshift($params,1);
+$sensors=array('Inne'=>2,
+	       'Ute'=>1,
+	       'Ute - skygge'=>10,
+	       'Fuktighet'=>5,
+	       'Fuktighet DHT22'=>9,
+	       'Temp DHT22'=>8,
+	       'Temp DHT11'=>6,
+	       'Temp BHP085'=>3);
+$sensorid=$sensors{$_GET['stream']};
+
+if($sensorid){  
+  $unitq=$dbh->prepare('select unit from sensors where id=?');
+  $unitq->execute(array($sensorid));
+  $unit=$unitq->fetchAll(PDO::FETCH_ASSOC);
+  $unit=$unit[0]['unit'];
+  array_unshift($params,$sensorid);
 }
 if($_GET['stream']=='Inne-Ute'){
   $sql="select value,at from tempdiff where datetime >?";
@@ -36,27 +47,10 @@ if($_GET['stream']=='Inne-Ute'){
 }elseif($_GET['stream']=='Trykk - 0m'){
   $sql='select value/100+12*0.45 as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure_qa where sensorid=4 and datetime>?';
   $unit='hPa';
-}elseif($_GET['stream']=='Fuktighet'){
-  $sql='select value as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure_qa where sensorid=5 and datetime>?';
-  $unit="%";
-}elseif($_GET['stream']=='Fuktighet DHT22'){
-  $sql='select value as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure_qa where sensorid=9 and datetime>?';
-  $unit="%";
-}elseif($_GET['stream']=='Temp DHT22'){
-  $sql='select value as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure_qa where sensorid=8 and datetime>?';
-  $unit="&degC";
-}elseif($_GET['stream']=='Temp DHT11'){
-  $sql='select value as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure_qa where sensorid=6 and datetime>?';
-  $unit="&degC";
-}elseif($_GET['stream']=='Temp BHP085'){
-  $sql='select value as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure_qa where sensorid=3 and datetime>?';
-  $unit="&degC";
 }elseif($_GET['stream']=='Forbruk'){
   $sql='select round(100*kwh/hours)/100 as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from powerdraw where datetime >?';	
   $unit='kW';
-}#else{
- # array_unshift($params,$_GET['stream']);
-#}
+}
 if($_GET['to']*1>1){
 	$params[]=$_GET['to'];
 	$sql.=' and datetime < ?';
