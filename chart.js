@@ -179,10 +179,14 @@ function drawstrip(){
     this.svgobj.ymove=this.ymove;
     var hl=svg.getElementById('horizlines');
     var lf; // number of units between horizontal lines.
+    var spanoom=Math.ceil(Math.log(valspan)/Math.log(10))-2;
+    var spanfact=Math.pow(10,spanoom);
+    valspan=valspan/spanfact;
     if (valspan > 40){lf = 10;}
     else if(valspan > 20){lf = 5;}
     else if(valspan > 10){lf = 2;}
     else {lf=1;}
+    lf=lf*spanfact;
     for(var i=Math.ceil(this.minvalue/lf);i<Math.ceil(this.maxvalue/lf);i++){
 	var text=svg.createElementNS("http://www.w3.org/2000/svg",'text');
 	var ycrd=this.ymove-i*lf*this.yscale;
