@@ -28,7 +28,8 @@ $sensors=array('Inne'=>2,
 	       'Fuktighet DHT22'=>9,
 	       'Temp DHT22'=>8,
 	       'Temp DHT11'=>6,
-	       'Temp BHP085'=>3);
+	       'Temp BHP085'=>3,
+	       'Inne - test'=>11);
 $sensorid=$sensors{$_GET['stream']};
 
 if($sensorid){  
