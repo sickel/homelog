@@ -34,15 +34,18 @@ try{
     $message=$e->getMessage(); 
     exit( "<p>Cannot connect - $message</p>");
   }
-//cleansession();
 
 $server="192.168.0.177";
 
-$fp = fsockopen($server, 80, $errno, $errstr, 30);
-$data='';
-if (!$fp) {
+$sql="select addmeasure(?,(select id::integer from sensor where sensoraddr=?))";
+$sh=$dbh->prepare($sql);
+
+while(true){
+  $fp = fsockopen($server, 80, $errno, $errstr, 30);
+  $data='';
+  if (!$fp) {
     echo "$errstr ($errno)<br />\n";
-} else {
+  } else {
     $out = "GET /json HTTP/1.1\r\n";
     $out .= "Host: $server\r\n";
     $out .= "Connection: Close\r\n\r\n";
@@ -51,14 +54,14 @@ if (!$fp) {
         $data .= fgets($fp, 128);
     }
     fclose($fp);
-}
-$data=split("\n",$data);
-$jsondata=json_decode($data[3]);
-# $sql="insert into temps(temp,sensoraddr)values(?,?)";
-$sql="select addmeasure(?,(select id::integer from sensor where sensoraddr=?))";
-$sh=$dbh->prepare($sql);
-for($i=0;$i<count($jsondata->temp);$i++){
-	$sh->execute(array($jsondata->temp[$i],$jsondata->address[$i]));
+  }
+  $data=split("\n",$data);
+  $jsondata=json_decode($data[3]);
+  # $sql="insert into temps(temp,sensoraddr)values(?,?)";
+  for($i=0;$i<count($jsondata->temp);$i++){
+    $sh->execute(array($jsondata->temp[$i],$jsondata->address[$i]));
+  }
+  sleep(60*15-3); // Waits approx 15 minutes for next reading
 }
 
 ?>
