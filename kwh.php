@@ -23,7 +23,7 @@ try{
     exit( "<p>Cannot connect - $message</p>");
   }
 
-$read=$_GET['kwh']*1;
+$read=$_POST['kwh']*1;
 if($read>0 && $read < 100000){
 	   print($read);
   try{
