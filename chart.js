@@ -190,7 +190,11 @@ function drawstrip(){
     for(var i=Math.ceil(this.minvalue/lf);i<Math.ceil(this.maxvalue/lf);i++){
 	var text=svg.createElementNS("http://www.w3.org/2000/svg",'text');
 	var ycrd=this.ymove-i*lf*this.yscale;
-	text.appendChild(svg.createTextNode(lf*i));
+	var label=lf*i;
+	if(spanoom < 0){
+	    label=label.toFixed(-1*spanoom);
+	}
+	text.appendChild(svg.createTextNode(label));
 	text.setAttribute("x",-5);
 	text.setAttribute("text-anchor","end");
 	text.setAttribute("y",ycrd+5);
