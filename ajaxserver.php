@@ -43,6 +43,8 @@ if($_GET['stream']=='Inne-Ute'){
   $sql="select value,at from tempdiff where datetime >?";
  }elseif($_GET['stream']=='Soloppvarming'){
   $sql="select value,at from tempdiff_sol where datetime >?";
+ }elseif($_GET['stream']=='Skygge'){
+  $sql="select value,at from shadow where datetime >?";
  }elseif($_GET['stream']=='Trykk'){
   $sql='select value/100 as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure_qa where sensorid=4 and datetime>?';
 //  TODO fetch units from database
