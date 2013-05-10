@@ -1,3 +1,4 @@
+<html><head><title>kwh-registration</title></head><body>
 <?php
 
 /*
@@ -25,7 +26,9 @@ try{
 
 $read=$_POST['kwh']*1;
 if($read>0 && $read < 100000){
-	   print($read);
+  print($read);
+  print("<br /><a href=\"index.html\">back</a>");
+  
   try{
     $sqlh=$dbh->prepare("select addreading(?)");
     $sqlh->execute(array($read));
@@ -35,9 +38,9 @@ if($read>0 && $read < 100000){
     exit($message);
   }
 }else{print("
-<html><head></head><body><form method=\"post\"><input name='kwh'/><input type='submit'/></form>
-</body></html>");
+<form method=\"post\"><input name='kwh'/><input type='submit'/></form>
+");
 }
 
 ?>
-
+</body></html>
