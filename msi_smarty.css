@@ -45,6 +45,9 @@ body { height: 100%}
 	border: 2px outset;
 }
 
+
+
+
 #filinfo li .header{ 
 	display: inline-block;
 	font-weight: bold;
@@ -161,3 +164,6 @@ label {
 .newfile{
 	background-color: #aaa ;
 }
+
+#spinner{ 
+          visibility: hidden;  }

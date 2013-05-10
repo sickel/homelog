@@ -114,7 +114,8 @@ function btstartstrip(event){
 
 var prevsent; // the dataset id it was asked for last time
 
-function fetchData(event){ // This is called by the periodical executer
+function fetchData(event){ // This may be called by a periodical executer
+    $('spinner').style.visibility="visible";
     param=$H({ // All these values are dependent on the backend server...
 	a: 'tempdata'
 	,stream: $('paramchoose0').value
@@ -168,4 +169,6 @@ function hHR_receiveddata(response,json){ // The response function to the ajax c
     }else{
 	$('p_status').innerHTML="no JSON object";
     }
+    $('spinner').style.visibility="hidden";
+
 }
