@@ -77,7 +77,7 @@ ul.horizmenu{
 
 #footer{
 	position: absolute;
-	top:450px;
+	top:500px;
 /*	bottom: 0; */
 }
 
@@ -166,4 +166,7 @@ label {
 }
 
 #spinner{ 
-          visibility: hidden;  }
+	position: absolute;
+	top:250px;
+          left:180px;
+visibility: hidden;  }
