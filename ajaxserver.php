@@ -21,6 +21,7 @@ try{
 
 $sql='select value, to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure_qa where sensorid=? and datetime>?';
 $params=array($_GET['from']);
+define('SERIES_SOUTHAVG','southavg');
 $sensors=array('Inne'=>2,
 	       'Ute'=>1,
 	       'Ute - skygge'=>10,
@@ -29,7 +30,10 @@ $sensors=array('Inne'=>2,
 	       'Temp DHT22'=>8,
 	       'Temp DHT11'=>6,
 	       'Temp BHP085'=>3,
-	       'Inne - test'=>11);
+	       'Inne - test'=>11,
+	       'southavg'=>1,
+	       'Forbruk'=>13
+	       );
 $sensorid=$sensors{$_GET['stream']};
 
 if($sensorid){  
@@ -47,14 +51,17 @@ if($_GET['stream']=='Inne-Ute'){
   $sql="select value,at from shadow where datetime >?";
  }elseif($_GET['stream']=='Trykk'){
   $sql='select value/100 as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure_qa where sensorid=4 and datetime>?';
-//  TODO fetch units from database
-  $unit='hPa';
+ array_shift($params);
+//  TODO fetch units from database - problem: rescaling...
+ $unit='hPa';
 }elseif($_GET['stream']=='Trykk - 0m'){
   $sql='select value/100+12*0.45 as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure_qa where sensorid=4 and datetime>?';
   $unit='hPa';
 }elseif($_GET['stream']=='Forbruk'){
   $sql='select round(100*kwh/hours)/100 as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from powerdraw where datetime >?';	
-  $unit='kW';
+  array_shift($params);  // Throws off the sensorid as that is of no use here
+}elseif($_GET['stream']=='southavg'){
+  $sql='select value, to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from  daymean where sensorid=? and datetime >?';	
 }
 if($_GET['to']*1>1){
 	$params[]=$_GET['to'];
