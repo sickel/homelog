@@ -51,7 +51,7 @@ if($_GET['stream']=='Inne-Ute'){
   $sql="select value,at from shadow where datetime >?";
  }elseif($_GET['stream']=='Trykk'){
   $sql='select value/100 as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure_qa where sensorid=4 and datetime>?';
- array_shift($params);
+  // array_shift($params);
 //  TODO fetch units from database - problem: rescaling...
  $unit='hPa';
 }elseif($_GET['stream']=='Trykk - 0m'){
