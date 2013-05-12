@@ -31,7 +31,7 @@ function chart(svgobjid,loggerid){
     // i.e time markers
     // max time (in days), days between main markers, 
     // submarkers from one main maker to next (one included) 
-    this.vlinespc=$A([[0,12,12],[2,24,12],[3,24,6],[5,24,4],[8,24,2],[10,24*2,4],[14,24*7,7]]);
+    this.vlinespc=$A([[0,12,12],[2,24,12],[3,24,6],[5,24,4],[8,24,2],[10,24*2,4],[14,24*7,7],[60,24*7,7]]);
     this.yscale=0;
     this.svgobj.transpy=transpy;
     this.svgobj.transpx=transpx;
@@ -105,6 +105,12 @@ function setvlinespacing(span){
 	    pstep=sps[2];
 	}
     }); 
+    var last=this.vlinespc[this.vlinespc.length-1];
+    if(last[1]==hstep){ // We have used the last element
+	var fact=span/(last[0]*24*3600*1000);
+	hstep=Math.round(fact*last[1]);
+	// pstep should be unchanged
+    }
     return {hstep:hstep,
 	    pstep:pstep};
    
@@ -244,7 +250,7 @@ function drawstrip(){
 			line=createline(xcrd,xcrd,10,-220,svg,'black');
 			var text=svg.createElementNS("http://www.w3.org/2000/svg",'text');
 			var d=new Date(linetime);
-			// text.appendChild(svg.createTextNode(''+(d.getYear()+1900)+'/'+(d.getMonth()+1)+'/'+(d.getDate()+1)));
+		//	   text.appendChild(svg.createTextNode(''+(d.getYear()+1900)+'/'+(d.getMonth()+1)+'/'+(d.getDate()+1)));
 			text.appendChild(svg.createTextNode(''+d.getDate()+'/'+(d.getMonth()+1)));
 			text.setAttribute("text-anchor","middle");
 			text.setAttribute("x",xcrd);
@@ -252,6 +258,16 @@ function drawstrip(){
 			text.setAttribute("font-size",12);
 			g.appendChild(text);
 			line.setAttribute('stroke-width','1');
+			if(timespan > 365*24*3600*1000){ // one year
+			    var text=svg.createElementNS("http://www.w3.org/2000/svg",'text');
+			    
+			    text.appendChild(svg.createTextNode(''+(d.getYear()+1900)));
+			    text.setAttribute("text-anchor","middle");
+			    text.setAttribute("x",xcrd);
+			    text.setAttribute("y",25+15);
+			    text.setAttribute("font-size",12);
+			    g.appendChild(text); 
+			}
 		    }else{
 			line=createline(xcrd,xcrd,10,-220,svg,'grey');
 			line.setAttribute('stroke-width','0.5');
