@@ -71,7 +71,6 @@ if($_GET['a']=='tempdata'){
     $unit='hPa';
   }elseif($_GET['stream']=='Forbruk'){
     $sql='select round(100*kwh/hours)/100 as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from powerdraw where datetime >?';	
-    array_shift($params);  // Throws off the sensorid as that is of no use here
   }elseif($_GET['stream']=='Sørvegg - døgnsnitt'){
     $sql='select value, to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from  daymean where sensorid=? and datetime >?';	
   }
@@ -94,8 +93,8 @@ if($_GET['a']=='tempdata'){
     $data['params']=$params;
   }	
   print(json_encode($data));
+}else{
+  print(json_encode(array('error'=>'missing a-parameter')));
+  exit("\n");
 }
-print(json_encode(array('error'=>'missing a-parameter')));
-exit("\n");
-
 ?>
