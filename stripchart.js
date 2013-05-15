@@ -28,18 +28,30 @@ function formattime(date){
 function pageonload(event){
 //    $('btLoad').onclick=fetchdata;
     Event.observe($('btLoad'),'click',fetchData);
+    Event.observe($('btLastWeek'),'click',loadtimespan);
     svginit(event);
     $$('.paramchooser').each(function(chooser){
 	Event.observe(chooser,'change',setparam);
     });
     // sets default: Fetches data for the last week
     // TODO: use get-parameters
+    settimespan(event);
+    fetchData(event); 
+}
+
+function loadtimespan(event){
+    settimespan(event);
+    fetchData(event);
+}
+
+function settimespan(event){
     var date=new Date();
     date.setHours(0,0,0,0); // from midnight
     date.setTime(date.getTime()-7*24*3600*1000); // back one whole week
     $('from').value=formattime(date);
-    fetchData(event); 
+    $('to').value='';
 }
+
 
 function setparam(event){
   /*  var target=event.element();
@@ -117,7 +129,7 @@ var prevsent; // the dataset id it was asked for last time
 function fetchData(event){ // This may be called by a periodical executer
     $('spinner').style.visibility="visible";
     param=$H({ // All these values are dependent on the backend server...
-	a: 'tempdata'
+ 	a: 'tempdata'
 	,stream: $('paramchoose0').value
 	,from: $('from').value
 	,to: $('to').value

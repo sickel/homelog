@@ -11,11 +11,11 @@ $Id: header.tpl 703 2011-02-15 09:09:07Z radioecology $
 <meta name="createdby" content="Morten A. Kolberg Sickel">
 
 <title>Measurements</title>
-<link rel="stylesheet" href="handheld.css" media="max-device width:480px"/>
+<link rel="stylesheet" type="text/css" media="screen,projection,handheld and (min-device width:801px)" href="msi_smarty.css" charset="utf-8">
+<link rel="stylesheet" type="text/css" media="screen and (min-resolution:250)" href="handheld.css" charset="utf-8"/> 
+   <!-- min-resolution:250 -->
 <link rel="stylesheet" type="text/css" media="print" href="print.css"> 
-<link rel="stylesheet" type="text/css" media="screen,projection and (min-device width:480px)" href="msi_smarty.css" charset="utf-8">
-<!--
-<link rel="stylesheet" href="handheld.css" type="text/css" media="handheld,screen" /> -->
+<!-- <link rel="stylesheet" href="handheld.css" type="text/css" media="handheld,screen" /> -->
 
 <!-- <script type="text/javascript" src="svg.js" data-path="."></script> -->
 	  <script type="text/javascript" src="/libs/prototype.js"></script>
@@ -35,7 +35,7 @@ $Id: header.tpl 703 2011-02-15 09:09:07Z radioecology $
 
 <label for="from">From</label><input value="2013-02-20 00:00:00" id="from"><br />
 <label for="from">To</label><input id="to"><br />
-<button id="btLoad">Load Data</button><br />
+<button id="btLoad">Load Data</button><button id="btLastWeek">Last Week</button><br />
 <div id="stripdiv0" class="stripchartdiv">
 
 <select class="paramchooser" id="paramchoose0" name="paramchoose0">
