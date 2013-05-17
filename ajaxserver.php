@@ -23,7 +23,7 @@ $sensors=array('Inne'=>2,
 	       'Trykk'=>0,
 	       'Trykk - 0m'=>0,
 	       'Forbruk'=>0,
-	       'Sørvegg - døgnsnitt'=>0
+	       'Sørvegg - døgnsnitt'=>1
 	       );
 if($_GET['a']=='sensorlist'){
   print(listsensors($sensors));
@@ -79,9 +79,9 @@ if($_GET['a']=='tempdata'){
 	$sql.=' and datetime <= ?';
   }
   $sql.=' order by datetime';
-  // print($sql);
+  //print($sql);
+  //print_r($params);	
   $sqh=$dbh->prepare($sql);
-  # print_r($params);	
   $sqh->execute($params);
   $data=$sqh->fetchAll(PDO::FETCH_ASSOC);
   $data=array('datapoints'=>$data);
