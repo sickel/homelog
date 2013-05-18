@@ -1,5 +1,8 @@
 <?php
 
+class jsonException extends Exception
+{}
+
 function listsensors($sensors){
   $s=array_keys($sensors);
   $s=array('sensors'=>$s);
@@ -25,11 +28,21 @@ $sensors=array('Inne'=>2,
 	       'Forbruk'=>0,
 	       'Sørvegg - døgnsnitt'=>1
 	       );
+
+
+try{
+if(!(isset($_GET['a']))){
+  throw new jsonException("missing a a-parameter");
+}
+
 if($_GET['a']=='sensorlist'){
   print(listsensors($sensors));
   exit("\n");
 }
 if($_GET['a']=='tempdata'){
+  if(!(isset($_GET['stream']))){
+    throw new jsonException("missing stream-parameter");
+  }
   $stepline=false;
   $sensorid=$sensors{$_GET['stream']};	
   $dbtype='pgsql';
@@ -95,15 +108,21 @@ if($_GET['a']=='tempdata'){
   $data=array('datapoints'=>$data);
   $data['unit']=$unit;
   $data['stepline']=$stepline;
-  if($_GET['DEBUG']){
+  if(isset($_GET['DEBUG']) && $_GET['DEBUG']){
     $data['debug']['sql']=$sql;
     $data['debug']['name']=$_GET['stream'];
     $data['debug']['from']=$_GET['from'];
     $data['params']=$params;
   }	
   print(json_encode($data));
-}else{
-  print(json_encode(array('error'=>'missing a-parameter')));
-  exit("\n");
+  exit();
+}
+throw new jsonException("Unknown action :${_GET['a']}");
+}
+catch(jsonException $e){
+  echo(json_encode(array('error'=>$e->getMessage())));
+}
+catch(Exception $e){
+  echo($e->getMessage());
 }
 ?>
