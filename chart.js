@@ -33,12 +33,19 @@ function chart(svgobjid,loggerid){
     // submarkers from one main maker to next (one included) 
     this.vlinespc=$A([[0,12,12],[2,24,12],[3,24,6],[5,24,4],[8,24,2],[10,24*2,4],[14,24*7,7],[60,24*7,7]]);
     this.yscale=0;
+    this.stepline=false;
     this.svgobj.transpy=transpy;
     this.svgobj.transpx=transpx;
     this.svgobj.onclick=clickhandler;
     this.svgobj.unit=this.unit;
 	this.reportvals=$('reportval');   
+    this.setstepline=setstepline;
 }
+
+function setstepline(type){
+    this.stepline=type;
+}
+
 
 function getsvgid(){
     return(this.id);
@@ -220,10 +227,17 @@ function drawstrip(){
     this.xfact=timespan/maxlength;
     this.svgobj.xfact=this.xfact;
     if(this.pnts.length >0){
+	var lastx;
 	var i=0;
 	for (i=1;i<= this.pnts.length; i++){
 	    xcrd=Math.round((this.timestamps[i-1]-this.starttime)/this.xfact*10)/10;
 	    ycrd=this.ymove-this.pnts[i-1]*this.yscale;
+	    if(this.stepline){
+		if(i>1){
+		    path=''+lastx+","+ycrd+" "+path;
+		}
+		lastx=xcrd;
+	    }
 	    path=''+xcrd+","+ycrd+" "+path;
 	    // to make a horisontal rather than a vertical point, use
 	    // path+=i+","+(this.pnts[i-1])*this.factor+" ";		
