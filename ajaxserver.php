@@ -56,8 +56,8 @@ if($_GET['a']=='tempdata'){
     }
   }
   catch(PDOException $e){
+    header('HTTP/1.1 500 Internal Server Error');
     $message=$e->getMessage(); 
-// TODO add on a header to signal error
     exit( "<p>Cannot connect - $message</p>");
   }
   $sql='select value, to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure_qa where sensorid=? and datetime>?';
