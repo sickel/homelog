@@ -173,6 +173,7 @@ function hHR_receiveddata(response,json){ // The response function to the ajax c
 	    chart.resetpnts();
 //	    chart.drawstrip();
 	    chart.setunit(jsondata.unit);
+	    chart.setstepline(jsondata.stepline);
 	});
 	/* TODO - check out how to add options...
 	   var paramid=$('paramchoose1');
