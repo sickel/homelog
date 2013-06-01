@@ -29,6 +29,8 @@ function pageonload(event){
 //    $('btLoad').onclick=fetchdata;
     Event.observe($('btLoad'),'click',fetchData);
     Event.observe($('btLastWeek'),'click',loadtimespan);
+    Event.observe($('btLastMonth'),'click',loadtimespan);
+    Event.observe($('btLastYear'),'click',loadtimespan);
     svginit(event);
     $$('.paramchooser').each(function(chooser){
 	Event.observe(chooser,'change',setparam);
@@ -46,8 +48,16 @@ function loadtimespan(event){
 
 function settimespan(event){
     var date=new Date();
+    var ndays=7;
+    if (event.target.id=="btLastMonth"){
+      ndays=30;
+    }
+    if(event.target.id==="btLastYear"){
+     // correct for leap year...
+      ndays=365;
+    }
     date.setHours(0,0,0,0); // from midnight
-    date.setTime(date.getTime()-7*24*3600*1000); // back one whole week
+    date.setTime(date.getTime()-ndays*24*3600*1000); // back ndays days
     $('from').value=formattime(date);
     $('to').value='';
 }
