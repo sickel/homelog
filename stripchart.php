@@ -55,6 +55,8 @@ $Id: header.tpl 703 2011-02-15 09:09:07Z radioecology $
       <option label="Soloppvarming" value="Soloppvarming">Soloppvarming</option>
       <option label="Skygge" value="Skygge">Skygge</option>
       <option label="Sørvegg - dagsnitt" value="Sørvegg - døgnsnitt">Sørvegg - dagsnitt</option>
+      <option label="Sørvegg - dagmin" value="Sørvegg - døgnmin">Sørvegg - dagmin</option>
+      <option label="Sørvegg - dagmax" value="Sørvegg - døgnmax">Sørvegg - dagmax</option>
       
 	
 </select>
