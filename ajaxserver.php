@@ -1,5 +1,8 @@
 <?php
 
+class jsonException extends Exception
+{}
+
 function listsensors($sensors){
   $s=array_keys($sensors);
   $s=array('sensors'=>$s);
@@ -23,13 +26,26 @@ $sensors=array('Inne'=>2,
 	       'Trykk'=>0,
 	       'Trykk - 0m'=>0,
 	       'Forbruk'=>0,
-	       'Sørvegg - døgnsnitt'=>0
+	       'Sørvegg - døgnsnitt'=>1,
+	       'Sørvegg - døgnmin'=>1,
+	       'Sørvegg - døgnmax'=>1
 	       );
+
+
+try{
+if(!(isset($_GET['a']))){
+  throw new jsonException("missing a a-parameter");
+}
+
 if($_GET['a']=='sensorlist'){
   print(listsensors($sensors));
   exit("\n");
 }
 if($_GET['a']=='tempdata'){
+  if(!(isset($_GET['stream']))){
+    throw new jsonException("missing stream-parameter");
+  }
+  $stepline=false;
   $sensorid=$sensors{$_GET['stream']};	
   $dbtype='pgsql';
   include('dbconn.php'); // sets the values username, server, database and password
@@ -42,8 +58,8 @@ if($_GET['a']=='tempdata'){
     }
   }
   catch(PDOException $e){
+    header('HTTP/1.1 500 Internal Server Error');
     $message=$e->getMessage(); 
-// TODO add on a header to signal error
     exit( "<p>Cannot connect - $message</p>");
   }
   $sql='select value, to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure_qa where sensorid=? and datetime>?';
@@ -57,10 +73,13 @@ if($_GET['a']=='tempdata'){
   }
   if($_GET['stream']=='Inne-Ute'){
     $sql="select value,at from tempdiff where datetime >?";
+    $unit="&deg;C";
   }elseif($_GET['stream']=='Soloppvarming'){
     $sql="select value,at from tempdiff_sol where datetime >?";
+    $unit="&deg;C";
   }elseif($_GET['stream']=='Skygge'){
     $sql="select value,at from shadow where datetime >?";
+    $unit="&deg;C";
   }elseif($_GET['stream']=='Trykk'){
     $sql='select value/100 as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure_qa where sensorid=4 and datetime>?';
     // array_shift($params);
@@ -70,31 +89,50 @@ if($_GET['a']=='tempdata'){
     $sql='select value/100+12*0.45 as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure_qa where sensorid=4 and datetime>?';
     $unit='hPa';
   }elseif($_GET['stream']=='Forbruk'){
-    $sql='select round(100*kwh/hours)/100 as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from powerdraw where datetime >?';	
+    $sql='select round(100*kwh/hours)/100 as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from powerdraw where datetime >?';
+    $stepline=true;
+    $unit="kW";
   }elseif($_GET['stream']=='Sørvegg - døgnsnitt'){
     $sql='select value, to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from  daymean where sensorid=? and datetime >?';	
+    $unit="&deg;C";
+    $stepline=true;
+  }elseif($_GET['stream']=='Sørvegg - døgnmin'){
+    $sql='select value, to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from  daymin where sensorid=? and datetime >?';	
+    $unit="&deg;C";
+    $stepline=true;
+  }elseif($_GET['stream']=='Sørvegg - døgnmax'){
+    $sql='select value, to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from  daymax where sensorid=? and datetime >?';	
+    $unit="&deg;C";
+    $stepline=true;
   }
   if($_GET['to']*1>1){
 	$params[]=$_GET['to'];
 	$sql.=' and datetime <= ?';
   }
   $sql.=' order by datetime';
-  // print($sql);
+  //print($sql);
+  //print_r($params);	
   $sqh=$dbh->prepare($sql);
-  # print_r($params);	
   $sqh->execute($params);
   $data=$sqh->fetchAll(PDO::FETCH_ASSOC);
   $data=array('datapoints'=>$data);
   $data['unit']=$unit;
-  if($_GET['DEBUG']){
+  $data['stepline']=$stepline;
+  if(isset($_GET['DEBUG']) && $_GET['DEBUG']){
     $data['debug']['sql']=$sql;
     $data['debug']['name']=$_GET['stream'];
     $data['debug']['from']=$_GET['from'];
     $data['params']=$params;
   }	
   print(json_encode($data));
-}else{
-  print(json_encode(array('error'=>'missing a-parameter')));
-  exit("\n");
+  exit();
+}
+throw new jsonException("Unknown action :${_GET['a']}");
+}
+catch(jsonException $e){
+  echo(json_encode(array('error'=>$e->getMessage())));
+}
+catch(Exception $e){
+  echo($e->getMessage());
 }
 ?>

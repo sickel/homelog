@@ -32,12 +32,12 @@ $Id: header.tpl 703 2011-02-15 09:09:07Z radioecology $
 
 -->
 <div id="main">
-
-<label for="from">From</label><input value="2013-02-20 00:00:00" id="from"><br />
-<label for="from">To</label><input id="to"><br />
+<label for="from">To</label><input id="to">
+<button id="btLoad">Show</button><br />
    <button id="btBack">&lt;-</button>
-   <button id="btLoad">Load Data</button><button id="btLastWeek">Last Week</button>   <button id="btForward">-&gt;</button>
-<br />
+<button id="btLastWeek">Last Week</button><button id="btLastMonth">Last Month</button><button id="btLastYear">Last Year</button>
+   <button id="btForward">-&gt;</button>
+<br /><br />
 <div id="stripdiv0" class="stripchartdiv">
 
 <select class="paramchooser" id="paramchoose0" name="paramchoose0">
@@ -56,7 +56,9 @@ $Id: header.tpl 703 2011-02-15 09:09:07Z radioecology $
       <option label="Inne - test" value="Inne - test">Inne (test)</option>
       <option label="Soloppvarming" value="Soloppvarming">Soloppvarming</option>
       <option label="Skygge" value="Skygge">Skygge</option>
-      <option label="Sørvegg - dagsnitt" value="southavg">Sørvegg - dagsnitt</option>
+      <option label="Sørvegg - dagsnitt" value="Sørvegg - døgnsnitt">Sørvegg - dagsnitt</option>
+      <option label="Sørvegg - dagmin" value="Sørvegg - døgnmin">Sørvegg - dagmin</option>
+      <option label="Sørvegg - dagmax" value="Sørvegg - døgnmax">Sørvegg - dagmax</option>
       
 	
 </select>
