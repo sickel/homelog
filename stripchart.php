@@ -32,7 +32,8 @@ $Id: header.tpl 703 2011-02-15 09:09:07Z radioecology $
 
 -->
 <div id="main">
-<label for="from">To</label><input id="to">
+<label for="from">From</label><input value="2013-02-20 00:00:00" id="from"><br />
+<label for="to">To</label><input id="to">
 <button id="btLoad">Show</button><br />
    <button id="btBack">&lt;-</button>
 <button id="btLastWeek">Last Week</button><button id="btLastMonth">Last Month</button><button id="btLastYear">Last Year</button>
