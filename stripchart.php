@@ -35,7 +35,9 @@ $Id: header.tpl 703 2011-02-15 09:09:07Z radioecology $
 
 <label for="from">From</label><input value="2013-02-20 00:00:00" id="from"><br />
 <label for="from">To</label><input id="to"><br />
-<button id="btLoad">Load Data</button><button id="btLastWeek">Last Week</button><br />
+   <button id="btBack">&lt;-</button>
+   <button id="btLoad">Load Data</button><button id="btLastWeek">Last Week</button>   <button id="btForward">-&gt;</button>
+<br />
 <div id="stripdiv0" class="stripchartdiv">
 
 <select class="paramchooser" id="paramchoose0" name="paramchoose0">

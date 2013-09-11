@@ -29,6 +29,9 @@ function pageonload(event){
 //    $('btLoad').onclick=fetchdata;
     Event.observe($('btLoad'),'click',fetchData);
     Event.observe($('btLastWeek'),'click',loadtimespan);
+    Event.observe($('btBack'),'click',pagetime);
+    Event.observe($('btForward'),'click',pagetime);
+
     svginit(event);
     $$('.paramchooser').each(function(chooser){
 	Event.observe(chooser,'change',setparam);
@@ -51,6 +54,20 @@ function settimespan(event){
     $('from').value=formattime(date);
     $('to').value='';
 }
+
+function pagetime(event){
+    var target=event.element();
+    var id=target.id;
+    var timespan;
+    if( $('to').value==''){
+	var currenttime=new Date($('from').value.split(" ").join("T"));
+	timespan=Date.now()-currenttime.getTime();
+    }else{
+	timespan=Date($('to').value.split(" ").join("T"))-Date($('from').value.split(" ").join("T"));
+    }
+    alert('paging ('+id+') '+timespan);
+}
+
 
 
 function setparam(event){
