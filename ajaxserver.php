@@ -26,7 +26,9 @@ $sensors=array('Inne'=>2,
 	       'Trykk'=>0,
 	       'Trykk - 0m'=>0,
 	       'Forbruk'=>0,
-	       'Sørvegg - døgnsnitt'=>1
+	       'Sørvegg - døgnsnitt'=>1,
+	       'Sørvegg - døgnmin'=>1,
+	       'Sørvegg - døgnmax'=>1
 	       );
 
 
@@ -92,6 +94,14 @@ if($_GET['a']=='tempdata'){
     $unit="kW";
   }elseif($_GET['stream']=='Sørvegg - døgnsnitt'){
     $sql='select value, to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from  daymean where sensorid=? and datetime >?';	
+    $unit="&deg;C";
+    $stepline=true;
+  }elseif($_GET['stream']=='Sørvegg - døgnmin'){
+    $sql='select value, to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from  daymin where sensorid=? and datetime >?';	
+    $unit="&deg;C";
+    $stepline=true;
+  }elseif($_GET['stream']=='Sørvegg - døgnmax'){
+    $sql='select value, to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from  daymax where sensorid=? and datetime >?';	
     $unit="&deg;C";
     $stepline=true;
   }
