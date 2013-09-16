@@ -27,7 +27,7 @@ try{
 $read=$_POST['kwh']*1;
 if($read>0 && $read < 100000){
   print($read);
-  print("<br /><a href=\"stripchart.php\">back</a>");
+  print("<br /><a href=\"stripchart.php?selected=Forbruk\">back</a>");
   
   try{
     $sqlh=$dbh->prepare("select addreading(?)");

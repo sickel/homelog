@@ -4,7 +4,6 @@
 
 <!--
 ååå   // to force utf8
-$Id: header.tpl 703 2011-02-15 09:09:07Z radioecology $
 -->
 
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -42,29 +41,34 @@ $Id: header.tpl 703 2011-02-15 09:09:07Z radioecology $
 <button id="btLastYear">Last Year</button>
 <button id="btForward">-&gt;</button><br />
 <div id="stripdiv0" class="stripchartdiv">
-
 <select class="paramchooser" id="paramchoose0" name="paramchoose0">
-	<option label="Inne" value="Inne">Inne</option>
-	<option selected="selected" label="Ute" value="Ute">Ute - sørvegg</option>
-	<option label="Ute - skygge" value="Ute - skygge">Ute - østvegg</option>
-	<option label="Inne-Ute" value="Inne-Ute">Inne-Ute</option>
-      <option label="Trykk" value="Trykk">Trykk</option>
-      <option label="Trykk - 0m" value="Trykk - 0m">Trykk - 0m</option>
-      <option label="Fuktighet" value="Fuktighet">Fuktighet</option>
-      <option label="Fuktighet DHT22" value="Fuktighet DHT22">Fuktighet DHT22</option>
-      <option label="Temp DHT22" value="Temp DHT22">Temp DHT22</option>
-      <option label="Temp DHT11" value="Temp DHT11">Temp DHT11</option>
-      <option label="Temp BHP085" value="Temp BHP085">Temp BHP085</option>
-      <option label="Forbruk" value="Forbruk">Forbruk</option>
-      <option label="Inne - test" value="Inne - test">Inne (test)</option>
-      <option label="Soloppvarming" value="Soloppvarming">Soloppvarming</option>
-      <option label="Skygge" value="Skygge">Skygge</option>
-      <option label="Sørvegg - dagsnitt" value="Sørvegg - døgnsnitt">Sørvegg - dagsnitt</option>
-      <option label="Sørvegg - dagmin" value="Sørvegg - døgnmin">Sørvegg - dagmin</option>
-      <option label="Sørvegg - dagmax" value="Sørvegg - døgnmax">Sørvegg - dagmax</option>
-      
-	
-</select>
+<?php
+   $selected=$_GET['selected']?$_GET['selected']:"Ute";
+$params=array("Inne"=>"Inne",
+		 "Ute"=>"Ute - sørvegg",
+		 "Ute - skygge"=>"Ute - østvegg",
+		 "Inne-Ute"=>"Inne-Ute",
+		 "Trykk"=>"Trykk",
+		 "Trykk - 0m"=>"Trykk - 0m",
+		 "Fuktighet" =>"Fuktighet",
+		 "Fuktighet DHT22" =>"Fuktighet DHT22",
+		 "Temp DHT22" =>"Temp DHT22",
+		 "Temp DHT11" =>"Temp DHT11",
+		 "Temp BHP085" =>"Temp BHP085",
+		 "Forbruk" =>"Forbruk",
+		 "Inne - test" =>"Inne - test",
+		 "Soloppvarming" =>"Soloppvarming",
+		 "Skygge" =>"Skygge",
+		 "Sørvegg - dagsnitt" =>"Sørvegg - døgnsnitt",
+		 "Sørvegg - dagmin" =>"Sørvegg - døgnmin",
+		 "Sørvegg - dagmax" =>"Sørvegg - døgnmax");
+     foreach($params as $k=>$v){
+       print("<option ");
+       if($k==$selected){print 'selected="selected" ';}
+       printf('label="%s" value="%s" >%s</option>',$k,$k,$v);
+       print("\n");
+     }
+?></select>
 <img id="spinner" src="ajax-bar.gif" />
 <span id="reportvals"></span><span id="mousex0" ></span>&nbsp;<span id="mousey0" ></span><br />
 <!--[if !IE]>-->
@@ -87,7 +91,5 @@ Last value: <span id="logvalue0">&nbsp;</span>
 <div id="footer">
 <p><a href="http://sickel.net/blogg/?p=1506">Information</a> and <a href="https://github.com/sickel/homelog">source code</a></p>
 <p> <span id="log"> </span> <span id="error" class="errormsg"> </span><span id="p_status"> </span></p>
-<hr>
-<ul class="horizmenu">
-</ul></div>
-</body></html>
+<hr><ul class="horizmenu">
+</ul></div></body></html>
