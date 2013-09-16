@@ -59,13 +59,13 @@ $params=array("Inne"=>"Inne",
 		 "Inne - test" =>"Inne - test",
 		 "Soloppvarming" =>"Soloppvarming",
 		 "Skygge" =>"Skygge",
-		 "Sørvegg - dagsnitt" =>"Sørvegg - døgnsnitt",
+		 "Sørvegg - døgnsnitt" =>"Sørvegg - døgnsnitt",
 		 "Sørvegg - dagmin" =>"Sørvegg - døgnmin",
 		 "Sørvegg - dagmax" =>"Sørvegg - døgnmax");
      foreach($params as $k=>$v){
        print("<option ");
        if($k==$selected){print 'selected="selected" ';}
-       printf('label="%s" value="%s" >%s</option>',$k,$k,$v);
+       printf('label="%s" value="%s" >%s</option>',$v,$k,$v);
        print("\n");
      }
 ?></select>
