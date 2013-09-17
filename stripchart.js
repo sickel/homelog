@@ -39,7 +39,9 @@ function pageonload(event){
     });
     // sets default: Fetches data for the last week
     // TODO: use get-parameters
-    settimespan(event);
+    if($('from').value==''){
+	settimespan(event);
+   }
     fetchData(event); 
 }
 

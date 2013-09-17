@@ -31,8 +31,17 @@
 
 -->
 <div id="main">
-<label for="from">From</label><input value="2013-02-20 00:00:00" id="from"><br />
-<label for="to">To</label><input id="to">
+<?php
+   $fromvalue=$_GET['from'];
+// Must parse the values to make sure they are valid dates
+$tst=date_parse($fromvalue);
+if($tst['error_count']){$fromvalue='';}
+$tovalue=$_GET['to'];
+$tst=date_parse($tovalue);
+if($tst['error_count']){$tovalue='';}
+printf('<label for="from">From</label><input value="%s" id="from"><br />
+<label for="to">To</label><input id="to" value="%s">',$fromvalue,$tovalue);
+?>
    <button id="btLoad">Load Data</button>
 <br />
 <button id="btBack">&lt;-</button>
@@ -60,7 +69,7 @@ $params=array("Inne"=>"Inne",
 		 "Soloppvarming" =>"Soloppvarming",
 		 "Skygge" =>"Skygge",
 		 "Sørvegg - døgnsnitt" =>"Sørvegg - døgnsnitt",
-		 "Sørvegg - dagmin" =>"Sørvegg - døgnmin",
+		 "Sørvegg - døgnmin" =>"Sørvegg - døgnmin",
 		 "Sørvegg - dagmax" =>"Sørvegg - døgnmax");
      foreach($params as $k=>$v){
        print("<option ");
