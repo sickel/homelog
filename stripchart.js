@@ -64,17 +64,39 @@ function settimespan(event){
     $('to').value='';
 }
 
+function stringtodate(string){
+    var elems=string.split(/[\s:-]/);
+    var strtime = new Date(elems[0],elems[1]-1,elems[2],elems[3],elems[4],elems[5]);
+    return(strtime);
+}
+    
+
+
 function pagetime(event){
     var target=event.element();
     var id=target.id;
     var timespan;
+    var totime;
+    var fromtime=stringtodate($('from').value);
     if( $('to').value==''){
-	var currenttime=new Date($('from').value.split(" ").join("T"));
-	timespan=Date.now()-currenttime.getTime();
+	totime=new Date();
     }else{
-	timespan=Date($('to').value.split(" ").join("T"))-Date($('from').value.split(" ").join("T"));
+	totime=stringtodate($('to').value);
     }
-    alert('paging ('+id+') '+timespan);
+    timespan=totime.getTime()-fromtime.getTime();
+    if (id=="btBack"){
+	$('to').value=$('from').value;
+	fromtime.setTime(fromtime.getTime()-timespan);
+	$('from').value=formattime(fromtime);
+    }else{
+	if(stringtodate($('to').value).getTime()<Date.now()){
+	    $('from').value=$('to').value;
+	    totime.setTime(totime.getTime()+timespan);
+	    $('to').value=formattime(totime);
+	}
+	// Should not allow times entirely in the future...
+    }
+    fetchData(event);
 }
 
 
