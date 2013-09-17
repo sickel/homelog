@@ -45,9 +45,11 @@ printf('<label for="from">From</label><input value="%s" id="from"><br />
    <button id="btLoad">Load Data</button>
 <br />
 <button id="btBack">&lt;-</button>
+<button id="bt2xBack">2x</button>
 <button id="btLastWeek">Last Week</button>
 <button id="btLastMonth">Last Month</button>
 <button id="btLastYear">Last Year</button>
+<button id="bt2xForward">2x</button>
 <button id="btForward">-&gt;</button><br />
 <div id="stripdiv0" class="stripchartdiv">
 <select class="paramchooser" id="paramchoose0" name="paramchoose0">

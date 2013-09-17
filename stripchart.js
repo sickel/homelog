@@ -20,6 +20,8 @@ var n=0;              // counts number of datasets fetched in the present file
 var charts=new Array();  // array to hold the chart objects
 var calid=0;          // used by the server
 var stream="Ute";
+var prevfrom= new Date();
+var prevto=new Date();
 
 function formattime(date){
     return(''+(date.getYear()+1900)+'-'+(date.getMonth()+1)+'-'+date.getDate()+' 00:00:00');
@@ -31,6 +33,8 @@ function pageonload(event){
     Event.observe($('btLastWeek'),'click',loadtimespan);
     Event.observe($('btBack'),'click',pagetime);
     Event.observe($('btForward'),'click',pagetime);
+    Event.observe($('bt2xBack'),'click',pagetime);
+    Event.observe($('bt2xForward'),'click',pagetime);
     Event.observe($('btLastMonth'),'click',loadtimespan);
     Event.observe($('btLastYear'),'click',loadtimespan);
     svginit(event);
@@ -54,6 +58,8 @@ function settimespan(event){
     var date=new Date();
     var ndays=7;
     if (event.target.id=="btLastMonth"){
+	// Change to go one month back...
+	// Subtract on the month value
       ndays=30;
     }
     if(event.target.id==="btLastYear"){
@@ -71,9 +77,10 @@ function stringtodate(string){
     var strtime = new Date(elems[0],elems[1]-1,elems[2],elems[3],elems[4],elems[5]);
     return(strtime);
 }
-    
 
 
+function savetimes()
+    {}
 function pagetime(event){
     var target=event.element();
     var id=target.id;
@@ -90,13 +97,21 @@ function pagetime(event){
 	$('to').value=$('from').value;
 	fromtime.setTime(fromtime.getTime()-timespan);
 	$('from').value=formattime(fromtime);
-    }else{
+    }else if (id=="btForward"){
 	if(stringtodate($('to').value).getTime()<Date.now()){
 	    $('from').value=$('to').value;
 	    totime.setTime(totime.getTime()+timespan);
 	    $('to').value=formattime(totime);
 	}
 	// Should not allow times entirely in the future...
+    }else if (id=="bt2xBack"){
+	fromtime.setTime(totime.getTime()-2*timespan);
+	$('from').value=formattime(fromtime);
+    }else if (id=="bt2xForward"){
+	if(stringtodate($('to').value).getTime()<Date.now()){
+	    totime.setTime(fromtime.getTime()+2*timespan);
+	    $('to').value=formattime(totime);
+	}
     }
     fetchData(event);
 }
