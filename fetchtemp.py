@@ -1,7 +1,8 @@
 #!/usr/bin/python
 
 """
- Fetching json data  - storing them in a postgres database 
+ Fetching json data from a networked resource 
+ - storing them in a postgres database 
 
 	Data source, e.g. an arduino temperature logger
 
@@ -39,7 +40,6 @@ handler = logging.handlers.SysLogHandler(address = '/dev/log')
 my_logger.addHandler(handler)
 my_logger.debug(appname+': Starting up ')
 
-
 config = ConfigParser.RawConfigParser()
 config.read('/etc/homedata/fetchtemp.cfg')
 
@@ -76,9 +76,12 @@ except:
 
 url=config.get('server','url')
 # nosleep=false
+sql="select addmeasure(%s,(select id::integer from sensor where sensoraddr=%s))";
 
 while 1:
-  nosleep=False
+  nosleep=False 
+# When nosleep is true, an error has occured so the data are lost, a new
+# attempt to fetch the data will be done shortly (shortsleep secs) after.
   my_logger.debug(appname+": Fetching data from "+url)
   try:
       f = urllib.urlopen(url)
@@ -86,24 +89,19 @@ while 1:
   except:
       my_logger.error(appname+"Could not fetch data from"+url)
       nosleep=True
-# print jsondata
-# print jsondata['temp']
-# print jsondata['temp'][2]
-
-
-# sql="insert into temps(temp,sensoraddr)values(%s,%s)";
-  sql="select addmeasure(%s,(select id::integer from sensor where sensoraddr=%s))";
-  for(i,val) in enumerate(jsondata['temp']):
-      try:
-          cur.execute(sql,(val,jsondata['address'][i]))
-      except:
-          my_logger.error(appname+": error 92 :"+str(sys.exc_info()))
-  try:
-      conn.commit()
-  except:
-      my_logger.error(appname+": error 96 :"+str(sys.exc_info()))
-  my_logger.debug(appname+": Finished storing")
   if(nosleep):
       time.sleep(shortsleep)
   else:
+
+      for(i,val) in enumerate(jsondata['temp']):
+        try:
+           cur.execute(sql,(val,jsondata['address'][i]))
+        except:
+           my_logger.error(appname+": error 92 :"+str(sys.exc_info()))
+      try:
+        conn.commit()
+      except:
+        my_logger.error(appname+": error 96 :"+str(sys.exc_info()))
+        nosleep=True
+        my_logger.debug(appname+": Finished storing")
       time.sleep(sleeptime)
