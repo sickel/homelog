@@ -198,7 +198,9 @@ function fetchData(event){ // This may be called by a periodical executer
 	,stream: $('paramchoose0').value
 	,from: $('from').value
 	,to: $('to').value
+        ,fool_ie: Math.random()
     });
+    // simplest way to stop internet explorer from caching
     ajax=new Ajax.Request(url,
 			  {method:'get',
 			   parameters: param.toQueryString(),
