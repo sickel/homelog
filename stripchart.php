@@ -93,7 +93,7 @@ $params=array("Inne"=>"Inne",
   <object data="stripchart.svg" type="image/svg+xml" class="svg"
     width="275" height="430" id="stripchart0" name="stripchart">
 <![endif]-->
- </object><br/>
+ </object><a href="http://www.yr.no/sted/Norge/Akershus/Frogn/Dr%C3%B8bak/time_for_time_detaljert.html" target="yr"><img src="http://www.yr.no/sted/Norge/Akershus/Frogn/Ullerud/avansert_meteogram.png" /></a><br/>
 Minimum: <span id="minval"> </span> <br />Maximum: 
 <span id="maxval"> </span><br />
 Last value: <span id="logvalue0">&nbsp;</span> 
