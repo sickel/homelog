@@ -141,34 +141,44 @@ CREATE TABLE measure (
 ALTER TABLE public.measure OWNER TO morten;
 
 --
--- Name: daymax; Type: VIEW; Schema: public; Owner: postgres
+-- Name: measure_qa; Type: VIEW; Schema: public; Owner: morten
+--
+
+CREATE VIEW measure_qa AS
+    SELECT measure.id, measure.sensorid, measure.typeid, measure.value, measure.datetime, measure.use FROM measure WHERE (measure.use = true);
+
+
+ALTER TABLE public.measure_qa OWNER TO morten;
+
+--
+-- Name: daymax; Type: VIEW; Schema: public; Owner: morten
 --
 
 CREATE VIEW daymax AS
-    SELECT max(measure.value) AS value, (measure.datetime)::date AS datetime, measure.sensorid FROM measure GROUP BY (measure.datetime)::date, measure.sensorid;
+    SELECT max(measure.value) AS value, (measure.datetime)::date AS datetime, measure.sensorid FROM measure_qa measure GROUP BY (measure.datetime)::date, measure.sensorid;
 
 
-ALTER TABLE public.daymax OWNER TO postgres;
+ALTER TABLE public.daymax OWNER TO morten;
 
 --
--- Name: daymean; Type: VIEW; Schema: public; Owner: postgres
+-- Name: daymean; Type: VIEW; Schema: public; Owner: morten
 --
 
 CREATE VIEW daymean AS
-    SELECT avg(measure.value) AS value, (measure.datetime)::date AS datetime, measure.sensorid FROM measure GROUP BY (measure.datetime)::date, measure.sensorid;
+    SELECT (round(((100)::double precision * avg(measure.value))) / (100)::double precision) AS value, (measure.datetime)::date AS datetime, measure.sensorid FROM measure_qa measure GROUP BY (measure.datetime)::date, measure.sensorid;
 
 
-ALTER TABLE public.daymean OWNER TO postgres;
+ALTER TABLE public.daymean OWNER TO morten;
 
 --
--- Name: daymin; Type: VIEW; Schema: public; Owner: postgres
+-- Name: daymin; Type: VIEW; Schema: public; Owner: morten
 --
 
 CREATE VIEW daymin AS
-    SELECT min(measure.value) AS value, (measure.datetime)::date AS datetime, measure.sensorid FROM measure GROUP BY (measure.datetime)::date, measure.sensorid;
+    SELECT min(measure.value) AS value, (measure.datetime)::date AS datetime, measure.sensorid FROM measure_qa measure GROUP BY (measure.datetime)::date, measure.sensorid;
 
 
-ALTER TABLE public.daymin OWNER TO postgres;
+ALTER TABLE public.daymin OWNER TO morten;
 
 --
 -- Name: measure_id_seq; Type: SEQUENCE; Schema: public; Owner: morten
@@ -190,16 +200,6 @@ ALTER TABLE public.measure_id_seq OWNER TO morten;
 
 ALTER SEQUENCE measure_id_seq OWNED BY measure.id;
 
-
---
--- Name: measure_qa; Type: VIEW; Schema: public; Owner: morten
---
-
-CREATE VIEW measure_qa AS
-    SELECT measure.id, measure.sensorid, measure.typeid, measure.value, measure.datetime, measure.use FROM measure WHERE (measure.use = true);
-
-
-ALTER TABLE public.measure_qa OWNER TO morten;
 
 --
 -- Name: powerreading; Type: TABLE; Schema: public; Owner: morten; Tablespace: 
@@ -258,7 +258,8 @@ CREATE TABLE sensor (
     minvalue double precision,
     maxvalue double precision,
     maxdelta double precision,
-    typeid integer
+    typeid integer,
+    active boolean DEFAULT true
 );
 
 
@@ -526,6 +527,34 @@ CREATE INDEX idx_temps_sensoraddr ON temps USING btree (sensoraddr);
 --
 
 CREATE INDEX idx_temps_termid ON temps USING btree (termid);
+
+
+--
+-- Name: measure_datetime_idx; Type: INDEX; Schema: public; Owner: morten; Tablespace: 
+--
+
+CREATE INDEX measure_datetime_idx ON measure USING btree (datetime);
+
+
+--
+-- Name: measure_sensorid_datetime_idx; Type: INDEX; Schema: public; Owner: morten; Tablespace: 
+--
+
+CREATE INDEX measure_sensorid_datetime_idx ON measure USING btree (sensorid, datetime);
+
+
+--
+-- Name: measure_sensorid_datetime_idx1; Type: INDEX; Schema: public; Owner: morten; Tablespace: 
+--
+
+CREATE INDEX measure_sensorid_datetime_idx1 ON measure USING btree (sensorid, datetime DESC);
+
+
+--
+-- Name: measure_sensorid_idx; Type: INDEX; Schema: public; Owner: morten; Tablespace: 
+--
+
+CREATE INDEX measure_sensorid_idx ON measure USING btree (sensorid);
 
 
 --
