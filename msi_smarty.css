@@ -6,6 +6,11 @@ html { height: 100% }
 body { height: 100%}
 #map_canvas { height: 100% }
 
+.plot{ 
+            float: left;
+}
+
+
 #filinfo{
 	border: black 1px;
 	border-style: solid;
@@ -77,8 +82,8 @@ ul.horizmenu{
 
 #footer{
 	position: absolute;
-	top:500px;
-/*	bottom: 0; */
+/*	top:500px; */
+	bottom: 0px; 
 }
 
 .errormsg{
