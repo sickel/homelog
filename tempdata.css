@@ -5,3 +5,11 @@
 .lastlist{
   font-size:25;
 }
+
+td.center{
+  text-align:center;
+}
+
+td.right{
+  text-align:right;
+}

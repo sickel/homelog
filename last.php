@@ -2,6 +2,7 @@
 <meta http-equiv=refresh content='60; url=last.php'>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="stylesheet" type="text/css" href="tempdata.css">
+<link rel="stylesheet" type="text/css" media="screen,projection,handheld and (min-device width:801px)" href="msi_smarty.css" charset="utf-8">
 </head><body>
 <?php
 
@@ -29,28 +30,31 @@ try{
  and then just have a number to handle afterwards.
  the table should have an index on (sensorid,datetime desc) or the query will run slowly when there start to be about 100k records
 */
-$sqlh=$dbh->prepare('select distinct on (sensorid) sensorid, sensor.name,value,unit,datetime,extract (epoch from now()-datetime) as since 
+$sql='select distinct on (sensorid) sensorid, sensor.name,value,unit,datetime,extract (epoch from now()-datetime) as since 
 from measure,sensor,type 
-where type.id=sensor.typeid and sensor.id=sensorid  and active=true 
-order by sensorid,datetime desc');
+where type.id=sensor.typeid and sensor.id=sensorid';
+$sql.=$_GET['show']=='all'?'':' and active=true ';
+$sql.=' order by sensorid,datetime desc';
+$sqlh=$dbh->prepare($sql);
 $sqlh->execute();
 $data=$sqlh->fetchAll();
-print('<ul class="lastlist">');
+print('<table class="lastlist">');
+print("<tr><th>Måling</th><th>Verdi</th><th>alder (min)</th></tr>\n");
 $sensors=array_key_exists('s',$_GET)?$_GET['s']:array();
 foreach ($data as $s){
   if(count($sensors)==0 or in_array($s['sensorid'],$sensors) ){
     $class=$s['since']< 60*20?'default':'olddata';
     $s['since']=round($s['since']/60);
-    $txt="${s['name']} : <b>${s['value']} ${s['unit']}</b> (${s['since']} minutter siden)";
+    $txt="${s['name']} </td><td class=\"right\"> <b>${s['value']} ${s['unit']}</td><td class=\"center\">${s['since']}</td>";
     if(array_key_exists('showids',$_GET)){
       $txt="(${s['sensorid']}) $txt";
     }	
-    print("<li class=\"$class\">$txt</li>\n");
+    print("<tr class=\"$class\"><td class=\"right\">$txt</tr>\n");
   }
 }
 
 ?>
-</ul>
+</table>
 <hr />
 <p><a href="stripchart.php">Stripchart</a></p>
 </body></html>
