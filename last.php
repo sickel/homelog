@@ -1,5 +1,6 @@
 <html><head><title>Last value</title>
 <meta http-equiv=refresh content='60; url=last.php'>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="stylesheet" type="text/css" href="tempdata.css">
 </head><body>
 <?php
@@ -40,7 +41,7 @@ foreach ($data as $s){
   if(count($sensors)==0 or in_array($s['sensorid'],$sensors) ){
     $class=$s['since']< 60*20?'default':'olddata';
     $s['since']=round($s['since']/60);
-    $txt="${s['name']} <b>${s['value']} ${s['unit']}</b> (${s['since']} minutter siden)";
+    $txt="${s['name']} : <b>${s['value']} ${s['unit']}</b> (${s['since']} minutter siden)";
     if(array_key_exists('showids',$_GET)){
       $txt="(${s['sensorid']}) $txt";
     }	
