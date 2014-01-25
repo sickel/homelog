@@ -21,7 +21,17 @@ try{
     exit( "<p>Cannot connect - $message</p>");
   }
 
-$sqlh=$dbh->prepare('select distinct on (sensorid) sensorid, sensor.name,value,unit,datetime,extract (epoch from now()-datetime) as since from measure,sensor,type where type.id=sensor.typeid and sensor.id=sensorid  and active=true order by sensorid,datetime desc');
+
+/*
+ The following query will fetch the last measurement for each sensor that is flagged as active
+ The age of the measurement is used to flag too old measurements in the frontend. It is easier to calculate it here 
+ and then just have a number to handle afterwards.
+ the table should have an index on (sensorid,datetime desc) or the query will run slowly when there start to be about 100k records
+*/
+$sqlh=$dbh->prepare('select distinct on (sensorid) sensorid, sensor.name,value,unit,datetime,extract (epoch from now()-datetime) as since 
+from measure,sensor,type 
+where type.id=sensor.typeid and sensor.id=sensorid  and active=true 
+order by sensorid,datetime desc');
 $sqlh->execute();
 $data=$sqlh->fetchAll();
 print('<ul class="lastlist">');
