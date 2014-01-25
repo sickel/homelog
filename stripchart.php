@@ -100,6 +100,7 @@ Last value: <span id="logvalue0">&nbsp;</span>
 </div>
 </div>
 <div id="footer">
+<p><a href="last.php">Last values</a></p>
 <p><a href="http://sickel.net/blogg/?p=1506">Information</a> and <a href="https://github.com/sickel/homelog">source code</a></p>
 <p> <span id="log"> </span> <span id="error" class="errormsg"> </span><span id="p_status"> </span></p>
 <hr><ul class="horizmenu">

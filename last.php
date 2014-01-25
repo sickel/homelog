@@ -40,4 +40,6 @@ foreach ($data as $s){
 
 ?>
 </ul>
+<hr />
+<p><a href="stripchart.php">Stripchart</a></p>
 </body></html>
