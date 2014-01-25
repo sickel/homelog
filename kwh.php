@@ -41,6 +41,7 @@ if($read>0 && $read < 100000){
 <form method=\"post\"><input name='kwh'/><input type='submit'/></form>
 ");
 }
-
+  
 ?>
+<br /><a href="stripchart.php">chart</a>
 </body></html>
