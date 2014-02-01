@@ -1,9 +1,3 @@
-<html><head><title>Last value</title>
-<meta http-equiv=refresh content='60; url=last.php'>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="stylesheet" type="text/css" href="tempdata.css">
-<link rel="stylesheet" type="text/css" media="screen,projection,handheld and (min-device width:801px)" href="msi_smarty.css" charset="utf-8">
-</head><body>
 <?php
 
 $dbtype='pgsql';
@@ -38,6 +32,18 @@ $sql.=' order by sensorid,datetime desc';
 $sqlh=$dbh->prepare($sql);
 $sqlh->execute();
 $data=$sqlh->fetchAll();
+if(array_key_exists('json',$_GET)){
+  header('Content-type: application/json');
+  die(json_encode($data));
+}
+?>
+<html><head><title>Last value</title>
+<meta http-equiv=refresh content='60; url=last.php'>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" type="text/css" href="tempdata.css">
+<link rel="stylesheet" type="text/css" media="screen,projection,handheld and (min-device width:801px)" href="msi_smarty.css" charset="utf-8">
+</head><body>
+<?php 
 print('<table class="lastlist">');
 print("<tr><th>Måling</th><th>Verdi</th><th>alder (min)</th></tr>\n");
 $sensors=array_key_exists('s',$_GET)?$_GET['s']:array();
