@@ -31,7 +31,7 @@ $sql.=$_GET['show']=='all'?'':' and active=true ';
 $sql.=' order by sensorid,datetime desc';
 $sqlh=$dbh->prepare($sql);
 $sqlh->execute();
-$data=$sqlh->fetchAll();
+$data=$sqlh->fetchAll(PDO::FETCH_ASSOC);
 if(array_key_exists('json',$_GET)){
   header('Content-type: application/json');
   die(json_encode($data));
