@@ -79,8 +79,7 @@ $params=array("Inne"=>"Inne",
        printf('label="%s" value="%s" >%s</option>',$v,$k,$v);
        print("\n");
      }
-?></select><br />
-<div class="plot">
+?></select>
 <img id="spinner" src="ajax-bar.gif" />
 <span id="reportvals"></span><span id="mousex0" ></span>&nbsp;<span id="mousey0" ></span><br />
 <!--[if !IE]>-->
@@ -94,20 +93,20 @@ $params=array("Inne"=>"Inne",
   <object data="stripchart.svg" type="image/svg+xml" class="svg"
     width="275" height="430" id="stripchart0" name="stripchart">
 <![endif]-->
-</object>
-<br/>
+ </object><a href="http://www.yr.no/sted/Norge/Akershus/Frogn/Dr%C3%B8bak/time_for_time_detaljert.html" target="yr"><img src="http://www.yr.no/sted/Norge/Akershus/Frogn/Ullerud/avansert_meteogram.png" /></a><br/>
 Minimum: <span id="minval"> </span> <br />Maximum: 
 <span id="maxval"> </span><br />
 Last value: <span id="logvalue0">&nbsp;</span> 
-<br /><br />
-</div>
-<div class="plot">
-<a href="http://www.yr.no/sted/Norge/Akershus/Frogn/Karlsrud/time_for_time_detaljert.html" target="yr"><img src="http://www.yr.no/sted/Norge/Akershus/Frogn/Karlsrud/avansert_meteogram.png" /></a>
-</div>
 </div>
 </div>
 <div id="footer">
 <p><a href="last.php">Last values</a></p>
+<?php
+if(strpos($_SERVER['REMOTE_ADDR'],'192.168')===0){
+  print("<a href=\"kwh.php\">kWh-registration</a><br />");
+}
+?>
+
 <p><a href="http://sickel.net/blogg/?p=1506">Information</a> and <a href="https://github.com/sickel/homelog">source code</a></p>
 <p> <span id="log"> </span> <span id="error" class="errormsg"> </span><span id="p_status"> </span></p>
 <hr><ul class="horizmenu">

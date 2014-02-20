@@ -44,14 +44,19 @@ if(array_key_exists('json',$_GET)){
 <link rel="stylesheet" type="text/css" media="screen,projection,handheld and (min-device width:801px)" href="msi_smarty.css" charset="utf-8">
 </head><body>
 <?php 
+$showage=array_key_exists('age',$_GET)?1:0;
 print('<table class="lastlist">');
-print("<tr><th>Måling</th><th>Verdi</th><th>alder (min)</th></tr>\n");
+$age=$showage?"<th>alder (min)</th>":"";
+print("<tr><th>Måling</th><th>Verdi</th>$age</tr>\n");
 $sensors=array_key_exists('s',$_GET)?$_GET['s']:array();
 foreach ($data as $s){
   if(count($sensors)==0 or in_array($s['sensorid'],$sensors) ){
     $class=$s['since']< 60*20?'default':'olddata';
     $s['since']=round($s['since']/60);
-    $txt="${s['name']} </td><td class=\"right\"> <b>${s['value']} ${s['unit']}</td><td class=\"center\">${s['since']}</td>";
+    $txt="${s['name']} </td><td class=\"right\"> <b>${s['value']} ${s['unit']}</td>";
+    if($showage){
+      $txt.="<td class=\"center\">${s['since']}</td>";
+    }
     if(array_key_exists('showids',$_GET)){
       $txt="(${s['sensorid']}) $txt";
     }	
