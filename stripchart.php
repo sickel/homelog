@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xml:lang="en-US" xmlns="http://www.w3.org/1999/xhtml" lang="en-US"><head> 
 
@@ -93,8 +94,15 @@ $params=array("Inne"=>"Inne",
   <object data="stripchart.svg" type="image/svg+xml" class="svg"
     width="275" height="430" id="stripchart0" name="stripchart">
 <![endif]-->
- </object><a href="http://www.yr.no/sted/Norge/Akershus/Frogn/Dr%C3%B8bak/time_for_time_detaljert.html" target="yr"><img src="http://www.yr.no/sted/Norge/Akershus/Frogn/Ullerud/avansert_meteogram.png" /></a><br/>
-Minimum: <span id="minval"> </span> <br />Maximum: 
+ </object>
+ <?php
+ $location="http://www.yr.no/sted/Norge/Akershus/Frogn/Karlsrud";
+ $weatherdata="$location/time_for_time_detaljert.html" ;
+ $meteogram= "$location/avansert_meteogram.png";
+ printf('<a href="%s" target="yr"><img src="%s" />',$weatherdata,$meteogram);
+ ?>
+</a><br/>
+ Minimum: <span id="minval"> </span> <br />Maximum: 
 <span id="maxval"> </span><br />
 Last value: <span id="logvalue0">&nbsp;</span> 
 </div>
