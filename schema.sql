@@ -3,6 +3,7 @@
 --
 
 SET statement_timeout = 0;
+SET lock_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SET check_function_bodies = false;
@@ -131,54 +132,75 @@ SET default_with_oids = false;
 CREATE TABLE measure (
     id integer NOT NULL,
     sensorid integer,
-    typeid integer,
+    type integer,
     value double precision,
     datetime timestamp with time zone DEFAULT now(),
-    use boolean DEFAULT true
+    use boolean DEFAULT true,
+    aux integer,
+    payload integer
 );
 
 
-ALTER TABLE public.measure OWNER TO morten;
+ALTER TABLE measure OWNER TO morten;
 
 --
 -- Name: measure_qa; Type: VIEW; Schema: public; Owner: morten
 --
 
 CREATE VIEW measure_qa AS
-    SELECT measure.id, measure.sensorid, measure.typeid, measure.value, measure.datetime, measure.use FROM measure WHERE (measure.use = true);
+ SELECT measure.id,
+    measure.sensorid,
+    measure.type AS typeid,
+    measure.value,
+    measure.datetime,
+    measure.use
+   FROM measure
+  WHERE (measure.use = true);
 
 
-ALTER TABLE public.measure_qa OWNER TO morten;
+ALTER TABLE measure_qa OWNER TO morten;
 
 --
 -- Name: daymax; Type: VIEW; Schema: public; Owner: morten
 --
 
 CREATE VIEW daymax AS
-    SELECT max(measure.value) AS value, (measure.datetime)::date AS datetime, measure.sensorid FROM measure_qa measure GROUP BY (measure.datetime)::date, measure.sensorid;
+ SELECT max(measure.value) AS value,
+    (measure.datetime)::date AS datetime,
+    measure.sensorid
+   FROM measure_qa measure
+  GROUP BY (measure.datetime)::date, measure.sensorid;
 
 
-ALTER TABLE public.daymax OWNER TO morten;
+ALTER TABLE daymax OWNER TO morten;
 
 --
 -- Name: daymean; Type: VIEW; Schema: public; Owner: morten
 --
 
 CREATE VIEW daymean AS
-    SELECT (round(((100)::double precision * avg(measure.value))) / (100)::double precision) AS value, (measure.datetime)::date AS datetime, measure.sensorid FROM measure_qa measure GROUP BY (measure.datetime)::date, measure.sensorid;
+ SELECT (round(((100)::double precision * avg(measure.value))) / (100)::double precision) AS value,
+    (measure.datetime)::date AS datetime,
+    measure.sensorid
+   FROM measure_qa measure
+  GROUP BY (measure.datetime)::date, measure.sensorid;
 
 
-ALTER TABLE public.daymean OWNER TO morten;
+ALTER TABLE daymean OWNER TO morten;
 
 --
 -- Name: daymin; Type: VIEW; Schema: public; Owner: morten
 --
 
 CREATE VIEW daymin AS
-    SELECT min(measure.value) AS value, (measure.datetime)::date AS datetime, measure.sensorid FROM measure_qa measure GROUP BY (measure.datetime)::date, measure.sensorid;
+ SELECT min(measure.value) AS value,
+    (measure.datetime)::date AS datetime,
+    measure.sensorid
+   FROM measure_qa measure
+  GROUP BY (measure.datetime)::date, measure.sensorid;
 
 
-ALTER TABLE public.daymin OWNER TO morten;
+ALTER TABLE daymin OWNER TO morten;
 
 --
 -- Name: measure_id_seq; Type: SEQUENCE; Schema: public; Owner: morten
@@ -192,7 +214,7 @@ CREATE SEQUENCE measure_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.measure_id_seq OWNER TO morten;
+ALTER TABLE measure_id_seq OWNER TO morten;
 
 --
 -- Name: measure_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: morten
@@ -213,17 +235,22 @@ CREATE TABLE powerreading (
 );
 
 
-ALTER TABLE public.powerreading OWNER TO morten;
+ALTER TABLE powerreading OWNER TO morten;
 
 --
 -- Name: powerdraw; Type: VIEW; Schema: public; Owner: morten
 --
 
 CREATE VIEW powerdraw AS
-    SELECT powerreading.id, powerreading.datetime, lag(powerreading.datetime) OVER (ORDER BY powerreading.id) AS starttime, (powerreading.reading - lag(powerreading.reading) OVER (ORDER BY powerreading.id)) AS kwh, (date_part('epoch'::text, (powerreading.datetime - lag(powerreading.datetime) OVER (ORDER BY powerreading.id))) / (3600)::double precision) AS hours FROM powerreading;
+ SELECT powerreading.id,
+    powerreading.datetime,
+    lag(powerreading.datetime) OVER (ORDER BY powerreading.id) AS starttime,
+    (powerreading.reading - lag(powerreading.reading) OVER (ORDER BY powerreading.id)) AS kwh,
+    (date_part('epoch'::text, (powerreading.datetime - lag(powerreading.datetime) OVER (ORDER BY powerreading.id))) / (3600)::double precision) AS hours
+   FROM powerreading;
 
 
-ALTER TABLE public.powerdraw OWNER TO morten;
+ALTER TABLE powerdraw OWNER TO morten;
 
 --
 -- Name: powerreading_id_seq; Type: SEQUENCE; Schema: public; Owner: morten
@@ -237,7 +264,7 @@ CREATE SEQUENCE powerreading_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.powerreading_id_seq OWNER TO morten;
+ALTER TABLE powerreading_id_seq OWNER TO morten;
 
 --
 -- Name: powerreading_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: morten
@@ -252,18 +279,20 @@ ALTER SEQUENCE powerreading_id_seq OWNED BY powerreading.id;
 
 CREATE TABLE sensor (
     id integer NOT NULL,
-    name character varying(255) NOT NULL,
-    sensoraddr character varying(255) NOT NULL,
-    type character varying,
+    name character varying(255),
+    sensoraddr character varying(255),
+    type character varying NOT NULL,
     minvalue double precision,
     maxvalue double precision,
     maxdelta double precision,
     typeid integer,
-    active boolean DEFAULT true
+    active boolean DEFAULT true,
+    stationid integer NOT NULL,
+    factor double precision DEFAULT 1 NOT NULL
 );
 
 
-ALTER TABLE public.sensor OWNER TO morten;
+ALTER TABLE sensor OWNER TO morten;
 
 --
 -- Name: sensor_id_seq; Type: SEQUENCE; Schema: public; Owner: morten
@@ -277,7 +306,7 @@ CREATE SEQUENCE sensor_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.sensor_id_seq OWNER TO morten;
+ALTER TABLE sensor_id_seq OWNER TO morten;
 
 --
 -- Name: sensor_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: morten
@@ -297,27 +326,57 @@ CREATE TABLE type (
 );
 
 
-ALTER TABLE public.type OWNER TO morten;
+ALTER TABLE type OWNER TO morten;
 
 --
 -- Name: sensors; Type: VIEW; Schema: public; Owner: morten
 --
 
 CREATE VIEW sensors AS
-    SELECT sensor.id, sensor.name, sensor.sensoraddr, sensor.type, sensor.minvalue, sensor.maxvalue, sensor.maxdelta, sensor.typeid, type.name AS measurement, type.unit FROM sensor, type WHERE (type.id = sensor.typeid);
+ SELECT sensor.id,
+    sensor.name,
+    sensor.sensoraddr,
+    sensor.type,
+    sensor.minvalue,
+    sensor.maxvalue,
+    sensor.maxdelta,
+    sensor.typeid,
+    type.name AS measurement,
+    type.unit
+   FROM sensor,
+    type
+  WHERE (type.id = sensor.typeid);
 
 
-ALTER TABLE public.sensors OWNER TO morten;
+ALTER TABLE sensors OWNER TO morten;
 
 --
 -- Name: shadow; Type: VIEW; Schema: public; Owner: morten
 --
 
 CREATE VIEW shadow AS
-    SELECT LEAST(u.value, i.value) AS value, to_char(timezone('UTC'::text, i.datetime), 'yyyy-mm-dd"T"HH24:MI:SS"Z"'::text) AS at, i.datetime FROM measure_qa i, measure_qa u WHERE (((round_sec(u.datetime) = round_sec(i.datetime)) AND (u.sensorid = 1)) AND (i.sensorid = 10));
+ SELECT LEAST(u.value, i.value) AS value,
+    to_char(timezone('UTC'::text, i.datetime), 'yyyy-mm-dd"T"HH24:MI:SS"Z"'::text) AS at,
+    i.datetime
+   FROM measure_qa i,
+    measure_qa u
+  WHERE (((round_sec(u.datetime) = round_sec(i.datetime)) AND (u.sensorid = 1)) AND (i.sensorid = 10));
 
 
-ALTER TABLE public.shadow OWNER TO morten;
+ALTER TABLE shadow OWNER TO morten;
+
+--
+-- Name: station; Type: TABLE; Schema: public; Owner: morten; Tablespace: 
+--
+
+CREATE TABLE station (
+    id integer NOT NULL,
+    name character varying NOT NULL,
+    datetime timestamp with time zone DEFAULT now()
+);
+
+
+ALTER TABLE station OWNER TO morten;
 
 --
 -- Name: temps; Type: TABLE; Schema: public; Owner: morten; Tablespace: 
@@ -332,47 +391,67 @@ CREATE TABLE temps (
 );
 
 
-ALTER TABLE public.temps OWNER TO morten;
+ALTER TABLE temps OWNER TO morten;
 
 --
 -- Name: temp_stream; Type: VIEW; Schema: public; Owner: morten
 --
 
 CREATE VIEW temp_stream AS
-    SELECT temps.temp, temps.datetime, sensor.name FROM temps, sensor WHERE ((sensor.sensoraddr)::text = (temps.sensoraddr)::text);
+ SELECT temps.temp,
+    temps.datetime,
+    sensor.name
+   FROM temps,
+    sensor
+  WHERE ((sensor.sensoraddr)::text = (temps.sensoraddr)::text);
 
 
-ALTER TABLE public.temp_stream OWNER TO morten;
+ALTER TABLE temp_stream OWNER TO morten;
 
 --
 -- Name: tempdiff; Type: VIEW; Schema: public; Owner: morten
 --
 
 CREATE VIEW tempdiff AS
-    SELECT (i.value - u.value) AS value, to_char(timezone('UTC'::text, i.datetime), 'yyyy-mm-dd"T"HH24:MI:SS"Z"'::text) AS at, i.datetime FROM measure_qa i, measure_qa u WHERE (((round_sec(u.datetime) = round_sec(i.datetime)) AND (u.sensorid = 1)) AND (i.sensorid = 2));
+ SELECT (i.value - u.value) AS value,
+    to_char(timezone('UTC'::text, i.datetime), 'yyyy-mm-dd"T"HH24:MI:SS"Z"'::text) AS at,
+    i.datetime
+   FROM measure_qa i,
+    measure_qa u
+  WHERE (((round_sec(u.datetime) = round_sec(i.datetime)) AND (u.sensorid = 1)) AND (i.sensorid = 2));
 
 
-ALTER TABLE public.tempdiff OWNER TO morten;
+ALTER TABLE tempdiff OWNER TO morten;
 
 --
 -- Name: tempdiff_old; Type: VIEW; Schema: public; Owner: morten
 --
 
 CREATE VIEW tempdiff_old AS
-    SELECT (i.temp - u.temp) AS value, to_char(timezone('UTC'::text, i.datetime), 'yyyy-mm-dd"T"HH24:MI:SS"Z"'::text) AS at, i.datetime FROM temp_stream i, temp_stream u WHERE (((round_sec(u.datetime) = round_sec(i.datetime)) AND ((u.name)::text = 'Ute'::text)) AND ((i.name)::text = 'Inne'::text));
+ SELECT (i.temp - u.temp) AS value,
+    to_char(timezone('UTC'::text, i.datetime), 'yyyy-mm-dd"T"HH24:MI:SS"Z"'::text) AS at,
+    i.datetime
+   FROM temp_stream i,
+    temp_stream u
+  WHERE (((round_sec(u.datetime) = round_sec(i.datetime)) AND ((u.name)::text = 'Ute'::text)) AND ((i.name)::text = 'Inne'::text));
 
 
-ALTER TABLE public.tempdiff_old OWNER TO morten;
+ALTER TABLE tempdiff_old OWNER TO morten;
 
 --
 -- Name: tempdiff_sol; Type: VIEW; Schema: public; Owner: morten
 --
 
 CREATE VIEW tempdiff_sol AS
-    SELECT (u.value - i.value) AS value, to_char(timezone('UTC'::text, i.datetime), 'yyyy-mm-dd"T"HH24:MI:SS"Z"'::text) AS at, i.datetime FROM measure_qa i, measure_qa u WHERE (((round_sec(u.datetime) = round_sec(i.datetime)) AND (u.sensorid = 1)) AND (i.sensorid = 10));
+ SELECT (u.value - i.value) AS value,
+    to_char(timezone('UTC'::text, i.datetime), 'yyyy-mm-dd"T"HH24:MI:SS"Z"'::text) AS at,
+    i.datetime
+   FROM measure_qa i,
+    measure_qa u
+  WHERE (((round_sec(u.datetime) = round_sec(i.datetime)) AND (u.sensorid = 1)) AND (i.sensorid = 10));
 
 
-ALTER TABLE public.tempdiff_sol OWNER TO morten;
+ALTER TABLE tempdiff_sol OWNER TO morten;
 
 --
 -- Name: temps_id_seq; Type: SEQUENCE; Schema: public; Owner: morten
@@ -386,7 +465,7 @@ CREATE SEQUENCE temps_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.temps_id_seq OWNER TO morten;
+ALTER TABLE temps_id_seq OWNER TO morten;
 
 --
 -- Name: temps_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: morten
@@ -407,7 +486,7 @@ CREATE SEQUENCE type_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.type_id_seq OWNER TO morten;
+ALTER TABLE type_id_seq OWNER TO morten;
 
 --
 -- Name: type_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: morten
@@ -421,10 +500,101 @@ ALTER SEQUENCE type_id_seq OWNED BY type.id;
 --
 
 CREATE VIEW view_all_grants AS
-    SELECT via.subject, via.namespace, via.relname, via.relkind, via.owner, via.relacl, via.relaclitemuser, via.via_owner, via.via_groupowner, via.via_user, via.via_group, via.via_public FROM (SELECT use.usename AS subject, nsp.nspname AS namespace, c.relname, c.relkind, pg_authid.rolname AS owner, c.relacl, c.relaclitemuser, (use.usename = pg_authid.rolname) AS via_owner, CASE WHEN (use.usename = pg_authid.rolname) THEN false ELSE pg_has_role(use.usename, pg_authid.rolname, 'member'::text) END AS via_groupowner, ((use.usename)::text = c.relaclitemuser) AS via_user, CASE WHEN (c.relaclitemuser = ''::text) THEN false WHEN (c.relaclitemuser = '!NULL!'::text) THEN false WHEN (c.relaclitemuser = (use.usename)::text) THEN false ELSE pg_has_role(use.usename, (c.relaclitemuser)::name, 'member'::text) END AS via_group, (c.relaclitemuser = ''::text) AS via_public FROM (((pg_user use CROSS JOIN (SELECT sub_c.relnamespace, sub_c.relname, sub_c.relkind, sub_c.relowner, sub_c.relacl, sub_c.relaclitem, split_part(sub_c.relaclitem, '='::text, 1) AS relaclitemuser FROM (SELECT pg_class.relnamespace, pg_class.relname, pg_class.relkind, pg_class.relowner, pg_class.relacl, CASE WHEN (pg_class.relacl IS NULL) THEN '!NULL!='::text ELSE unnest((pg_class.relacl)::text[]) END AS relaclitem FROM pg_class) sub_c) c) LEFT JOIN pg_namespace nsp ON ((c.relnamespace = nsp.oid))) LEFT JOIN pg_authid ON ((c.relowner = pg_authid.oid)))) via WHERE ((((via.via_owner OR via.via_groupowner) OR via.via_user) OR via.via_group) OR via.via_public) ORDER BY via.subject, via.namespace, via.relname;
+ SELECT via.subject,
+    via.namespace,
+    via.relname,
+    via.relkind,
+    via.owner,
+    via.relacl,
+    via.relaclitemuser,
+    via.via_owner,
+    via.via_groupowner,
+    via.via_user,
+    via.via_group,
+    via.via_public
+   FROM ( SELECT use.usename AS subject,
+            nsp.nspname AS namespace,
+            c.relname,
+            c.relkind,
+            pg_authid.rolname AS owner,
+            c.relacl,
+            c.relaclitemuser,
+            (use.usename = pg_authid.rolname) AS via_owner,
+                CASE
+                    WHEN (use.usename = pg_authid.rolname) THEN false
+                    ELSE pg_has_role(use.usename, pg_authid.rolname, 'member'::text)
+                END AS via_groupowner,
+            ((use.usename)::text = c.relaclitemuser) AS via_user,
+                CASE
+                    WHEN (c.relaclitemuser = ''::text) THEN false
+                    WHEN (c.relaclitemuser = '!NULL!'::text) THEN false
+                    WHEN (c.relaclitemuser = (use.usename)::text) THEN false
+                    ELSE pg_has_role(use.usename, (c.relaclitemuser)::name, 'member'::text)
+                END AS via_group,
+            (c.relaclitemuser = ''::text) AS via_public
+           FROM (((pg_user use
+             CROSS JOIN ( SELECT sub_c.relnamespace,
+                    sub_c.relname,
+                    sub_c.relkind,
+                    sub_c.relowner,
+                    sub_c.relacl,
+                    sub_c.relaclitem,
+                    split_part(sub_c.relaclitem, '='::text, 1) AS relaclitemuser
+                   FROM ( SELECT pg_class.relnamespace,
+                            pg_class.relname,
+                            pg_class.relkind,
+                            pg_class.relowner,
+                            pg_class.relacl,
+                                CASE
+                                    WHEN (pg_class.relacl IS NULL) THEN '!NULL!='::text
+                                    ELSE unnest((pg_class.relacl)::text[])
+                                END AS relaclitem
+                           FROM pg_class) sub_c) c)
+             LEFT JOIN pg_namespace nsp ON ((c.relnamespace = nsp.oid)))
+             LEFT JOIN pg_authid ON ((c.relowner = pg_authid.oid)))) via
+  WHERE ((((via.via_owner OR via.via_groupowner) OR via.via_user) OR via.via_group) OR via.via_public)
+  ORDER BY via.subject, via.namespace, via.relname;
 
 
-ALTER TABLE public.view_all_grants OWNER TO morten;
+ALTER TABLE view_all_grants OWNER TO morten;
+
+--
+-- Name: wireless; Type: TABLE; Schema: public; Owner: morten; Tablespace: 
+--
+
+CREATE TABLE wireless (
+    id integer NOT NULL,
+    sensorid integer NOT NULL,
+    value integer NOT NULL,
+    type integer NOT NULL,
+    aux integer,
+    payload integer,
+    addtime timestamp with time zone DEFAULT now()
+);
+
+
+ALTER TABLE wireless OWNER TO morten;
+
+--
+-- Name: wireless_id_seq; Type: SEQUENCE; Schema: public; Owner: morten
+--
+
+CREATE SEQUENCE wireless_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE wireless_id_seq OWNER TO morten;
+
+--
+-- Name: wireless_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: morten
+--
+
+ALTER SEQUENCE wireless_id_seq OWNED BY wireless.id;
+
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: morten
@@ -458,7 +628,7 @@ ALTER TABLE ONLY temps ALTER COLUMN id SET DEFAULT nextval('temps_id_seq'::regcl
 -- Name: id; Type: DEFAULT; Schema: public; Owner: morten
 --
 
-ALTER TABLE ONLY type ALTER COLUMN id SET DEFAULT nextval('type_id_seq'::regclass);
+ALTER TABLE ONLY wireless ALTER COLUMN id SET DEFAULT nextval('wireless_id_seq'::regclass);
 
 
 --
@@ -486,6 +656,14 @@ ALTER TABLE ONLY sensor
 
 
 --
+-- Name: station_pkey; Type: CONSTRAINT; Schema: public; Owner: morten; Tablespace: 
+--
+
+ALTER TABLE ONLY station
+    ADD CONSTRAINT station_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: temps_pkey; Type: CONSTRAINT; Schema: public; Owner: morten; Tablespace: 
 --
 
@@ -499,6 +677,14 @@ ALTER TABLE ONLY temps
 
 ALTER TABLE ONLY type
     ADD CONSTRAINT type_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: wireless_pkey; Type: CONSTRAINT; Schema: public; Owner: morten; Tablespace: 
+--
+
+ALTER TABLE ONLY wireless
+    ADD CONSTRAINT wireless_pkey PRIMARY KEY (id);
 
 
 --
@@ -555,6 +741,14 @@ CREATE INDEX measure_sensorid_datetime_idx1 ON measure USING btree (sensorid, da
 --
 
 CREATE INDEX measure_sensorid_idx ON measure USING btree (sensorid);
+
+
+--
+-- Name: sensor_stationid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: morten
+--
+
+ALTER TABLE ONLY sensor
+    ADD CONSTRAINT sensor_stationid_fkey FOREIGN KEY (stationid) REFERENCES station(id);
 
 
 --
