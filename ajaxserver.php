@@ -41,6 +41,7 @@ if($_GET['a']=='sensorlist'){
   print(listsensors($sensors));
   exit("\n");
 }
+
 if($_GET['a']=='tempdata'){
   if(!(isset($_GET['stream']))){
     throw new jsonException("missing stream-parameter");
@@ -62,7 +63,7 @@ if($_GET['a']=='tempdata'){
     $message=$e->getMessage(); 
     exit( "<p>Cannot connect - $message</p>");
   }
-  $sql='select value, to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure_qa where sensorid=? and datetime>?';
+  $sql='select value/1000 as value, to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure_qa where typeid=116 and sensorid=? and datetime>?';
   $params=array($_GET['from']);
   if($sensorid){  
     $unitq=$dbh->prepare('select unit from sensors where id=?');
