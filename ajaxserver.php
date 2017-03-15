@@ -3,13 +3,39 @@
 class jsonException extends Exception
 {}
 
+  $dbtype='pgsql';
+  include('dbconn.php'); // sets the values username, server, database and password
+  //$unit="&deg;C";
+  try{
+    $connectstring=$dbtype.':host='.$server.';dbname='.$database;
+    $dbh = new PDO($connectstring, $username, $password);
+    if($dbtype=='pgsql'){
+      $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    }
+  }
+  catch(PDOException $e){
+    header('HTTP/1.1 500 Internal Server Error');
+    $message=$e->getMessage(); 
+    exit( "<p>Cannot connect - $message</p>");
+  }
+
+  $sql="select concat,id from sensorlist";
+  $qry=$dbh->prepare($sql);
+  $qry->execute();
+  $sensorset=$qry->fetchAll(PDO::FETCH_ASSOC);
+//  print_r($sensorset);
+  foreach($sensorset as $s){
+	$sensors[$s['concat']]=$s['id'];}
+//   print_r($sensors);
+
+  
 function listsensors($sensors){
   $s=array_keys($sensors);
   $s=array('sensors'=>$s);
   return(json_encode($s));
 }
 
-$sensors=array('Inne'=>2,
+$sensors_old=array('Inne'=>2,
 	       'Ute'=>1,
 	       'Ute - skygge'=>10,
 	       'Fuktighet'=>5,
@@ -48,23 +74,11 @@ if($_GET['a']=='tempdata'){
   }
   $stepline=false;
   $sensorid=$sensors{$_GET['stream']};	
-  $dbtype='pgsql';
-  include('dbconn.php'); // sets the values username, server, database and password
-  //$unit="&deg;C";
-  try{
-    $connectstring=$dbtype.':host='.$server.';dbname='.$database;
-    $dbh = new PDO($connectstring, $username, $password);
-    if($dbtype=='pgsql'){
-      $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    }
-  }
-  catch(PDOException $e){
-    header('HTTP/1.1 500 Internal Server Error');
-    $message=$e->getMessage(); 
-    exit( "<p>Cannot connect - $message</p>");
-  }
-  $sql='select value/1000 as value, to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure_qa where typeid=116 and sensorid=? and datetime>?';
-  $params=array($_GET['from']);
+  $sql='select value, at
+        from sensormeasurement where sensorid=? and datetime>? ';
+  
+  $params=array($_GET['stream'],$_GET['from']);
+	print($sensorid);
   if($sensorid){  
     $unitq=$dbh->prepare('select unit from sensors where id=?');
     $unitq->execute(array($sensorid));
@@ -111,8 +125,8 @@ if($_GET['a']=='tempdata'){
 	$sql.=' and datetime <= ?';
   }
   $sql.=' order by datetime';
-  //print($sql);
-  //print_r($params);	
+//  print($sql);
+//  print_r($params);	
   $sqh=$dbh->prepare($sql);
   $sqh->execute($params);
   $data=$sqh->fetchAll(PDO::FETCH_ASSOC);

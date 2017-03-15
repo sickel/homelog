@@ -316,6 +316,19 @@ ALTER SEQUENCE sensor_id_seq OWNED BY sensor.id;
 
 
 --
+-- Name: station; Type: TABLE; Schema: public; Owner: morten; Tablespace: 
+--
+
+CREATE TABLE station (
+    id integer NOT NULL,
+    name character varying NOT NULL,
+    datetime timestamp with time zone DEFAULT now()
+);
+
+
+ALTER TABLE station OWNER TO morten;
+
+--
 -- Name: type; Type: TABLE; Schema: public; Owner: morten; Tablespace: 
 --
 
@@ -327,6 +340,38 @@ CREATE TABLE type (
 
 
 ALTER TABLE type OWNER TO morten;
+
+--
+-- Name: sensorlist; Type: VIEW; Schema: public; Owner: morten
+--
+
+CREATE VIEW sensorlist AS
+ SELECT sensor.id,
+    concat(type.name, ' på ', station.name) AS concat
+   FROM station,
+    sensor,
+    type
+  WHERE ((station.id = sensor.stationid) AND (type.id = sensor.typeid))
+  ORDER BY station.name;
+
+
+ALTER TABLE sensorlist OWNER TO morten;
+
+--
+-- Name: sensormeasurement; Type: VIEW; Schema: public; Owner: morten
+--
+
+CREATE VIEW sensormeasurement AS
+ SELECT sensor.id AS sensorid,
+    (measure.value / sensor.factor) AS value,
+    to_char(timezone('UTC'::text, measure.datetime), 'yyyy-mm-dd"T"HH24:MI:SS"Z"'::text) AS at,
+    measure.datetime
+   FROM sensor,
+    measure
+  WHERE (((sensor.typeid = measure.type) AND (sensor.stationid = measure.sensorid)) AND (measure.use = true));
+
+
+ALTER TABLE sensormeasurement OWNER TO morten;
 
 --
 -- Name: sensors; Type: VIEW; Schema: public; Owner: morten
@@ -364,19 +409,6 @@ CREATE VIEW shadow AS
 
 
 ALTER TABLE shadow OWNER TO morten;
-
---
--- Name: station; Type: TABLE; Schema: public; Owner: morten; Tablespace: 
---
-
-CREATE TABLE station (
-    id integer NOT NULL,
-    name character varying NOT NULL,
-    datetime timestamp with time zone DEFAULT now()
-);
-
-
-ALTER TABLE station OWNER TO morten;
 
 --
 -- Name: temps; Type: TABLE; Schema: public; Owner: morten; Tablespace: 

@@ -56,7 +56,35 @@ printf('<label for="from">From</label><input value="%s" id="from"><br />
 <select class="paramchooser" id="paramchoose0" name="paramchoose0">
 <?php
    $selected=$_GET['selected']?$_GET['selected']:"Ute";
-$params=array("Inne"=>"Inne",
+
+
+ $dbtype='pgsql';
+  include('dbconn.php'); // sets the values username, server, database and password
+  //$unit="&deg;C";
+  try{
+    $connectstring=$dbtype.':host='.$server.';dbname='.$database;
+    $dbh = new PDO($connectstring, $username, $password);
+    if($dbtype=='pgsql'){
+      $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    }
+  }
+  catch(PDOException $e){
+    header('HTTP/1.1 500 Internal Server Error');
+    $message=$e->getMessage(); 
+    exit( "<p>Cannot connect - $message</p>");
+  }
+
+  $sql="select concat,id from sensorlist";
+  $qry=$dbh->prepare($sql);
+  $qry->execute();
+  $sensorset=$qry->fetchAll(PDO::FETCH_ASSOC);
+//  print_r($sensorset);
+  foreach($sensorset as $s){
+        $params[$s['id']]=$s['concat'];}
+//   print_r($sensors);
+
+
+$paramsold=array("Inne"=>"Inne",
 		 "Ute"=>"Ute - sørvegg",
 		 "Ute - skygge"=>"Ute - østvegg",
 		 "Inne-Ute"=>"Inne-Ute",
