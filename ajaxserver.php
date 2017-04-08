@@ -26,7 +26,7 @@ class jsonException extends Exception
 //  print_r($sensorset);
   foreach($sensorset as $s){
 	$sensors[$s['concat']]=$s['id'];}
-//   print_r($sensors);
+//  print_r($sensors);
 
   
 function listsensors($sensors){
@@ -34,28 +34,6 @@ function listsensors($sensors){
   $s=array('sensors'=>$s);
   return(json_encode($s));
 }
-
-$sensors_old=array('Inne'=>2,
-	       'Ute'=>1,
-	       'Ute - skygge'=>10,
-	       'Fuktighet'=>5,
-	       'Fuktighet DHT22'=>9,
-	       'Temp DHT22'=>8,
-	       'Temp DHT11'=>6,
-	       'Temp BHP085'=>3,
-	       'Inne - test'=>11,
-	       'southavg'=>1,
-	       'Forbruk'=>13,
-	       'Inne-Ute'=>0,
-	       'Soloppvarming'=>0,
-	       'Skygge'=>0,
-	       'Trykk'=>0,
-	       'Trykk - 0m'=>0,
-	       'Forbruk'=>0,
-	       'Sørvegg - døgnsnitt'=>1,
-	       'Sørvegg - døgnmin'=>1,
-	       'Sørvegg - døgnmax'=>1
-	       );
 
 
 try{
@@ -73,19 +51,23 @@ if($_GET['a']=='tempdata'){
     throw new jsonException("missing stream-parameter");
   }
   $stepline=false;
-  $sensorid=$sensors{$_GET['stream']};	
+  $sensorid=$_GET['stream'];	
+  $sensorid=$sensors[$_GET['stream']]; 
   $sql='select value, at
         from sensormeasurement where sensorid=? and datetime>? ';
   
   $params=array($_GET['stream'],$_GET['from']);
-	print($sensorid);
-  if($sensorid){  
+ // print_r($sensorid);
+//  $sensorid=$_GET['stream'];
+  //if($sensorid){  
+  
     $unitq=$dbh->prepare('select unit from sensors where id=?');
-    $unitq->execute(array($sensorid));
+    $unitq->execute(array($_GET['stream']));
     $unit=$unitq->fetchAll(PDO::FETCH_ASSOC);
+//    print_r($unit);
     $unit=$unit[0]['unit'];
-    array_unshift($params,$sensorid);
-  }
+  //  array_unshift($params,$sensorid);
+  //}
   if($_GET['stream']=='Inne-Ute'){
     $sql="select value,at from tempdiff where datetime >?";
     $unit="&deg;C";

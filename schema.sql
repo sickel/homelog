@@ -121,6 +121,27 @@ $_$;
 
 ALTER FUNCTION public.round_sec(timestamp with time zone) OWNER TO morten;
 
+--
+-- Name: set_station(); Type: FUNCTION; Schema: public; Owner: morten
+--
+
+CREATE FUNCTION set_station() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+  declare
+  stationidvar integer;
+  senderidvar integer;  
+ 
+  begin 
+    senderidvar:=New.sensorid;
+    new.stationid:=(select stationid from sender where id=senderidvar);
+    RETURN new;
+end
+$$;
+
+
+ALTER FUNCTION public.set_station() OWNER TO morten;
+
 SET default_tablespace = '';
 
 SET default_with_oids = false;
@@ -137,7 +158,8 @@ CREATE TABLE measure (
     datetime timestamp with time zone DEFAULT now(),
     use boolean DEFAULT true,
     aux integer,
-    payload integer
+    payload integer,
+    stationid integer
 );
 
 
@@ -274,6 +296,18 @@ ALTER SEQUENCE powerreading_id_seq OWNED BY powerreading.id;
 
 
 --
+-- Name: sender; Type: TABLE; Schema: public; Owner: morten; Tablespace: 
+--
+
+CREATE TABLE sender (
+    id integer NOT NULL,
+    stationid integer
+);
+
+
+ALTER TABLE sender OWNER TO morten;
+
+--
 -- Name: sensor; Type: TABLE; Schema: public; Owner: morten; Tablespace: 
 --
 
@@ -363,7 +397,10 @@ ALTER TABLE sensorlist OWNER TO morten;
 
 CREATE VIEW sensormeasurement AS
  SELECT sensor.id AS sensorid,
-    (measure.value / sensor.factor) AS value,
+        CASE
+            WHEN (measure.value > (40000000)::double precision) THEN ((measure.value - (4294967296::bigint)::double precision) / sensor.factor)
+            ELSE (measure.value / sensor.factor)
+        END AS value,
     to_char(timezone('UTC'::text, measure.datetime), 'yyyy-mm-dd"T"HH24:MI:SS"Z"'::text) AS at,
     measure.datetime
    FROM sensor,
@@ -680,6 +717,14 @@ ALTER TABLE ONLY powerreading
 
 
 --
+-- Name: sender_pkey; Type: CONSTRAINT; Schema: public; Owner: morten; Tablespace: 
+--
+
+ALTER TABLE ONLY sender
+    ADD CONSTRAINT sender_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: sensor_pkey; Type: CONSTRAINT; Schema: public; Owner: morten; Tablespace: 
 --
 
@@ -773,6 +818,29 @@ CREATE INDEX measure_sensorid_datetime_idx1 ON measure USING btree (sensorid, da
 --
 
 CREATE INDEX measure_sensorid_idx ON measure USING btree (sensorid);
+
+
+--
+-- Name: set_station_trigger; Type: TRIGGER; Schema: public; Owner: morten
+--
+
+CREATE TRIGGER set_station_trigger BEFORE INSERT ON measure FOR EACH ROW EXECUTE PROCEDURE set_station();
+
+
+--
+-- Name: measure_stationid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: morten
+--
+
+ALTER TABLE ONLY measure
+    ADD CONSTRAINT measure_stationid_fkey FOREIGN KEY (stationid) REFERENCES station(id);
+
+
+--
+-- Name: sender_stationid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: morten
+--
+
+ALTER TABLE ONLY sender
+    ADD CONSTRAINT sender_stationid_fkey FOREIGN KEY (stationid) REFERENCES station(id);
 
 
 --
