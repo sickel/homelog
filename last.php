@@ -24,11 +24,14 @@ try{
  and then just have a number to handle afterwards.
  the table should have an index on (sensorid,datetime desc) or the query will run slowly when there start to be about 100k records
 */
-$sql='select distinct on (sensorid) sensorid, sensor.name,value,unit,datetime,extract (epoch from now()-datetime) as since 
-from measure,sensor,type 
-where type.id=sensor.typeid and sensor.id=sensorid';
-$sql.=$_GET['show']=='all'?'':' and active=true ';
-$sql.=' order by sensorid,datetime desc';
+
+$sql='select * from lastmeas_complete';
+# $sql='select distinct on (sensorid) sensorid, sensor.name,value,unit,datetime,extract (epoch from now()-datetime) as since 
+# from measure,sensor,type 
+# where type.id=sensor.typeid and sensor.id=sensorid';
+// $sql.=$_GET['show']=='all'?'':' and active=true ';
+// $sql.=' order by sensorid,datetime desc';
+// print($sql);
 $sqlh=$dbh->prepare($sql);
 $sqlh->execute();
 $data=$sqlh->fetchAll(PDO::FETCH_ASSOC);
@@ -36,6 +39,7 @@ if(array_key_exists('json',$_GET)){
   header('Content-type: application/json');
   die(json_encode($data));
 }
+// print_r($data)
 ?>
 <html><head><title>Last value</title>
 <meta http-equiv=refresh content='60; url=last.php'>
@@ -50,12 +54,12 @@ $age=$showage?"<th>alder (min)</th>":"";
 print("<tr><th>Måling</th><th>Verdi</th>$age</tr>\n");
 $sensors=array_key_exists('s',$_GET)?$_GET['s']:array();
 foreach ($data as $s){
-  if(count($sensors)==0 or in_array($s['sensorid'],$sensors) ){
+  if($s['main']){
     $class=$s['since']< 60*20?'default':'olddata';
     $s['since']=round($s['since']/60);
-    $txt="${s['name']} </td><td class=\"right\"> <b>${s['value']} ${s['unit']}</td>";
+    $txt="${s['type']} ${s['station']}   </td><td class=\"right\"> <b>${s['value']} ${s['unit']}</td>";
     if($showage){
-      $txt.="<td class=\"center\">${s['since']}</td>";
+      //$txt.="<td class=\"center\">${s['since']}</td>";
     }
     if(array_key_exists('showids',$_GET)){
       $txt="(${s['sensorid']}) $txt";
