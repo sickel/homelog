@@ -51,15 +51,13 @@ if($_GET['a']=='tempdata'){
     throw new jsonException("missing stream-parameter");
   }
   $stepline=false;
-  $sensorid=$_GET['stream'];	
-  $sensorid=$sensors[$_GET['stream']]; 
-  $sql='select value, at
-        from sensormeasurement where sensorid=? and datetime>? ';
-  
+  $sensorid=$_GET['stream'];
+  $sensorid=$sensors[$_GET['stream']];
+  $sql='select value, at from sensormeasurement where sensorid=? and datetime>? ';
   $params=array($_GET['stream'],$_GET['from']);
  // print_r($sensorid);
 //  $sensorid=$_GET['stream'];
-  //if($sensorid){  
+  //if($sensorid){ 
   
     $unitq=$dbh->prepare('select unit from sensors where id=?');
     $unitq->execute(array($_GET['stream']));
