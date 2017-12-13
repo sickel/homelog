@@ -68,8 +68,10 @@ foreach ($data as $s){
   }
 }
 
+print("</table><hr />");
+
+date_default_timezone_set('Europe/Oslo');
+print("<p>Oppdatert ".date('d/m/Y H:i:s', time())."</p>");
 ?>
-</table>
-<hr />
 <p><a href="stripchart.php">Stripchart</a></p>
 </body></html>
