@@ -166,6 +166,28 @@ CREATE TABLE measure (
 ALTER TABLE measure OWNER TO morten;
 
 --
+-- Name: corr_measure; Type: VIEW; Schema: public; Owner: morten
+--
+
+CREATE VIEW corr_measure AS
+ SELECT measure.id,
+    measure.sensorid,
+    measure.type,
+        CASE
+            WHEN (measure.value > (40000000)::double precision) THEN (measure.value - (4294967296::bigint)::double precision)
+            ELSE measure.value
+        END AS value,
+    measure.datetime,
+    measure.use,
+    measure.aux,
+    measure.payload,
+    measure.stationid
+   FROM measure;
+
+
+ALTER TABLE corr_measure OWNER TO morten;
+
+--
 -- Name: measure_qa; Type: VIEW; Schema: public; Owner: morten
 --
 
@@ -223,6 +245,99 @@ CREATE VIEW daymin AS
 
 
 ALTER TABLE daymin OWNER TO morten;
+
+--
+-- Name: sensor; Type: TABLE; Schema: public; Owner: morten; Tablespace: 
+--
+
+CREATE TABLE sensor (
+    id integer NOT NULL,
+    name character varying(255),
+    sensoraddr character varying(255),
+    type character varying NOT NULL,
+    minvalue double precision,
+    maxvalue double precision,
+    maxdelta double precision,
+    typeid integer,
+    active boolean DEFAULT true,
+    stationid integer NOT NULL,
+    factor double precision DEFAULT 1 NOT NULL
+);
+
+
+ALTER TABLE sensor OWNER TO morten;
+
+--
+-- Name: lastmeas; Type: VIEW; Schema: public; Owner: morten
+--
+
+CREATE VIEW lastmeas AS
+ SELECT DISTINCT ON (sd.sensorid, sd.type) sd.id,
+    sd.sensorid,
+    sd.type,
+        CASE
+            WHEN (sd.value > (40000000)::double precision) THEN ((sd.value - (4294967296::bigint)::double precision) / sensor.factor)
+            ELSE (sd.value / sensor.factor)
+        END AS value,
+    sd.datetime,
+    sd.use,
+    sd.aux,
+    sd.payload,
+    sd.stationid
+   FROM (measure sd
+     LEFT JOIN sensor ON ((sensor.id = sd.sensorid)))
+  WHERE ((NOT (sd.value IS NULL)) AND (sd.datetime > (now() - '01:00:00'::interval)))
+  ORDER BY sd.sensorid, sd.type, sd.datetime DESC;
+
+
+ALTER TABLE lastmeas OWNER TO morten;
+
+--
+-- Name: station; Type: TABLE; Schema: public; Owner: morten; Tablespace: 
+--
+
+CREATE TABLE station (
+    id integer NOT NULL,
+    name character varying NOT NULL,
+    datetime timestamp with time zone DEFAULT now()
+);
+
+
+ALTER TABLE station OWNER TO morten;
+
+--
+-- Name: type; Type: TABLE; Schema: public; Owner: morten; Tablespace: 
+--
+
+CREATE TABLE type (
+    id integer NOT NULL,
+    name character varying,
+    unit character varying,
+    main boolean DEFAULT true
+);
+
+
+ALTER TABLE type OWNER TO morten;
+
+--
+-- Name: lastmeas_complete; Type: VIEW; Schema: public; Owner: morten
+--
+
+CREATE VIEW lastmeas_complete AS
+ SELECT lm.id,
+    lm.value,
+    lm.datetime,
+    station.name AS station,
+    type.name AS type,
+    type.unit,
+    type.main
+   FROM ((lastmeas lm
+     LEFT JOIN station ON ((lm.stationid = station.id)))
+     LEFT JOIN type ON ((lm.type = type.id)))
+  WHERE (lm.use = true);
+
+
+ALTER TABLE lastmeas_complete OWNER TO morten;
 
 --
 -- Name: measure_id_seq; Type: SEQUENCE; Schema: public; Owner: morten
@@ -308,27 +423,6 @@ CREATE TABLE sender (
 ALTER TABLE sender OWNER TO morten;
 
 --
--- Name: sensor; Type: TABLE; Schema: public; Owner: morten; Tablespace: 
---
-
-CREATE TABLE sensor (
-    id integer NOT NULL,
-    name character varying(255),
-    sensoraddr character varying(255),
-    type character varying NOT NULL,
-    minvalue double precision,
-    maxvalue double precision,
-    maxdelta double precision,
-    typeid integer,
-    active boolean DEFAULT true,
-    stationid integer NOT NULL,
-    factor double precision DEFAULT 1 NOT NULL
-);
-
-
-ALTER TABLE sensor OWNER TO morten;
-
---
 -- Name: sensor_id_seq; Type: SEQUENCE; Schema: public; Owner: morten
 --
 
@@ -348,32 +442,6 @@ ALTER TABLE sensor_id_seq OWNER TO morten;
 
 ALTER SEQUENCE sensor_id_seq OWNED BY sensor.id;
 
-
---
--- Name: station; Type: TABLE; Schema: public; Owner: morten; Tablespace: 
---
-
-CREATE TABLE station (
-    id integer NOT NULL,
-    name character varying NOT NULL,
-    datetime timestamp with time zone DEFAULT now()
-);
-
-
-ALTER TABLE station OWNER TO morten;
-
---
--- Name: type; Type: TABLE; Schema: public; Owner: morten; Tablespace: 
---
-
-CREATE TABLE type (
-    id integer NOT NULL,
-    name character varying,
-    unit character varying
-);
-
-
-ALTER TABLE type OWNER TO morten;
 
 --
 -- Name: sensorlist; Type: VIEW; Schema: public; Owner: morten
@@ -818,6 +886,20 @@ CREATE INDEX measure_sensorid_datetime_idx1 ON measure USING btree (sensorid, da
 --
 
 CREATE INDEX measure_sensorid_idx ON measure USING btree (sensorid);
+
+
+--
+-- Name: measure_stationid; Type: INDEX; Schema: public; Owner: morten; Tablespace: 
+--
+
+CREATE INDEX measure_stationid ON measure USING btree (stationid);
+
+
+--
+-- Name: measure_type; Type: INDEX; Schema: public; Owner: morten; Tablespace: 
+--
+
+CREATE INDEX measure_type ON measure USING btree (type);
 
 
 --
