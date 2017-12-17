@@ -24,42 +24,38 @@ try{
  and then just have a number to handle afterwards.
  the table should have an index on (sensorid,datetime desc) or the query will run slowly when there start to be about 100k records
 */
-
-$sql='select * from lastmeas_complete';
+$limit =30;
+$sql='select * from corr_measure order by id desc limit ';
+$sql="$sql$limit";
+//  print($sql);
 $sqlh=$dbh->prepare($sql);
 $sqlh->execute();
 $data=$sqlh->fetchAll(PDO::FETCH_ASSOC);
+
 if(array_key_exists('json',$_GET)){
   header('Content-type: application/json');
   die(json_encode($data));
 }
 // print_r($data)
 ?>
-<html><head><title>Last value</title>
-<meta http-equiv=refresh content='60; url=last.php'>
+<html><head><title>Last values</title>
+<meta http-equiv=refresh content='60; url=list.php'>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="stylesheet" type="text/css" href="tempdata.css">
 <link rel="stylesheet" type="text/css" media="screen,projection,handheld and (min-device width:801px)" href="msi_smarty.css" charset="utf-8">
 </head><body>
 <?php 
 $showage=array_key_exists('age',$_GET)?1:0;
-print('<table class="lastlist">');
+print('<table>');
 $age=$showage?"<th>alder (min)</th>":"";
 print("<tr><th>Måling</th><th>Verdi</th>$age</tr>\n");
 $sensors=array_key_exists('s',$_GET)?$_GET['s']:array();
 foreach ($data as $s){
-  if($s['main'] || $_GET['showall']){
-    $class=$s['since']< 60*20?'default':'olddata';
-    $s['since']=round($s['since']/60);
-    $txt="${s['type']} ${s['station']}   </td><td class=\"right\"> <b>${s['value']} ${s['unit']}</td>";
-    if($showage){
-      //$txt.="<td class=\"center\">${s['since']}</td>";
-    }
-    if(array_key_exists('showids',$_GET)){
-      $txt="(${s['sensorid']}) $txt";
-    }	
-    print("<tr class=\"$class\"><td class=\"right\">$txt</tr>\n");
+  print("<tr>");
+  foreach ($s as $t){
+     print("<td class=\"right\">$t</td>");
   }
+  print("</tr>\n");
 }
 
 print("</table><hr />");
@@ -67,5 +63,5 @@ print("</table><hr />");
 date_default_timezone_set('Europe/Oslo');
 print("<p>Oppdatert ".date('d/m/Y H:i:s', time())."</p>");
 ?>
-<p><a href="stripchart.php">Stripchart</a>  <a href="list.php">Last values</a></p>
+<p><a href="stripchart.php">Stripchart</a>  <a href="last.php">Last value</a></p>
 </body></html>

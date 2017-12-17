@@ -74,7 +74,7 @@ printf('<label for="from">From</label><input value="%s" id="from"><br />
     exit( "<p>Cannot connect - $message</p>");
   }
 
-  $sql="select concat,id from sensorlist";
+  $sql="select concat,id from sensorlist order by stationname,priority";
   $qry=$dbh->prepare($sql);
   $qry->execute();
   $sensorset=$qry->fetchAll(PDO::FETCH_ASSOC);
@@ -136,7 +136,7 @@ Last value: <span id="logvalue0">&nbsp;</span>
 </div>
 </div>
 <div id="footer">
-<p><a href="last.php">Last values</a></p>
+<p><a href="last.php">Last values</a> <a href="list.php">Last value list</a></p>
 <?php
 if(strpos($_SERVER['REMOTE_ADDR'],'192.168')===0){
   print("<a href=\"kwh.php\">kWh-registration</a><br />");
