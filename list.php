@@ -48,7 +48,7 @@ if(array_key_exists('json',$_GET)){
 $showage=array_key_exists('age',$_GET)?1:0;
 print('<table>');
 $age=$showage?"<th>alder (min)</th>":"";
-print("<tr><th>Måling</th><th>Verdi</th>$age</tr>\n");
+print("<tr><th>Id</th><th>Sensor</th><th>Type</th><th>Verdi</th><th>Tid</th><th>Bruk</th><th>aux</th><th>Nr</th><th>Stasjon</th></tr>\n");
 $sensors=array_key_exists('s',$_GET)?$_GET['s']:array();
 foreach ($data as $s){
   print("<tr>");
