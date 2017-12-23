@@ -37,6 +37,7 @@ function pageonload(event){
     Event.observe($('bt2xForward'),'click',pagetime);
     Event.observe($('btLastMonth'),'click',loadtimespan);
     Event.observe($('btLastYear'),'click',loadtimespan);
+    Event.observe($('btLastDay'),'click',loadtimespan);
     svginit(event);
     $$('.paramchooser').each(function(chooser){
 	Event.observe(chooser,'change',setparam);
@@ -57,6 +58,9 @@ function loadtimespan(event){
 function settimespan(event){
     var date=new Date();
     var ndays=7;
+    if (event.target.id=="btLastDay"){
+      ndays=1;
+    }
     if (event.target.id=="btLastMonth"){
 	// Change to go one month back...
 	// Subtract on the month value

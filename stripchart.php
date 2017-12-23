@@ -47,6 +47,7 @@ printf('<label for="from">From</label><input value="%s" id="from"><br />
 <br />
 <button id="btBack">&lt;-</button>
 <button id="bt2xBack">2x</button>
+<button id="btLastDay">Last Day</button>
 <button id="btLastWeek">Last Week</button>
 <button id="btLastMonth">Last Month</button>
 <button id="btLastYear">Last Year</button>
