@@ -24,14 +24,21 @@ try{
  and then just have a number to handle afterwards.
  the table should have an index on (sensorid,datetime desc) or the query will run slowly when there start to be about 100k records
 */
-$limit =30;
-$sql='select * from corr_measure order by id desc limit ';
+$limit=$_GET['limit']*1;
+if($limit==0){
+   $limit =30;
+}
+$sql='select id,sensorid,type,value,datetime,use,aux,payload,stationid,senderid from corr_measure';
+$stid=$_GET["stationid"]*1;
+if($stid>0){
+    $sql.=' where stationid='.$stid;
+    }
+$sql=$sql.' order by id desc limit ';
 $sql="$sql$limit";
 //  print($sql);
 $sqlh=$dbh->prepare($sql);
 $sqlh->execute();
 $data=$sqlh->fetchAll(PDO::FETCH_ASSOC);
-
 if(array_key_exists('json',$_GET)){
   header('Content-type: application/json');
   die(json_encode($data));
@@ -44,16 +51,27 @@ if(array_key_exists('json',$_GET)){
 <link rel="stylesheet" type="text/css" href="tempdata.css">
 <link rel="stylesheet" type="text/css" media="screen,projection,handheld and (min-device width:801px)" href="msi_smarty.css" charset="utf-8">
 </head><body>
+<p><a href="list.php">Unfiltered</a></p>
 <?php 
 $showage=array_key_exists('age',$_GET)?1:0;
 print('<table>');
 $age=$showage?"<th>alder (min)</th>":"";
-print("<tr><th>Id</th><th>Sensor</th><th>Type</th><th>Verdi</th><th>Tid</th><th>Bruk</th><th>aux</th><th>Nr</th><th>Stasjon</th></tr>\n");
+print("<tr><th>Id</th><th>Sensor</th><th>Type</th><th>Verdi</th><th>Tid</th><th>Bruk</th><th>aux</th><th>Nr</th><th>Stasjon</th><th>Sender</th></tr>\n");
 $sensors=array_key_exists('s',$_GET)?$_GET['s']:array();
 foreach ($data as $s){
+  $new=true;
   print("<tr>");
-  foreach ($s as $t){
-     print("<td class=\"right\">$t</td>");
+  foreach ($s as $k=>$t){
+     if($new){
+        $sensorid=$s["sensorid"];
+        print("<td class=\"right\"><a href=\"http://sjest/homelog/stripchart.php?selid=${sensorid}\">$t</a></td>");
+        $new=false;
+     }else{
+        if($k=='stationid'){
+           $t="<a href=list.php?stationid=$t>$t</a>";
+        }
+        print("<td class=\"right\">$t</td>");
+     }
   }
   print("</tr>\n");
 }

@@ -57,7 +57,9 @@ printf('<label for="from">From</label><input value="%s" id="from"><br />
 <select class="paramchooser" id="paramchoose0" name="paramchoose0">
 <?php
    $selected=$_GET['selected']?$_GET['selected']:"Ute";
-
+   $selid=$_GET['selid']?$_GET['selid']:0;
+   
+   
 
  $dbtype='pgsql';
   include('dbconn.php'); // sets the values username, server, database and password
@@ -105,7 +107,7 @@ $paramsold=array("Inne"=>"Inne",
 		 "Sørvegg - dagmax" =>"Sørvegg - døgnmax");
      foreach($params as $k=>$v){
        print("<option ");
-       if($k==$selected){print 'selected="selected" ';}
+       if($v==$selected || $k==$selid){print 'selected="selected" ';}
        printf('label="%s" value="%s" >%s</option>',$v,$k,$v);
        print("\n");
      }
@@ -125,6 +127,9 @@ $paramsold=array("Inne"=>"Inne",
 <![endif]-->
  </object>
  <?php
+// print("<p>$selected</p>");
+//   print("<p>$selid</p>");
+   
  $location="http://www.yr.no/sted/Norge/Akershus/Frogn/Karlsrud";
  $weatherdata="$location/time_for_time_detaljert.html" ;
  $meteogram= "$location/avansert_meteogram.png";

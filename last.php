@@ -51,7 +51,7 @@ foreach ($data as $s){
   if($s['main'] || $_GET['showall']){
     $class=$s['since']< 60*20?'default':'olddata';
     $s['since']=round($s['since']/60);
-    $txt="${s['type']} ${s['station']}   </td><td class=\"right\"> <b>${s['value']} ${s['unit']}</td>";
+    $txt="<a href=\"stripchart.php?selid=${s['sensorid']}\">${s['type']} ${s['station']}</a>   </td><td class=\"right\"> <b>${s['value']} ${s['unit']}</td>";
     if($showage){
       //$txt.="<td class=\"center\">${s['since']}</td>";
     }
