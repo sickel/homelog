@@ -25,14 +25,17 @@ try{
  the table should have an index on (sensorid,datetime desc) or the query will run slowly when there start to be about 100k records
 */
 $limit=$_GET['limit']*1;
-if($limit==0){
+if($limit<=0){
    $limit =30;
 }
 $sql='select id,sensorid,type,value,datetime,use,aux,payload,stationid,senderid from corr_measure';
 $stid=$_GET["stationid"]*1;
+$seid=$_GET["senderid"]*1;
 if($stid>0){
     $sql.=' where stationid='.$stid;
-    }
+}elseif ($seid>0){
+    $sql.=' where senderid='.$seid;
+}
 $sql=$sql.' order by id desc limit ';
 $sql="$sql$limit";
 //  print($sql);
@@ -58,9 +61,11 @@ print('<table>');
 $age=$showage?"<th>alder (min)</th>":"";
 print("<tr><th>Id</th><th>Sensor</th><th>Type</th><th>Verdi</th><th>Tid</th><th>Bruk</th><th>aux</th><th>Nr</th><th>Stasjon</th><th>Sender</th></tr>\n");
 $sensors=array_key_exists('s',$_GET)?$_GET['s']:array();
+$trclass="";
 foreach ($data as $s){
   $new=true;
-  print("<tr>");
+  $trclass=($trclass!="odd"?"odd":"even");
+  print("<tr class=\"${trclass}\">");
   foreach ($s as $k=>$t){
      if($new){
         $sensorid=$s["sensorid"];
@@ -69,7 +74,9 @@ foreach ($data as $s){
      }else{
         if($k=='stationid'){
            $t="<a href=list.php?stationid=$t>$t</a>";
-        }
+        }elseif($k=='senderid'){
+           $t="<a href=list.php?senderid=$t>$t</a>";
+           }
         print("<td class=\"right\">$t</td>");
      }
   }
