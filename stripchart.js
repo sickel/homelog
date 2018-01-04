@@ -232,6 +232,9 @@ function hHR_receiveddata(response,json){ // The response function to the ajax c
             }else{
                 chart.pnts=new Array();
                 chart.timestamps=new Array(); 
+                chart.maxvalue=-1E9;
+                chart.minvalue=1E9;
+    
             }
 //	    chart.drawstrip();
 	    chart.setunit(jsondata.unit);
