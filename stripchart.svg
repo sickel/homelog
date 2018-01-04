@@ -38,9 +38,36 @@ $Id: stripchart.svg 707 2011-02-16 14:08:23Z radioecology $
   
   
   <!-- Chart 1 line. -->
+  <g id="loglines">
       <polyline id="temp1" fill="none" stroke="blue" 
 		stroke-width="1"     	   
-		points="0,0 0,0" />
+                points="0,0 0,0" />
+      
+      <polyline id="temp2" fill="none" stroke="green" 
+		stroke-width="1"     	   
+                points="0,0 0,0" />
+      <polyline id="temp3" fill="none" stroke="red" 
+		stroke-width="1"     	   
+                points="0,0 0,0" />
+      <polyline id="temp4" fill="none" stroke="black" 
+		stroke-width="1"     	   
+                points="0,0 0,0" />
+      <polyline id="temp5" fill="none" stroke="yellow" 
+		stroke-width="1"     	   
+                points="0,0 0,0" />
+      <polyline id="temp6" fill="none" stroke="orange" 
+		stroke-width="1"     	   
+                points="0,0 0,0" />
+      <polyline id="temp7" fill="none" stroke="gray" 
+		stroke-width="1"     	   
+                points="0,0 0,0" />
+      <polyline id="temp8" fill="none" stroke="green" 
+		stroke-width="1"     	   
+                points="0,0 0,0" />
+      <polyline id="temp9" fill="none" stroke="green" 
+		stroke-width="1"     	   
+                points="0,0 0,0" />
+      </g>
       <g id="horizlines"> </g>
   
 </g>

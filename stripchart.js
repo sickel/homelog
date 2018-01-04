@@ -85,6 +85,8 @@ function stringtodate(string){
 
 function savetimes()
     {}
+    
+    
 function pagetime(event){
     var target=event.element();
     var id=target.id;
@@ -202,6 +204,7 @@ function fetchData(event){ // This may be called by a periodical executer
 	,stream: $('paramchoose0').value
 	,from: $('from').value
 	,to: $('to').value
+	,add: $('adddata').checked
         ,fool_ie: Math.random()
     });
     // simplest way to stop internet explorer from caching
@@ -224,7 +227,12 @@ function hHR_receiveddata(response,json){ // The response function to the ajax c
 	    datasetsize=dataset.size();
 	}
 	charts.each(function(chart){
-	    chart.resetpnts();
+            if(!$('adddata').checked){
+                chart.resetpnts();
+            }else{
+                chart.pnts=new Array();
+                chart.timestamps=new Array(); 
+            }
 //	    chart.drawstrip();
 	    chart.setunit(jsondata.unit);
 	    chart.setstepline(jsondata.stepline);
@@ -241,6 +249,7 @@ function hHR_receiveddata(response,json){ // The response function to the ajax c
 	   //	});
 	   }*/
 	dataset.each(function(val){
+            
 	    charts.each(function(chart){
 		chart.addpoint(val); // sends the entire set to each chart, the chart is responsible of selecting the right point
 	    });

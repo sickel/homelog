@@ -43,7 +43,7 @@ if($tst['error_count']){$tovalue='';}
 printf('<label for="from">From</label><input value="%s" id="from"><br />
 <label for="to">To</label><input id="to" value="%s">',$fromvalue,$tovalue);
 ?>
-   <button id="btLoad">Load Data</button>
+   <button id="btLoad">Load Data</button><input type="checkbox" id="adddata" /> Add data
 <br />
 <button id="btBack">&lt;-</button>
 <button id="bt2xBack">2x</button>

@@ -243,7 +243,19 @@ function drawstrip(){
 	    // path+=i+","+(this.pnts[i-1])*this.factor+" ";		
 	}
     }
-    var chartline=this.svgobj.getElementById('temp1');
+    //var chartline=this.svgobj.getElementById('temp2');
+    var chartline=null;
+    var g=svg.getElementById('loglines');
+    var children = g.children;
+    for (var i = 0; i < children.length; i++) {
+        var tableChild = children[i];
+        if(chartline==null && tableChild.points.length==2){
+            chartline=tableChild;
+        }
+    }
+    //var chartline=document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+    // chartline.setAttribute('stroke', "blue");
+    chartline.setAttribute('stroke-width', "2");
     chartline.setAttribute("points", path );
     var linetime=new Date(this.timestamps[0]);
     linetime.setHours(0,0,0,0);
@@ -314,7 +326,7 @@ function addpoint(dataset){
 
 function resetpnts(){
     this.pnts=new Array();
-    this.timestamps=new Array();
+    this.timestamps=new Array(); 
     this.maxvalue=-1E9;
     this.minvalue=1E9;
     // Cleans up the horizontal lines:
@@ -326,6 +338,12 @@ function resetpnts(){
     g=svg.getElementById('xlines');
     while (g.firstChild) {
 	g.removeChild(g.firstChild);
+    }
+    g=svg.getElementById('loglines');
+    var children = g.children;
+    for (var i = 0; i < children.length; i++) {
+        var tableChild = children[i];
+        tableChild.setAttribute("points","0 0 0 0");
     }
     g=svg.getElementById('xbox');
     g.setAttribute('class','invisible');
