@@ -41,38 +41,38 @@ $Id: stripchart.svg 707 2011-02-16 14:08:23Z radioecology $
   <g id="loglines">
       <polyline id="temp1" fill="none" stroke="blue" stroke-width="1"  points="0,0 0,0" />
      <g id="leg1" visibility="hidden">
-         <rect x="0" y="250" width="150" height="25"  linewidth="1" fill="none" stroke="black"/>
-         <line x1="5" y1="262" x2="20" y2="262" stroke="blue" stroke-width="1" />
+         <rect x="0" y="250" width="150" height="25"  linewidth="1" fill="none" stroke="none"/>
+         <line x1="5" y1="262" x2="20" y2="262" stroke="blue" stroke-width="3" />
          <text x="25" y="266" font-family="Verdana" font-size="12">-</text>
       </g>
       <polyline id="temp2" fill="none" stroke="green" stroke-width="1" points="0,0 0,0" />
       <g id="leg2" visibility="hidden">
-          <rect x="150" y="250" width="150" height="25"  linewidth="1" fill="none" stroke="green"/>
-          <line x1="155" y1="262" x2="170" y2="262" stroke="green" stroke-width="1" />
+          <rect x="150" y="250" width="150" height="25"  linewidth="1" fill="none" stroke="none"/>
+          <line x1="155" y1="262" x2="170" y2="262" stroke="green" stroke-width="3" />
           <text x="175" y="266" font-family="Verdana" font-size="12">-</text>
       </g>
       <polyline id="temp3" fill="none" stroke="red" stroke-width="1" points="0,0 0,0" />
       <g id="leg3"  visibility="hidden">
-          <rect x="300" y="250" width="150" height="25"  linewidth="1" fill="none" stroke="red"/>
-          <line x1="305" y1="262" x2="320" y2="262" stroke="red" stroke-width="1" />
+          <rect x="300" y="250" width="150" height="25"  linewidth="1" fill="none" stroke="none"/>
+          <line x1="305" y1="262" x2="320" y2="262" stroke="red" stroke-width="3" />
           <text x="325" y="266" font-family="Verdana" font-size="12">-</text>
       </g>
       <polyline id="temp4" fill="none" stroke="gray" stroke-width="1" points="0,0 0,0" />
        <g  visibility="hidden">
-         <rect x="0" y="275" width="150" height="25"  linewidth="1" fill="none" stroke="gray"/>
-         <line x1="5" y1="287" x2="20" y2="287" stroke="gray" stroke-width="1" />
+         <rect x="0" y="275" width="150" height="25"  linewidth="1" fill="none" stroke="none"/>
+         <line x1="5" y1="287" x2="20" y2="287" stroke="gray" stroke-width="3" />
          <text x="25" y="291" font-family="Verdana" font-size="12">-</text>
      </g>
       <polyline id="temp5" fill="none" stroke="yellow" stroke-width="1" points="0,0 0,0" />
       <g  visibility="hidden">
-         <rect x="150" y="275" width="150" height="25"  linewidth="1" fill="none" stroke="yellow"/>
-         <line x1="155" y1="287" x2="170" y2="287" stroke="yellow" stroke-width="1" />
+         <rect x="150" y="275" width="150" height="25"  linewidth="1" fill="none" stroke="none"/>
+         <line x1="155" y1="287" x2="170" y2="287" stroke="yellow" stroke-width="3" />
          <text x="175" y="291" font-family="Verdana" font-size="12">-</text>
       </g>
       <polyline id="temp6" fill="none" stroke="orange" stroke-width="1" points="0,0 0,0" />
       <g  visibility="hidden">
-         <rect x="300" y="275" width="150" height="25"  linewidth="1" fill="none" stroke="orange"/>
-         <line x1="305" y1="287" x2="320" y2="287" stroke="orange" stroke-width="1" />
+         <rect x="300" y="275" width="150" height="25"  linewidth="1" fill="none" stroke="none"/>
+         <line x1="305" y1="287" x2="320" y2="287" stroke="orange" stroke-width="3" />
          <text x="325" y="291" font-family="Verdana" font-size="12">-</text>
       </g>
       <!-- <polyline id="temp7" fill="none" stroke="gray" stroke-width="1" points="0,0 0,0" />
