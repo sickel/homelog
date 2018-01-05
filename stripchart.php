@@ -115,7 +115,7 @@ $paramsold=array("Inne"=>"Inne",
 <img id="spinner" src="ajax-bar.gif" />
 <span id="reportvals"></span><span id="mousex0" ></span>&nbsp;<span id="mousey0" ></span><br />
 <!--[if !IE]>-->
-  <object style="visibility: visible; overflow: hidden;" data="stripchart.svg" type="image/svg+xml" class="svg" id="stripchart0" name="stripchart" width="530" height="300"> 
+  <object style="visibility: visible; overflow: hidden;" data="stripchart.svg" type="image/svg+xml" class="svg" id="stripchart0" name="stripchart" width="530" height="450"> 
 <!--<![endif]-->
 <!--[if lt IE 9]>
   <object src="stripchart.svg" classid="image/svg+xml" class="svg"

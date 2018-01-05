@@ -119,6 +119,12 @@ if($_GET['a']=='tempdata'){
     $data['debug']['from']=$_GET['from'];
     $data['params']=$params;
   }	
+  $sql="select station.name from station  left join sensor on station.id=stationid where sensor.id=?";
+  $sqh=$dbh->prepare($sql);
+  $sqh->execute(array($_GET['stream']));
+  $f=$sqh->fetchAll(PDO::FETCH_ASSOC);
+  //print_r($f);
+  $data['station']=$f[0]['name'];
   print(json_encode($data));
   exit();
 }

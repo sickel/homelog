@@ -259,7 +259,7 @@ function hHR_receiveddata(response,json){ // The response function to the ajax c
 	});
 	//$('p_status'+chartid).innerHTML+='|'+pnts.length;
 	charts.each(function(chart){
-	    chart.drawstrip();
+	    chart.drawstrip(jsondata.station+" ("+jsondata.unit+")");
 	});
 	
     }else{

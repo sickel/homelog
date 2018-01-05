@@ -175,7 +175,7 @@ function timestring(ts){
     return(hr+':'+mn);
 }
 
-function drawstrip(){
+function drawstrip(legendtext){
     var lastts=this.timestamps.slice(-1)[0];
     var lastdate=new Date(lastts);
     var timespan=lastts-this.timestamps[0];
@@ -249,8 +249,13 @@ function drawstrip(){
     var children = g.children;
     for (var i = 0; i < children.length; i++) {
         var tableChild = children[i];
-        if(chartline==null && tableChild.points.length==2){
+        
+        if(chartline==null && tableChild.tagName=="polyline" && tableChild.points.length==2){
             chartline=tableChild;
+            var legend=tableChild.nextSibling.nextSibling;
+            legend.style.visibility='visible';
+            var legchld=legend.children;
+            legchld[2].innerHTML=legendtext;
         }
     }
     //var chartline=document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
@@ -319,10 +324,15 @@ function addpoint(dataset){
 	this.maxvalue=value;
 	this.maxtime=ts;}
     if(!(Object.isUndefined(value))){
-	this.pnts.push(value);      // puts the new point at the head /use push to add data at the end
+	   this.pnts.push(value);      // puts the new point at the head /use push to add data at the end
 //	this.logger.innerHTML=" "+Math.round(value*100)/100+this.unit+" at "+ts.getHour(); // prints the value
     }
 }
+
+
+function newpoints(){
+    }
+
 
 function resetpnts(){
     this.pnts=new Array();
