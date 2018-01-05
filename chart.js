@@ -353,7 +353,11 @@ function resetpnts(){
     var children = g.children;
     for (var i = 0; i < children.length; i++) {
         var tableChild = children[i];
-        tableChild.setAttribute("points","0 0 0 0");
+        if(tableChild.tagName=="polyline"){
+            tableChild.setAttribute("points","0 0 0 0");
+        }else{
+            tableChild.style.visibility='hidden';
+        }
     }
     g=svg.getElementById('xbox');
     g.setAttribute('class','invisible');
