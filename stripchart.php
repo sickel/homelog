@@ -85,26 +85,6 @@ printf('<label for="from">From</label><input value="%s" id="from"><br />
   foreach($sensorset as $s){
         $params[$s['id']]=$s['concat'];}
 //   print_r($sensors);
-
-
-$paramsold=array("Inne"=>"Inne",
-		 "Ute"=>"Ute - sørvegg",
-		 "Ute - skygge"=>"Ute - østvegg",
-		 "Inne-Ute"=>"Inne-Ute",
-		 "Trykk"=>"Trykk",
-		 "Trykk - 0m"=>"Trykk - 0m",
-		 "Fuktighet" =>"Fuktighet",
-		 "Fuktighet DHT22" =>"Fuktighet DHT22",
-		 "Temp DHT22" =>"Temp DHT22",
-		 "Temp DHT11" =>"Temp DHT11",
-		 "Temp BHP085" =>"Temp BHP085",
-		 "Forbruk" =>"Forbruk",
-		 "Inne - test" =>"Inne - test",
-		 "Soloppvarming" =>"Soloppvarming",
-		 "Skygge" =>"Skygge",
-		 "Sørvegg - døgnsnitt" =>"Sørvegg - døgnsnitt",
-		 "Sørvegg - døgnmin" =>"Sørvegg - døgnmin",
-		 "Sørvegg - dagmax" =>"Sørvegg - døgnmax");
      foreach($params as $k=>$v){
        print("<option ");
        if($v==$selected || $k==$selid){print 'selected="selected" ';}
@@ -142,6 +122,17 @@ Last value: <span id="logvalue0">&nbsp;</span>
 </div>
 </div>
 <div id="footer">
+<?php
+ 
+  $sql="select min(value) from lastmeas_complete where unit='V'";
+  $qry=$dbh->prepare($sql);
+  $qry->execute();
+  $value=$qry->fetchAll(PDO::FETCH_ASSOC)[0]['min'];
+  if($value > 3.6){$vstatus='OK'; $color='green';}
+  elseif(value > 3.4){$vstatus='low'; $color='yellow';}
+  else{$vstatus='critical'; $color='red';}
+  print("<p><span class=\"$vstatus\">Voltages: $vstatus</span></p>");
+?>
 <p><a href="last.php">Last values</a> <a href="list.php">Last value list</a></p>
 <?php
 if(strpos($_SERVER['REMOTE_ADDR'],'192.168')===0){

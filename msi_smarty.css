@@ -2,14 +2,24 @@
 $Id: msi_smarty.css 707 2011-02-16 14:08:23Z radioecology $
 */
 
+
+
+
 html { height: 100% }
 body { height: 100%}
 #map_canvas { height: 100% }
+
+
+
 
 .plot{ 
             float: left;
 }
 
+
+.OK{background-color:green;}
+.low{background-color:yellow;}
+.critical{background-color:red;}
 
 #filinfo{
 	border: black 1px;
