@@ -6,3 +6,8 @@
 
 *.old
 dbconn.php
+templates_c
+cache
+demo
+index.php
+
