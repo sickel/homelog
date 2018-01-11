@@ -131,7 +131,7 @@ Last value: <span id="logvalue0">&nbsp;</span>
   if($value > 3.6){$vstatus='OK'; $color='green';}
   elseif(value > 3.4){$vstatus='low'; $color='yellow';}
   else{$vstatus='critical'; $color='red';}
-  print("<p><span class=\"$vstatus\">Voltages: $vstatus</span></p>");
+  print("<p><a href=\"last_voltage.php\"><span class=\"$vstatus\">Voltages: $vstatus</span></a></p>");
 ?>
 <p><a href="last.php">Last values</a> <a href="list.php">Last value list</a></p>
 <?php
