@@ -23,7 +23,7 @@ $smarty->cache_lifetime = 120;
 
 $sql='select * from lastmeas_complete';
 //print_r($_GET);
-if($_GET['showall']==""){
+if(!(array_key_exists("showall",$_GET) && $_GET['showall']>"")){
     $sql.=" where main = true";
 }
 //print_r($sql);
@@ -36,7 +36,7 @@ if(array_key_exists('json',$_GET)){
 }
 //print_r($data);
 
-//$showage=array_key_exists('age',$_GET)?10;
+$showage=array_key_exists('age',$_GET);
 //print('<table class="lastlist">');
 $age=$showage?"<th>alder (min)</th>":"";
 //print("<tr><th>Måling</th><th>Verdi</th>$age</tr>\n");
@@ -60,6 +60,7 @@ $smarty->assign('data',$data);
 print("</table><hr />");
 */
 date_default_timezone_set('Europe/Oslo');
+$smarty->assign('vlevel',voltagelevel());
 
 $smarty->display('last.tpl');
 ?>

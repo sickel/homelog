@@ -1,21 +1,15 @@
 <?php
 
-$dbtype='pgsql';
-include('dbconn.php');
-// sets the values username, server, database and password
 
-try{
-    $connectstring=$dbtype.':host='.$server.';dbname='.$database;
-    $dbh = new PDO($connectstring, $username, $password);
-    if($dbtype=='pgsql'){
-      $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    }
 
-  }
-  catch(PDOException $e){
-    $message=$e->getMessage(); 
-    exit( "<p>Cannot connect - $message</p>");
-  }
+include('connect_db.php');
+
+require 'smarty3/Smarty.class.php';
+$smarty = new Smarty;
+//$smarty->force_compile = true;
+//$smarty->debugging = true;
+$smarty->caching = false;
+$smarty->cache_lifetime = 120;
 
 
 /*
@@ -26,7 +20,7 @@ try{
 */
 
 $sql='SELECT DISTINCT ON (sd.sensorid, sd.type) 
-    sd.sensorid,sd.value/sensor.factor as value,sd.datetime,station.name
+    sd.sensorid,sd.value/sensor.factor as value,sd.datetime,station.name as station
    FROM measure sd
      LEFT JOIN sensor ON sensor.stationid = sd.sensorid AND sd.type = sensor.typeid left join station on sd.stationid=station.id
   WHERE NOT sd.value IS NULL and sd.type=118 and not sd.stationid is null
@@ -40,34 +34,21 @@ if(array_key_exists('json',$_GET)){
   die(json_encode($data));
 }
 // print_r($data)
-?>
-<html><head><title>Last value</title>
-<meta http-equiv=refresh content='60; url=last_voltage.php'>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="stylesheet" type="text/css" href="tempdata.css">
-<link rel="stylesheet" type="text/css" media="screen,projection,handheld and (min-device width:801px)" href="msi_smarty.css" charset="utf-8">
-</head><body>
-<?php 
 $showage=array_key_exists('age',$_GET)?1:0;
-print('<table class="lastlist">');
 $age=$showage?"<th>alder (min)</th>":"";
-print("<tr><th>Måling</th><th>Verdi</th>$age</tr>\n");
 $sensors=array_key_exists('s',$_GET)?$_GET['s']:array();
-foreach ($data as $s){
-$value=$s['value'];
-    if($value > 3.6){$vstatus='OK'; $color='green';}
-  elseif(value > 3.4){$vstatus='low'; $color='yellow';}
-  else{$vstatus='critical'; $color='red';}
-  
-    $txt="<a href=\"stripchart.php?selid=${s['sensorid']}\">${s['name']}</a>   </td><td class=\"right $vstatus\"> <b>${s['value']} V</td><td>${s['datetime']}</td>";
-    print("<tr class=\"$class\"><td class=\"right\">$txt</tr>\n");
+foreach ($data as &$s){
+    $value=$s['value'];
+    $s['value']=round($value,2);
+    $s['vstatus']=levelclass($s['value']);
+    $s['unit']='V';
+   // print("<tr class=\"$class\"><td class=\"right\">$txt</tr>\n");
 
 }
-
-print("</table><hr />");
-
+$smarty->assign('data',$data);
+//print_r($data);
 date_default_timezone_set('Europe/Oslo');
-print("<p>Oppdatert ".date('d/m/Y H:i:s', time())."</p>");
+$smarty->assign("vlevel",100);
+$smarty->display('last_voltages.tpl');
+
 ?>
-<p><a href="stripchart.php">Stripchart</a>  <a href="list.php">Last values</a></p>
-</body></html>

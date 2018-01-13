@@ -1,21 +1,12 @@
 <?php
 
-$dbtype='pgsql';
-include('dbconn.php');
-// sets the values username, server, database and password
-
-try{
-    $connectstring=$dbtype.':host='.$server.';dbname='.$database;
-    $dbh = new PDO($connectstring, $username, $password);
-    if($dbtype=='pgsql'){
-      $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    }
-
-  }
-  catch(PDOException $e){
-    $message=$e->getMessage(); 
-    exit( "<p>Cannot connect - $message</p>");
-  }
+include('connect_db.php');
+require 'smarty3/Smarty.class.php';
+$smarty = new Smarty;
+//$smarty->force_compile = true;
+//$smarty->debugging = true;
+$smarty->caching = false;
+$smarty->cache_lifetime = 120;
 
 
 /*
@@ -24,13 +15,23 @@ try{
  and then just have a number to handle afterwards.
  the table should have an index on (sensorid,datetime desc) or the query will run slowly when there start to be about 100k records
 */
-$limit=$_GET['limit']*1;
+
+$limit=30;
+if(array_key_exists('limit',$_GET)){
+    $limit=$_GET['limit']*1;
+}
 if($limit<=0){
    $limit =30;
 }
 $sql='select id,sensorid,type,value,datetime,use,aux,payload,stationid,senderid from corr_measure';
-$stid=$_GET["stationid"]*1;
-$seid=$_GET["senderid"]*1;
+$stid=0;
+if(array_key_exists('stationid',$_GET)){
+    $stid=$_GET["stationid"]*1;
+}
+$seid=0;
+if(array_key_exists('senderid',$_GET)){
+    $seid=$_GET["senderid"]*1;
+}
 if($stid>0){
     $sql.=' where stationid='.$stid;
 }elseif ($seid>0){

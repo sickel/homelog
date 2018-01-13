@@ -17,7 +17,8 @@ body { height: 100%}
 }
 
 
-.OK{background-color:green;}
+.OK{background-color:green;
+    color:white;}
 .low{background-color:yellow;}
 .critical{background-color:red;}
 
