@@ -48,46 +48,12 @@ if(array_key_exists('json',$_GET)){
   die(json_encode($data));
 }
 // print_r($data)
-?>
-<html><head><title>Last values</title>
-<meta http-equiv=refresh content='60; url=list.php'>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="stylesheet" type="text/css" href="tempdata.css">
-<link rel="stylesheet" type="text/css" media="screen,projection,handheld and (min-device width:801px)" href="msi_smarty.css" charset="utf-8">
-</head><body>
-<p><a href="list.php">Unfiltered</a></p>
-<?php 
 $showage=array_key_exists('age',$_GET)?1:0;
-print('<table>');
 $age=$showage?"<th>alder (min)</th>":"";
-print("<tr><th>Id</th><th>Sensor</th><th>Type</th><th>Verdi</th><th>Tid</th><th>Bruk</th><th>aux</th><th>Nr</th><th>Stasjon</th><th>Sender</th></tr>\n");
 $sensors=array_key_exists('s',$_GET)?$_GET['s']:array();
 $trclass="";
-foreach ($data as $s){
-  $new=true;
-  $trclass=($trclass!="odd"?"odd":"even");
-  print("<tr class=\"${trclass}\">");
-  foreach ($s as $k=>$t){
-     if($new){
-        $sensorid=$s["sensorid"];
-        print("<td class=\"right\"><a href=\"http://sjest/homelog/stripchart.php?selid=${sensorid}\">$t</a></td>");
-        $new=false;
-     }else{
-        if($k=='stationid'){
-           $t="<a href=list.php?stationid=$t>$t</a>";
-        }elseif($k=='senderid'){
-           $t="<a href=list.php?senderid=$t>$t</a>";
-           }
-        print("<td class=\"right\">$t</td>");
-     }
-  }
-  print("</tr>\n");
-}
-
-print("</table><hr />");
-
+$smarty->assign('data',$data);
 date_default_timezone_set('Europe/Oslo');
-print("<p>Oppdatert ".date('d/m/Y H:i:s', time())."</p>");
+$smarty->assign('vlevel',voltagelevel());
+$smarty->display('list.tpl');
 ?>
-<p><a href="stripchart.php">Stripchart</a>  <a href="last.php">Last value</a></p>
-</body></html>
