@@ -12,7 +12,7 @@
             <td class="right">{$s['use']}</td>
             <td class="right">{$s['aux']}</td>
             <td class="right">{$s['payload']}</td>
-            <td class="right"><a href=list.php?senderid={$s['stationid']}>{$s['stationid']}</a></td>
+            <td class="right"><a href=list.php?stationid={$s['stationid']}>{$s['stationid']}</a></td>
             <td class="right"><a href=list.php?senderid={$s['senderid']}>{$s['senderid']}</a></td>
         </tr>
     {/foreach}
