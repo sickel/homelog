@@ -166,12 +166,69 @@ CREATE TABLE measure (
 ALTER TABLE measure OWNER TO morten;
 
 --
+-- Name: sender; Type: TABLE; Schema: public; Owner: morten; Tablespace: 
+--
+
+CREATE TABLE sender (
+    id integer NOT NULL,
+    stationid integer
+);
+
+
+ALTER TABLE sender OWNER TO morten;
+
+--
+-- Name: sensor; Type: TABLE; Schema: public; Owner: morten; Tablespace: 
+--
+
+CREATE TABLE sensor (
+    id integer NOT NULL,
+    name character varying(255),
+    sensoraddr character varying(255),
+    type character varying NOT NULL,
+    minvalue double precision,
+    maxvalue double precision,
+    maxdelta double precision,
+    typeid integer,
+    active boolean DEFAULT true,
+    stationid integer NOT NULL,
+    factor double precision DEFAULT 1 NOT NULL,
+    senderid integer
+);
+
+
+ALTER TABLE sensor OWNER TO morten;
+
+--
+-- Name: sensorsender; Type: VIEW; Schema: public; Owner: morten
+--
+
+CREATE VIEW sensorsender AS
+ SELECT sensor.id,
+    sensor.name,
+    sensor.sensoraddr,
+    sensor.type,
+    sensor.minvalue,
+    sensor.maxvalue,
+    sensor.maxdelta,
+    sensor.typeid,
+    sensor.active,
+    sensor.factor,
+    sender.stationid,
+    sensor.senderid
+   FROM (sensor
+     LEFT JOIN sender ON ((sensor.stationid = sender.id)));
+
+
+ALTER TABLE sensorsender OWNER TO morten;
+
+--
 -- Name: corr_measure; Type: VIEW; Schema: public; Owner: morten
 --
 
 CREATE VIEW corr_measure AS
  SELECT measure.id,
-    measure.sensorid,
+    sensorsender.id AS sensorid,
     measure.type,
         CASE
             WHEN (measure.value > (40000000)::double precision) THEN (measure.value - (4294967296::bigint)::double precision)
@@ -181,8 +238,10 @@ CREATE VIEW corr_measure AS
     measure.use,
     measure.aux,
     measure.payload,
-    measure.stationid
-   FROM measure;
+    measure.stationid,
+    measure.sensorid AS senderid
+   FROM (measure
+     LEFT JOIN sensorsender ON (((measure.sensorid = sensorsender.senderid) AND (measure.type = sensorsender.typeid))));
 
 
 ALTER TABLE corr_measure OWNER TO morten;
@@ -247,33 +306,12 @@ CREATE VIEW daymin AS
 ALTER TABLE daymin OWNER TO morten;
 
 --
--- Name: sensor; Type: TABLE; Schema: public; Owner: morten; Tablespace: 
---
-
-CREATE TABLE sensor (
-    id integer NOT NULL,
-    name character varying(255),
-    sensoraddr character varying(255),
-    type character varying NOT NULL,
-    minvalue double precision,
-    maxvalue double precision,
-    maxdelta double precision,
-    typeid integer,
-    active boolean DEFAULT true,
-    stationid integer NOT NULL,
-    factor double precision DEFAULT 1 NOT NULL
-);
-
-
-ALTER TABLE sensor OWNER TO morten;
-
---
 -- Name: lastmeas; Type: VIEW; Schema: public; Owner: morten
 --
 
 CREATE VIEW lastmeas AS
  SELECT DISTINCT ON (sd.sensorid, sd.type) sd.id,
-    sd.sensorid,
+    sensor.id AS sensorid,
     sd.type,
         CASE
             WHEN (sd.value > (40000000)::double precision) THEN ((sd.value - (4294967296::bigint)::double precision) / sensor.factor)
@@ -285,7 +323,7 @@ CREATE VIEW lastmeas AS
     sd.payload,
     sd.stationid
    FROM (measure sd
-     LEFT JOIN sensor ON ((sensor.id = sd.sensorid)))
+     LEFT JOIN sensor ON (((sensor.stationid = sd.sensorid) AND (sd.type = sensor.typeid))))
   WHERE ((NOT (sd.value IS NULL)) AND (sd.datetime > (now() - '01:00:00'::interval)))
   ORDER BY sd.sensorid, sd.type, sd.datetime DESC;
 
@@ -313,7 +351,8 @@ CREATE TABLE type (
     id integer NOT NULL,
     name character varying,
     unit character varying,
-    main boolean DEFAULT true
+    main boolean DEFAULT true,
+    priority integer DEFAULT 1
 );
 
 
@@ -330,7 +369,8 @@ CREATE VIEW lastmeas_complete AS
     station.name AS station,
     type.name AS type,
     type.unit,
-    type.main
+    type.main,
+    lm.sensorid
    FROM ((lastmeas lm
      LEFT JOIN station ON ((lm.stationid = station.id)))
      LEFT JOIN type ON ((lm.type = type.id)))
@@ -338,6 +378,29 @@ CREATE VIEW lastmeas_complete AS
 
 
 ALTER TABLE lastmeas_complete OWNER TO morten;
+
+--
+-- Name: measure_corr; Type: VIEW; Schema: public; Owner: morten
+--
+
+CREATE VIEW measure_corr AS
+ SELECT measure.id,
+    sensorsender.id AS sensorid,
+    measure.type,
+        CASE
+            WHEN (measure.value > (40000000)::double precision) THEN (measure.value - (4294967296::bigint)::double precision)
+            ELSE measure.value
+        END AS value,
+    measure.datetime,
+    measure.use,
+    measure.aux,
+    measure.payload,
+    measure.stationid
+   FROM (measure
+     LEFT JOIN sensorsender ON (((measure.sensorid = sensorsender.stationid) AND (measure.type = sensorsender.typeid))));
+
+
+ALTER TABLE measure_corr OWNER TO morten;
 
 --
 -- Name: measure_id_seq; Type: SEQUENCE; Schema: public; Owner: morten
@@ -411,18 +474,6 @@ ALTER SEQUENCE powerreading_id_seq OWNED BY powerreading.id;
 
 
 --
--- Name: sender; Type: TABLE; Schema: public; Owner: morten; Tablespace: 
---
-
-CREATE TABLE sender (
-    id integer NOT NULL,
-    stationid integer
-);
-
-
-ALTER TABLE sender OWNER TO morten;
-
---
 -- Name: sensor_id_seq; Type: SEQUENCE; Schema: public; Owner: morten
 --
 
@@ -449,12 +500,13 @@ ALTER SEQUENCE sensor_id_seq OWNED BY sensor.id;
 
 CREATE VIEW sensorlist AS
  SELECT sensor.id,
-    concat(type.name, ' på ', station.name) AS concat
+    concat(type.name, ' på ', station.name) AS concat,
+    type.priority,
+    station.name AS stationname
    FROM station,
     sensor,
     type
-  WHERE ((station.id = sensor.stationid) AND (type.id = sensor.typeid))
-  ORDER BY station.name;
+  WHERE ((station.id = sensor.stationid) AND (type.id = sensor.typeid));
 
 
 ALTER TABLE sensorlist OWNER TO morten;
@@ -696,44 +748,6 @@ CREATE VIEW view_all_grants AS
 ALTER TABLE view_all_grants OWNER TO morten;
 
 --
--- Name: wireless; Type: TABLE; Schema: public; Owner: morten; Tablespace: 
---
-
-CREATE TABLE wireless (
-    id integer NOT NULL,
-    sensorid integer NOT NULL,
-    value integer NOT NULL,
-    type integer NOT NULL,
-    aux integer,
-    payload integer,
-    addtime timestamp with time zone DEFAULT now()
-);
-
-
-ALTER TABLE wireless OWNER TO morten;
-
---
--- Name: wireless_id_seq; Type: SEQUENCE; Schema: public; Owner: morten
---
-
-CREATE SEQUENCE wireless_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE wireless_id_seq OWNER TO morten;
-
---
--- Name: wireless_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: morten
---
-
-ALTER SEQUENCE wireless_id_seq OWNED BY wireless.id;
-
-
---
 -- Name: id; Type: DEFAULT; Schema: public; Owner: morten
 --
 
@@ -759,13 +773,6 @@ ALTER TABLE ONLY sensor ALTER COLUMN id SET DEFAULT nextval('sensor_id_seq'::reg
 --
 
 ALTER TABLE ONLY temps ALTER COLUMN id SET DEFAULT nextval('temps_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: morten
---
-
-ALTER TABLE ONLY wireless ALTER COLUMN id SET DEFAULT nextval('wireless_id_seq'::regclass);
 
 
 --
@@ -822,14 +829,6 @@ ALTER TABLE ONLY temps
 
 ALTER TABLE ONLY type
     ADD CONSTRAINT type_pkey PRIMARY KEY (id);
-
-
---
--- Name: wireless_pkey; Type: CONSTRAINT; Schema: public; Owner: morten; Tablespace: 
---
-
-ALTER TABLE ONLY wireless
-    ADD CONSTRAINT wireless_pkey PRIMARY KEY (id);
 
 
 --
@@ -900,6 +899,13 @@ CREATE INDEX measure_stationid ON measure USING btree (stationid);
 --
 
 CREATE INDEX measure_type ON measure USING btree (type);
+
+
+--
+-- Name: station_name; Type: INDEX; Schema: public; Owner: morten; Tablespace: 
+--
+
+CREATE UNIQUE INDEX station_name ON station USING btree (name);
 
 
 --
