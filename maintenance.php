@@ -5,7 +5,7 @@ require 'smarty3/Smarty.class.php';
 $smarty = new Smarty;
 $selectedstation=0;
 $editid=0;
-if($_GET['editid']*1>0){
+if(array_key_exists('editid',$_GET) &&  $_GET['editid']*1>0){
     $sql="select * from sensor where id=?";
     $sqlh=$dbh->prepare($sql);
     $sqlh->execute(array($_GET['editid']));
