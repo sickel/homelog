@@ -37,9 +37,26 @@ function listsensors($sensors){
 
 
 try{
+
 if(!(isset($_GET['a']))){
   throw new jsonException("missing a a-parameter");
 }
+
+
+if($_GET['a']=='switchuse'){
+    if($_GET['present']==='1'){
+        $newvalue='false';}
+    elseif($_GET['present']==='0'){
+        $newvalue='false';}
+    else{throw new jsonException("unknown present value");}
+    $sql="update measure set use = $newvalue where id = ?";
+    $updateq=$dbh->prepare($sql);
+    $updateq->execute(array($_GET['elementid']*1));
+    print(json_encode('OK'));
+    exit("\n");
+  }
+ 
+        
 
 if($_GET['a']=='sensorlist'){
   print(listsensors($sensors));

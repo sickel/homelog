@@ -9,7 +9,7 @@
             <td class="right">{$s['type']}</td>
             <td class="right">{$s['value']}</td>
             <td>{$s['datetime']}</td>
-            <td class="right">{$s['use']}</td>
+            <td class="right usefield">{$s['use']}</td>
             <td class="right">{$s['aux']}</td>
             <td class="right">{$s['payload']}</td>
             <td class="right"><a href=list.php?stationid={$s['stationid']}>{$s['stationid']}</a></td>
