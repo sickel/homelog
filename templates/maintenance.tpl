@@ -18,7 +18,7 @@
 <th>Address</th></tr>
 <tr>
 
-<td><input type="submit" Value="Add"/><input type="hidden" {if $editid != "0"}value="{$editrow['id']}"{/if} /></td>
+<td><input type="submit" Value="{$savetext}"/>{if $editid != "0"}<input type="hidden" name="sensorid" value="{$editrow['id']}" />{/if}</td>
 <td><input type="text" name="sensorSender" {if $editid != "0"}value="{$editrow['senderid']}"{/if} size="4"></td>
 <td><input type="text" name="stationName" size="10">{html_options name=station options=$stationlist selected=$selectedstation}</td>
 <td><input type="text" name="sensorFactor" {if $editid != "0"}value="{$editrow['factor']}"{/if} size="4"></td>

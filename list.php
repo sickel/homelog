@@ -7,7 +7,7 @@ $smarty = new Smarty;
 //$smarty->debugging = true;
 $smarty->caching = false;
 $smarty->cache_lifetime = 120;
-$smarty->assign('pagetitle',"Measurement list");
+$smarty->assign('pagetitle',"List of Measurements");
 
 /*
  The following query will fetch the last measurement for each sensor that is flagged as active

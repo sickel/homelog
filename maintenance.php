@@ -5,7 +5,9 @@ require 'smarty3/Smarty.class.php';
 $smarty = new Smarty;
 $selectedstation=0;
 $editid=0;
+$savetext="Add";
 if(array_key_exists('editid',$_GET) &&  $_GET['editid']*1>0){
+    $savetext="Save";
     $sql="select * from sensor where id=?";
     $sqlh=$dbh->prepare($sql);
     $sqlh->execute(array($_GET['editid']));
@@ -17,10 +19,12 @@ if(array_key_exists('editid',$_GET) &&  $_GET['editid']*1>0){
 }else{
     $smarty->assign('editid',0);
 }
-
+$smarty->assign('savetext',$savetext);
 
 if(count($_POST)>0){
-//  print_r($_POST);
+//Array ( [sensorid] => 3 [sensorSender] => 5 [stationName] => [station] => 5 [sensorFactor] => 1000 [sensorTypeid] => 104 [sensorType] => DHT22 [sensorMin] => 0 [sensorMax] => 100 [sensorMaxDelta] => [sensorName] => [sensorAdress] => ) 
+//print_r($_POST);
+
     if($_POST['stationName']>''){
         $sql="insert into station(id,name) (select max(id)+1,? from station) returning id";
         $sqlh=$dbh->prepare($sql);
@@ -28,12 +32,24 @@ if(count($_POST)>0){
         $data=$sqlh->fetchAll(PDO::FETCH_ASSOC);
         $_POST['station']=$data[0]['id'];
     }
-    $sql="insert into sensor(name,sensoraddr,type,minvalue,maxvalue,maxdelta,typeid,stationid,factor, senderid)
-                      values(?,?,?,?,?,?,?,?,?,?)";
+    $valuearray=array($_POST['sensorName'],$_POST['sensorAdress'],$_POST['sensorType'],$_POST['sensorMin'],$_POST['sensorMax'],$_POST['sensorMaxDelta'],$_POST['sensorTypeid']*1,$_POST['station']*1,$_POST['sensorFactor']*1,$_POST['sensorSender']*1);
+    //print_r($valuearray);
+    foreach($valuearray as &$val){
+        $val=$val==""?null:$val;
+    }
+    //print_r($valuearray);
+    if($_POST['sensorid']*1>0){
+        $sql="update sensor set name=?,sensoraddr=?,type=?,minvalue=?,maxvalue=?,maxdelta=?,typeid=?,stationid=?,factor=?, senderid=?  where id = ?";
+        $valuearray[]=$_POST['sensorid']*1;
+    }else{
+        $sql="insert into sensor(name,sensoraddr,type,minvalue,maxvalue,maxdelta,typeid,stationid,factor, senderid) values(?,?,?,?,?,?,?,?,?,?)";
+    }
+    //print_r($sql);
     $sqlh=$dbh->prepare($sql);
-    $sqlh->execute(array($_POST['sensorName'],$_POST['sensorAdress'],$_POST['sensorType'],$_POST['sensorMin']*1,$_POST['sensorMax']*1,$_POST['sensorMaxDelta']*1,$_POST['sensorTypeid']*1,$_POST['station']*1,$_POST['sensorFactor']*1,$_POST['sensorSender']*1));
-    $data=$sqlh->fetchAll(PDO::FETCH_ASSOC);
-    
+    $sqlh->execute($valuearray);
+    //print_r("DONE!");
+    //$dbh->commit();
+        //$data=$sqlh->fetchAll(PDO::FETCH_ASSOC);
 }
 
 
