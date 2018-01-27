@@ -166,16 +166,16 @@ CREATE TABLE measure (
 ALTER TABLE measure OWNER TO morten;
 
 --
--- Name: sender; Type: TABLE; Schema: public; Owner: morten; Tablespace: 
+-- Name: sender_todelete; Type: TABLE; Schema: public; Owner: morten; Tablespace: 
 --
 
-CREATE TABLE sender (
+CREATE TABLE sender_todelete (
     id integer NOT NULL,
     stationid integer
 );
 
 
-ALTER TABLE sender OWNER TO morten;
+ALTER TABLE sender_todelete OWNER TO morten;
 
 --
 -- Name: sensor; Type: TABLE; Schema: public; Owner: morten; Tablespace: 
@@ -214,10 +214,10 @@ CREATE VIEW sensorsender AS
     sensor.typeid,
     sensor.active,
     sensor.factor,
-    sender.stationid,
+    sender_todelete.stationid,
     sensor.senderid
    FROM (sensor
-     LEFT JOIN sender ON ((sensor.stationid = sender.id)));
+     LEFT JOIN sender_todelete ON ((sensor.stationid = sender_todelete.id)));
 
 
 ALTER TABLE sensorsender OWNER TO morten;
@@ -337,7 +337,8 @@ ALTER TABLE lastmeas OWNER TO morten;
 CREATE TABLE station (
     id integer NOT NULL,
     name character varying NOT NULL,
-    datetime timestamp with time zone DEFAULT now()
+    datetime timestamp with time zone DEFAULT now(),
+    newid integer NOT NULL
 );
 
 
@@ -474,6 +475,18 @@ ALTER SEQUENCE powerreading_id_seq OWNED BY powerreading.id;
 
 
 --
+-- Name: sender; Type: VIEW; Schema: public; Owner: morten
+--
+
+CREATE VIEW sender AS
+ SELECT DISTINCT sensor.senderid AS id,
+    sensor.stationid
+   FROM sensor;
+
+
+ALTER TABLE sender OWNER TO morten;
+
+--
 -- Name: sensor_id_seq; Type: SEQUENCE; Schema: public; Owner: morten
 --
 
@@ -525,7 +538,7 @@ CREATE VIEW sensormeasurement AS
     measure.datetime
    FROM sensor,
     measure
-  WHERE (((sensor.typeid = measure.type) AND (sensor.stationid = measure.sensorid)) AND (measure.use = true));
+  WHERE (((sensor.typeid = measure.type) AND (sensor.senderid = measure.sensorid)) AND (measure.use = true));
 
 
 ALTER TABLE sensormeasurement OWNER TO morten;
@@ -566,6 +579,41 @@ CREATE VIEW shadow AS
 
 
 ALTER TABLE shadow OWNER TO morten;
+
+--
+-- Name: station_id; Type: SEQUENCE; Schema: public; Owner: morten
+--
+
+CREATE SEQUENCE station_id
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE station_id OWNER TO morten;
+
+--
+-- Name: station_newid_seq; Type: SEQUENCE; Schema: public; Owner: morten
+--
+
+CREATE SEQUENCE station_newid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE station_newid_seq OWNER TO morten;
+
+--
+-- Name: station_newid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: morten
+--
+
+ALTER SEQUENCE station_newid_seq OWNED BY station.newid;
+
 
 --
 -- Name: temps; Type: TABLE; Schema: public; Owner: morten; Tablespace: 
@@ -769,6 +817,13 @@ ALTER TABLE ONLY sensor ALTER COLUMN id SET DEFAULT nextval('sensor_id_seq'::reg
 
 
 --
+-- Name: newid; Type: DEFAULT; Schema: public; Owner: morten
+--
+
+ALTER TABLE ONLY station ALTER COLUMN newid SET DEFAULT nextval('station_newid_seq'::regclass);
+
+
+--
 -- Name: id; Type: DEFAULT; Schema: public; Owner: morten
 --
 
@@ -795,7 +850,7 @@ ALTER TABLE ONLY powerreading
 -- Name: sender_pkey; Type: CONSTRAINT; Schema: public; Owner: morten; Tablespace: 
 --
 
-ALTER TABLE ONLY sender
+ALTER TABLE ONLY sender_todelete
     ADD CONSTRAINT sender_pkey PRIMARY KEY (id);
 
 
@@ -927,7 +982,7 @@ ALTER TABLE ONLY measure
 -- Name: sender_stationid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: morten
 --
 
-ALTER TABLE ONLY sender
+ALTER TABLE ONLY sender_todelete
     ADD CONSTRAINT sender_stationid_fkey FOREIGN KEY (stationid) REFERENCES station(id);
 
 
