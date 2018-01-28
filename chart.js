@@ -175,14 +175,24 @@ function timestring(ts){
     return(hr+':'+mn);
 }
 
+function roundval(val,prec){
+    var oom=Math.round(Math.log10(val));
+    oom=oom-prec;
+    oom=10**oom
+    val=Math.round(val/oom);
+    val=val*oom;
+    return(val);
+}
+
+
 function drawstrip(legendtext){
     var lastts=this.timestamps.slice(-1)[0];
     var lastdate=new Date(lastts);
     var timespan=lastts-this.timestamps[0];
     var svg=$(this.id).contentDocument;
     var path=''; // a text string in which the path is constructed
-    $('maxval').innerHTML=this.maxvalue+this.unit+' at '+datestring(this.maxtime);
-    $('minval').innerHTML=this.minvalue+this.unit+' at '+datestring(this.mintime);
+    $('maxval').innerHTML=roundval(this.maxvalue,3)+this.unit+' at '+datestring(this.maxtime);
+    $('minval').innerHTML=roundval(this.minvalue,3)+this.unit+' at '+datestring(this.mintime);
     this.logger.innerHTML=" "+Math.round(this.pnts.slice(-1)[0]*100)/100
 	+this.unit+" at "+timestring(lastdate);
     var valspan=this.maxvalue-this.minvalue;
