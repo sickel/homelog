@@ -20,9 +20,9 @@ $smarty->assign('pagetitle',"Voltages");
 */
 
 $sql='SELECT DISTINCT ON (sd.sensorid, sd.type) 
-    sd.sensorid,sd.value/sensor.factor as value,sd.datetime,station.name as station
+    sensor.id as sensorid,sd.value/sensor.factor as value,sd.datetime,station.name as station
    FROM measure sd
-     LEFT JOIN sensor ON sensor.stationid = sd.sensorid AND sd.type = sensor.typeid left join station on sd.stationid=station.id
+     LEFT JOIN sensor ON sensor.senderid = sd.sensorid AND sd.type = sensor.typeid left join station on sd.stationid=station.id
   WHERE NOT sd.value IS NULL and sd.type=118 and not sd.stationid is null
   ORDER BY sd.sensorid, sd.type, sd.datetime DESC';
 ;
