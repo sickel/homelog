@@ -22,10 +22,31 @@ var calid=0;          // used by the server
 var stream="Ute";
 var prevfrom= new Date();
 var prevto=new Date();
+var exdays=1;  // days before cookies expires
+
 
 function formattime(date){
     return(''+(date.getYear()+1900)+'-'+(date.getMonth()+1)+'-'+date.getDate()+' 00:00:00');
 }
+
+function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires="+d.toUTCString();
+    document.cookie = cname + "=" + cvalue + "; " + expires;
+}
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0; i<ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1);
+        if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
+    }
+    return "";
+}
+
 
 function pageonload(event){
 //    $('btLoad').onclick=fetchdata;
@@ -45,9 +66,11 @@ function pageonload(event){
     // sets default: Fetches data for the last week
     // TODO: use get-parameters
     if($('from').value==''){
-	settimespan(event);
-   }
+    	settimespan(event);
+    }
+//    alert(document.cookie);
     fetchData(event); 
+    
 }
 
 function loadtimespan(event){
@@ -199,9 +222,11 @@ var prevsent; // the dataset id it was asked for last time
 
 function fetchData(event){ // This may be called by a periodical executer
     $('spinner').style.visibility="visible";
+    var sensorid=$('paramchoose0').value;
+    document.cookie="sensorid="+sensorid; 
     param=$H({ // All these values are dependent on the backend server...
  	a: 'tempdata'
-	,stream: $('paramchoose0').value
+	,stream: sensorid
 	,from: $('from').value
 	,to: $('to').value
 	,add: $('adddata').checked

@@ -176,11 +176,22 @@ function timestring(ts){
 }
 
 function roundval(val,prec){
+    var sign=1;
+    if(val<0){
+        sign=-1;
+        val=-val;
+    }
     var oom=Math.round(Math.log10(val));
     oom=oom-prec;
-    oom=10**oom
-    val=Math.round(val/oom);
-    val=val*oom;
+    var fact=10**oom;
+    val=Math.round(val/fact);
+    val=val*fact;
+    if(oom>0){
+        oom=0;
+    }else{
+        oom=-oom}
+    val=val*sign;
+    val=val.toFixed(oom-1);
     return(val);
 }
 
