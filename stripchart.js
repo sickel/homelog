@@ -251,7 +251,7 @@ function pad10(input){
 
 function convertdate(tzdate,defaultval){
     var date= new Date(tzdate);
-    if(date.getYear>100){
+    if(date.getYear()>100){
     var hours=pad10(date.getHours());
     var minutes=pad10(date.getMinutes());
     var seconds=pad10(date.getSeconds());
