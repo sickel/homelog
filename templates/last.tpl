@@ -3,7 +3,7 @@
 {foreach from=$data item=s name=item}
             <tr><td>
             <a href="stripchart.php?selid={$s['sensorid']}">{$s['station']} {$s['type']}</a></td>
-            <td>{$s['value']}</td>
+            <td align="right">{$s['value']}</td>
             <td>{$s['unit']}</td></tr>
     {/foreach}
 </table>

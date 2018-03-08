@@ -92,9 +92,10 @@ ul.horizmenu{
 
 
 #footer{
-	position: absolute;
-/*	top:500px; */
+/*	position: absolute;
+	top:500px; */
 	bottom: 0px; 
+    clear: both;
 }
 
 .errormsg{

@@ -13,3 +13,7 @@ td.center{
 td.right{
   text-align:right;
 }
+
+#footer{
+    clear: both;
+}

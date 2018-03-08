@@ -126,8 +126,14 @@ if($_GET['a']=='tempdata'){
 //  print_r($params);	
   $sqh=$dbh->prepare($sql);
   $sqh->execute($params);
-  $data=$sqh->fetchAll(PDO::FETCH_ASSOC);
-  $data=array('datapoints'=>$data);
+  $retdata=$sqh->fetchAll(PDO::FETCH_ASSOC);
+  //print_r($data[0]);
+  $starttime=$retdata[1]['at'];
+  $last=end($retdata);
+  $stoptime=$last['at'];
+  $data=array('datapoints'=>$retdata);
+  $data['starttime']=$starttime;
+  $data['stoptime']=$stoptime;
   $data['unit']=$unit;
   $data['stepline']=$stepline;
   if(isset($_GET['DEBUG']) && $_GET['DEBUG']){

@@ -15,7 +15,7 @@ if($tst['error_count']){$tovalue='';}
 $smarty->assign('tovalue',$tovalue);
 
 
-$selected=$_GET['selected']?$_GET['selected']:"Ute";
+$selected=$_GET['selected']?$_GET['selected']:2;
 $smarty->assign('selected',$selected);
 $selid=$_GET['selid']?$_GET['selid']:0;
 $smarty->assign('selid',$selid);

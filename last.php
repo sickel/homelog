@@ -23,6 +23,7 @@ $sql='select * from lastmeas_complete';
 if(!(array_key_exists("showall",$_GET) && $_GET['showall']>"")){
     $sql.=" where main = true";
 }
+$sql.=" order by unit";
 //print_r($sql);
 $sqlh=$dbh->prepare($sql);
 $sqlh->execute();

@@ -33,7 +33,6 @@
  </object>
 <a href="{$weatherdata}" target="yr"><img src="{$meteogram}" /></a><br/>
 Minimum: <span id="minval"></span><br/>Maximum: <span id="maxval"> </span><br />Last value: <span id="logvalue0"></span> 
+<p> <span id="log"> </span> <span id="error" class="errormsg"> </span><span id="p_status"> </span>
 </div>
-</div>
-<p> <span id="log"> </span> <span id="error" class="errormsg"> </span><span id="p_status"> </span></p>
 {include file='page_foot.tpl'}

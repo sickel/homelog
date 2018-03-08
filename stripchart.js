@@ -29,6 +29,8 @@ function formattime(date){
     return(''+(date.getYear()+1900)+'-'+(date.getMonth()+1)+'-'+date.getDate()+' 00:00:00');
 }
 
+
+
 function setCookie(cname, cvalue, exdays) {
     var d = new Date();
     d.setTime(d.getTime() + (exdays*24*60*60*1000));
@@ -240,55 +242,80 @@ function fetchData(event){ // This may be called by a periodical executer
 			 );
 }
 
+function pad10(input){
+    if (input < 10){
+        input="0"+input;
+    }
+    return input;
+}
+
+function convertdate(tzdate,defaultval){
+    var date= new Date(tzdate);
+    if(date.getYear>100){
+    var hours=pad10(date.getHours());
+    var minutes=pad10(date.getMinutes());
+    var seconds=pad10(date.getSeconds());
+    retvalue=''+(date.getYear()+1900)+'-'+(date.getMonth()+1)+'-'+date.getDate()+' '+hours+':'+minutes+':'+seconds;    
+    }else{
+        retvalue=defaultval;
+    }
+    return(retvalue);
+}
+
+
 function hHR_receiveddata(response,json){ // The response function to the ajax call
     if(Object.inspect(json)){
-	jsondata=response.responseText.evalJSON();
-	if(jsondata.error>''){
-	    $('error').innerHTML=jsondata.error;
-	}
-	var dataset=$A(jsondata.datapoints);
-	if(dataset.size()>1){
-	    $('log').innerHTML=dataset.size();
-	    datasetsize=dataset.size();
-	}
-	charts.each(function(chart){
-            if(!$('adddata').checked){
-                chart.resetpnts();
-            }else{
-                chart.pnts=new Array();
-                chart.timestamps=new Array(); 
-                chart.maxvalue=-1E9;
-                chart.minvalue=1E9;
-    
-            }
-//	    chart.drawstrip();
-	    chart.setunit(jsondata.unit);
-	    chart.setstepline(jsondata.stepline);
-	});
-	/* TODO - check out how to add options...
-	   var paramid=$('paramchoose1');
-	   if(paramid.options.length<2){  // sets new parameters to choose for the strip charts
-	   var ks=$A($H(dataset[0]).keys());
-	   //	var chs=$$('.paramchooser');
-	   //	chs.each(function(ch){
-	   ks.each(function(key){
-	   paramid.options.push(key);
-	   });
-	   //	});
-	   }*/
-	dataset.each(function(val){
-            
-	    charts.each(function(chart){
-		chart.addpoint(val); // sends the entire set to each chart, the chart is responsible of selecting the right point
-	    });
-	});
-	//$('p_status'+chartid).innerHTML+='|'+pnts.length;
-	charts.each(function(chart){
-	    chart.drawstrip(jsondata.station+" ("+jsondata.unit+")");
-	});
-	
+        var jsondata=response.responseText.evalJSON();
+        if(jsondata.error>''){
+            $('error').innerHTML=jsondata.error;
+        }
+        if (!($('adddata').checked)){
+            $('from').value=convertdate(jsondata.starttime,$('from').value);
+            $('to').value=convertdate(jsondata.stoptime,$('to').value);
+        }
+        var dataset=$A(jsondata.datapoints);
+        if(dataset.size()>1){
+            $('log').innerHTML=dataset.size();
+            datasetsize=dataset.size();
+        }
+        charts.each(function(chart){
+                if(!$('adddata').checked){
+                    chart.resetpnts();
+                }else{
+                    chart.pnts=new Array();
+                    chart.timestamps=new Array(); 
+                    chart.maxvalue=-1E9;
+                    chart.minvalue=1E9;
+        
+                }
+    //	    chart.drawstrip();
+            chart.setunit(jsondata.unit);
+            chart.setstepline(jsondata.stepline);
+        });
+        /* TODO - check out how to add options...
+        var paramid=$('paramchoose1');
+        if(paramid.options.length<2){  // sets new parameters to choose for the strip charts
+        var ks=$A($H(dataset[0]).keys());
+        //	var chs=$$('.paramchooser');
+        //	chs.each(function(ch){
+        ks.each(function(key){
+        paramid.options.push(key);
+        });
+        //	});
+        }*/
+        dataset.each(function(val){
+                
+            charts.each(function(chart){
+            chart.addpoint(val); // sends the entire set to each chart, the chart is responsible of selecting the right point
+            });
+        });
+        //$('p_status'+chartid).innerHTML+='|'+pnts.length;
+        charts.each(function(chart){
+            chart.drawstrip(jsondata.station+" ("+jsondata.unit+")");
+        });
+        
     }else{
-	$('p_status').innerHTML="no JSON object";
+        $('p_status').innerHTML="no JSON object";
     }
     $('spinner').style.visibility="hidden";
 
