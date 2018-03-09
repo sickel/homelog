@@ -25,10 +25,6 @@ var prevto=new Date();
 var exdays=1;  // days before cookies expires
 
 
-function formattime(date){
-    return(''+(date.getYear()+1900)+'-'+(date.getMonth()+1)+'-'+date.getDate()+' 00:00:00');
-}
-
 
 
 function setCookie(cname, cvalue, exdays) {
@@ -232,8 +228,10 @@ function fetchData(event){ // This may be called by a periodical executer
 	,from: $('from').value
 	,to: $('to').value
 	,add: $('adddata').checked
+	// ,average: $('average').value
         ,fool_ie: Math.random()
     });
+    $('jsondata').href=url+"?"+param.toQueryString();
     // simplest way to stop internet explorer from caching
     ajax=new Ajax.Request(url,
 			  {method:'get',
@@ -249,13 +247,19 @@ function pad10(input){
     return input;
 }
 
+
+function formattime(date){
+    return(''+(date.getYear()+1900)+'-'+(date.getMonth()+1)+'-'+date.getDate()+' 00:00:00');
+}
+
+
 function convertdate(tzdate,defaultval){
     var date= new Date(tzdate);
     if(date.getYear()>100){
-    var hours=pad10(date.getHours());
-    var minutes=pad10(date.getMinutes());
-    var seconds=pad10(date.getSeconds());
-    retvalue=''+(date.getYear()+1900)+'-'+(date.getMonth()+1)+'-'+date.getDate()+' '+hours+':'+minutes+':'+seconds;    
+        var hours=pad10(date.getHours());
+        var minutes=pad10(date.getMinutes());
+        var seconds=pad10(date.getSeconds());
+        retvalue=''+(date.getYear()+1900)+'-'+(date.getMonth()+1)+'-'+date.getDate()+' '+hours+':'+minutes+':'+seconds;    
     }else{
         retvalue=defaultval;
     }
@@ -275,7 +279,7 @@ function hHR_receiveddata(response,json){ // The response function to the ajax c
         }
         var dataset=$A(jsondata.datapoints);
         if(dataset.size()>1){
-            $('log').innerHTML=dataset.size();
+            $('log').innerHTML=dataset.size()+" datapoints";
             datasetsize=dataset.size();
         }
         charts.each(function(chart){
