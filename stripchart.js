@@ -228,8 +228,9 @@ function fetchData(event){ // This may be called by a periodical executer
 	,from: $('from').value
 	,to: $('to').value
 	,add: $('adddata').checked
-	// ,average: $('average').value
-        ,fool_ie: Math.random()
+	,average: $('average').value
+    ,aggtype: $('aggtype').value
+    ,fool_ie: Math.random()
     });
     $('jsondata').href=url+"?"+param.toQueryString();
     // simplest way to stop internet explorer from caching

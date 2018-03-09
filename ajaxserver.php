@@ -1,7 +1,14 @@
 <?php
 
-class jsonException extends Exception
-{}
+  class jsonException extends Exception
+  {}
+
+  
+  function listsensors($sensors){
+    $s=array_keys($sensors);
+    $s=array('sensors'=>$s);
+    return(json_encode($s));
+  }
 
   $dbtype='pgsql';
   include('dbconn.php'); // sets the values username, server, database and password
@@ -27,13 +34,6 @@ class jsonException extends Exception
   foreach($sensorset as $s){
 	$sensors[$s['concat']]=$s['id'];}
 //  print_r($sensors);
-
-  
-function listsensors($sensors){
-  $s=array_keys($sensors);
-  $s=array('sensors'=>$s);
-  return(json_encode($s));
-}
 
 
 try{
@@ -64,66 +64,48 @@ if($_GET['a']=='sensorlist'){
 }
 
 if($_GET['a']=='tempdata'){
+  $data=array();
   if(!(isset($_GET['stream']))){
     throw new jsonException("missing stream-parameter");
   }
   $stepline=false;
   $sensorid=$_GET['stream'];
-  $sensorid=$sensors[$_GET['stream']];
-  $sql='select value, at from sensormeasurement where sensorid=? and datetime>? ';
   $params=array($_GET['stream'],$_GET['from']);
- // print_r($sensorid);
-//  $sensorid=$_GET['stream'];
-  //if($sensorid){ 
-  
-    $unitq=$dbh->prepare('select unit from sensors where id=?');
-    $unitq->execute(array($_GET['stream']));
-    $unit=$unitq->fetchAll(PDO::FETCH_ASSOC);
-//    print_r($unit);
-    $unit=$unit[0]['unit'];
-  //  array_unshift($params,$sensorid);
-  //}
-  if($_GET['stream']=='Inne-Ute'){
-    $sql="select value,at from tempdiff where datetime >?";
-    $unit="&deg;C";
-  }elseif($_GET['stream']=='Soloppvarming'){
-    $sql="select value,at from tempdiff_sol where datetime >?";
-    $unit="&deg;C";
-  }elseif($_GET['stream']=='Skygge'){
-    $sql="select value,at from shadow where datetime >?";
-    $unit="&deg;C";
-  }elseif($_GET['stream']=='Trykk'){
-    $sql='select value/100 as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure_qa where sensorid=4 and datetime>?';
-    // array_shift($params);
-  //  TODO fetch units from database - problem: rescaling...
-  $unit='hPa';
-  }elseif($_GET['stream']=='Trykk - 0m'){
-    $sql='select value/100+12*0.45 as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from measure_qa where sensorid=4 and datetime>?';
-    $unit='hPa';
-  }elseif($_GET['stream']=='Forbruk'){
-    $sql='select round(100*kwh/hours)/100 as "value", to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from powerdraw where datetime >?';
-    $stepline=true;
-    $unit="kW";
-  }elseif($_GET['stream']=='Sørvegg - døgnsnitt'){
-    $sql='select value, to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from  daymean where sensorid=? and datetime >?';	
-    $unit="&deg;C";
-    $stepline=true;
-  }elseif($_GET['stream']=='Sørvegg - døgnmin'){
-    $sql='select value, to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from  daymin where sensorid=? and datetime >?';	
-    $unit="&deg;C";
-    $stepline=true;
-  }elseif($_GET['stream']=='Sørvegg - døgnmax'){
-    $sql='select value, to_char(datetime at time zone \'UTC\' ,\'yyyy-mm-dd"T"HH24:MI:SS"Z"\') as "at" from  daymax where sensorid=? and datetime >?';	
-    $unit="&deg;C";
-    $stepline=true;
+  if($_GET['aggtype']=='none' || $_GET['average']=='none'){
+    $sql='select value, at from sensormeasurement where sensorid=? and datetime>? ';
+    if($_GET['to']*1>1){
+      $params[]=$_GET['to'];
+      $sql.=' and datetime <= ?';
+    }
+    $sql.=' order by datetime';}
+  else{
+    $data['test']='averaging';
+    $validtypes=array('min'=>1,'max'=>1,'avg'=>1);
+    $validtimes=array('hour'=>1,'day'=>1);
+    if (!(array_key_exists($_GET['aggtype'],$validtypes))){ throw new jsonException("Unknown average type");}
+    if (!(array_key_exists($_GET['average'],$validtimes))){ throw new jsonException("Unknown time");}
+    
+    $innersql="SELECT sensor.id AS sensorid,
+      CASE
+          WHEN measure.value > 40000000::double precision THEN (measure.value - 4294967296::bigint::double precision) / sensor.factor
+          ELSE measure.value / sensor.factor
+      END AS value,
+      to_char(timezone('UTC'::text, date_trunc('${_GET['average']}',measure.datetime)), 'yyyy-mm-dd\"T\"HH24:MI:SS\"Z\"'::text) AS at, measure.datetime
+      FROM sensor,measure
+      WHERE sensor.typeid = measure.type AND sensor.senderid = measure.sensorid AND measure.use = true";
+    $sql="WITH innersql as ($innersql) select ${_GET['aggtype']}(value) as value, at from innersql where sensorid=? and datetime>? ";
+    if($_GET['to']*1>1){
+      $params[]=$_GET['to'];
+	  $sql.=' and datetime <= ?';
+    }
+    $sql .= " group by at";
+    $sql .= " order by at";
   }
-  if($_GET['to']*1>1){
-	$params[]=$_GET['to'];
-	$sql.=' and datetime <= ?';
-  }
-  $sql.=' order by datetime';
-//  print($sql);
-//  print_r($params);	
+  $data['sql']=$sql;
+  $unitq=$dbh->prepare('select unit from sensors where id=?');
+  $unitq->execute(array($_GET['stream']));
+  $unit=$unitq->fetchAll(PDO::FETCH_ASSOC);
+  $unit=$unit[0]['unit'];
   $sqh=$dbh->prepare($sql);
   $sqh->execute($params);
   $retdata=$sqh->fetchAll(PDO::FETCH_ASSOC);
@@ -131,7 +113,7 @@ if($_GET['a']=='tempdata'){
   $starttime=$retdata[1]['at'];
   $last=end($retdata);
   $stoptime=$last['at'];
-  $data=array('datapoints'=>$retdata);
+  $data['datapoints']=$retdata;
   $data['starttime']=$starttime;
   $data['stoptime']=$stoptime;
   $data['unit']=$unit;
@@ -153,10 +135,17 @@ if($_GET['a']=='tempdata'){
 }
 throw new jsonException("Unknown action :${_GET['a']}");
 }
+
 catch(jsonException $e){
   echo(json_encode(array('error'=>$e->getMessage())));
 }
 catch(Exception $e){
+  print_r($_GET);
+  echo("<br /><br />");
+  print_r($params);
+  echo("<br /><br />");
+  echo($sql);
+  echo("<br /><br />");
   echo($e->getMessage());
 }
 ?>

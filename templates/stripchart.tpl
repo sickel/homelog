@@ -16,12 +16,19 @@
 {foreach $sensors as $k=>$v}
 <option {if $k==$selid}selected="selected" {/if}label="{$v}" value="{$k}" >{$v}</option>
 {/foreach}
-</select> <!-- Snitt over :
-<select id="average" name="average">
+</select> 
+<select id="aggtype" name="aggtype">
 <option value="none">Rådata</option>
+<option value="avg">Snitt</option>
+<option value="min">Minimum</option>
+<option value="max">Maksimum</option>
+</select> 
+over : 
+<select id="average" name="average">
+<option value="none">--</option>
 <option value="hour">Time</option>
 <option value="day">Døgn</option>
-</select> -->
+</select> 
 <img id="spinner" src="ajax-bar.gif" /><br />
 <span id="reportvals"></span><span id="mousex0" ></span>&nbsp;<span id="mousey0" ></span><br />
 <!--[if !IE]>-->
