@@ -3,7 +3,6 @@ include('connect_db.php');
 require 'smarty3/Smarty.class.php';
 $smarty = new Smarty;
 $smarty->assign('pagetitle','Homelog - stripchart');
-
 $fromvalue=$_GET['from'];
 // Must parse the values to make sure they are valid dates
 $tst=date_parse($fromvalue);
@@ -20,9 +19,16 @@ $smarty->assign('selected',$selected);
 $selid=$_GET['selid']?$_GET['selid']:0;
 $smarty->assign('selid',$selid);
 
-
-
-$sql="select concat,id from sensorlist order by stationname,priority";
+$where=" where active = true ";
+$showalllink="allsensors=true";
+$showalltext="All";
+if($_GET['allsensors'] ==  "true") {
+  $where = "";
+  $showalllink="";
+  $showalltext="Active";}
+$smarty->assign('showalllink',$showalllink);
+$smarty->assign('showalltext',$showalltext);
+$sql="select concat,id from sensorlist $where order by stationname,priority";
 $qry=$dbh->prepare($sql);
 $qry->execute();
 $sensorset=$qry->fetchAll(PDO::FETCH_ASSOC);

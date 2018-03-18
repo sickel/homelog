@@ -12,7 +12,7 @@
 <button id="bt2xForward">2x</button>
 <button id="btForward">-&gt;</button><br />
 <div id="stripdiv0" class="stripchartdiv">
-<select class="paramchooser" id="paramchoose0" name="paramchoose0">
+<a href="{$SCRIPT_NAME}?{$showalllink}">{$showalltext}</a> <select class="paramchooser" id="paramchoose0" name="paramchoose0">
 {foreach $sensors as $k=>$v}
 <option {if $k==$selid}selected="selected" {/if}label="{$v}" value="{$k}" >{$v}</option>
 {/foreach}
