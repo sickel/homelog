@@ -22,4 +22,3 @@ install:
 	  install -m 0644 -o www-data $(TEMPLATEDIR)/$$file $(INSTALLDIR)/$(TEMPLATEDIR) ; \
 	done
 
-	

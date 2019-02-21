@@ -279,24 +279,27 @@ function hHR_receiveddata(response,json){ // The response function to the ajax c
             $('to').value=convertdate(jsondata.stoptime,$('to').value);
         }
         var dataset=$A(jsondata.datapoints);
-        if(dataset.size()>1){
-            $('log').innerHTML=dataset.size()+" datapoints";
-            datasetsize=dataset.size();
+        if(dataset[0].size()>1){
+            $('log').innerHTML=dataset[0].size()+" datapoints";
+            datasetsize=dataset[0].size();
         }
-        charts.each(function(chart){
-                if(!$('adddata').checked){
-                    chart.resetpnts();
-                }else{
-                    chart.pnts=new Array();
-                    chart.timestamps=new Array(); 
-                    chart.maxvalue=-1E9;
-                    chart.minvalue=1E9;
-        
-                }
-    //	    chart.drawstrip();
-            chart.setunit(jsondata.unit);
-            chart.setstepline(jsondata.stepline);
-        });
+        var nsets=dataset.length;
+        for (var i=0; i<nsets; i++){
+            charts.each(function(chart){
+                    if(!$('adddata').checked){
+                        chart.resetpnts();
+                    }else{
+                        chart.pnts=new Array();
+                        chart.timestamps=new Array(); 
+                        chart.maxvalue=-1E9;
+                        chart.minvalue=1E9;
+            
+                    }
+        //	    chart.drawstrip();
+                chart.setunit(jsondata.unit);
+                chart.setstepline(jsondata.stepline);
+            });
+            $('adddata').checked=nsets>1;
         /* TODO - check out how to add options...
         var paramid=$('paramchoose1');
         if(paramid.options.length<2){  // sets new parameters to choose for the strip charts
@@ -308,7 +311,7 @@ function hHR_receiveddata(response,json){ // The response function to the ajax c
         });
         //	});
         }*/
-        dataset.each(function(val){
+        dataset[i].each(function(val){
                 
             charts.each(function(chart){
             chart.addpoint(val); // sends the entire set to each chart, the chart is responsible of selecting the right point
@@ -318,7 +321,7 @@ function hHR_receiveddata(response,json){ // The response function to the ajax c
         charts.each(function(chart){
             chart.drawstrip(jsondata.station+" ("+jsondata.unit+")");
         });
-        
+        }
     }else{
         $('p_status').innerHTML="no JSON object";
     }

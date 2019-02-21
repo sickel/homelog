@@ -39,7 +39,7 @@
 try{
 
 if(!(isset($_GET['a']))){
-  throw new jsonException("missing a a-parameter");
+  throw new jsonException("missing an a-parameter");
 }
 
 
@@ -113,7 +113,8 @@ if($_GET['a']=='tempdata'){
   $starttime=$retdata[1]['at'];
   $last=end($retdata);
   $stoptime=$last['at'];
-  $data['datapoints']=$retdata;
+  $data['datapoints'][]=$retdata;
+  $data['datapoints'][]=$retdata;
   $data['starttime']=$starttime;
   $data['stoptime']=$stoptime;
   $data['unit']=$unit;
