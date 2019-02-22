@@ -296,31 +296,31 @@ function hHR_receiveddata(response,json){ // The response function to the ajax c
             
                     }
         //	    chart.drawstrip();
-                chart.setunit(jsondata.unit);
+                chart.setunit(jsondata.unit[i]);
                 chart.setstepline(jsondata.stepline);
             });
             $('adddata').checked=nsets>1;
-        /* TODO - check out how to add options...
-        var paramid=$('paramchoose1');
-        if(paramid.options.length<2){  // sets new parameters to choose for the strip charts
-        var ks=$A($H(dataset[0]).keys());
-        //	var chs=$$('.paramchooser');
-        //	chs.each(function(ch){
-        ks.each(function(key){
-        paramid.options.push(key);
-        });
-        //	});
-        }*/
-        dataset[i].each(function(val){
-                
-            charts.each(function(chart){
-            chart.addpoint(val); // sends the entire set to each chart, the chart is responsible of selecting the right point
+            /* TODO - check out how to add options...
+            var paramid=$('paramchoose1');
+            if(paramid.options.length<2){  // sets new parameters to choose for the strip charts
+            var ks=$A($H(dataset[0]).keys());
+            //	var chs=$$('.paramchooser');
+            //	chs.each(function(ch){
+            ks.each(function(key){
+            paramid.options.push(key);
             });
-        });
-        //$('p_status'+chartid).innerHTML+='|'+pnts.length;
-        charts.each(function(chart){
-            chart.drawstrip(jsondata.station+" ("+jsondata.unit+")");
-        });
+            //	});
+            }*/
+            dataset[i].each(function(val){
+                    
+                charts.each(function(chart){
+                chart.addpoint(val); // sends the entire set to each chart, the chart is responsible of selecting the right point
+                });
+            });
+            //$('p_status'+chartid).innerHTML+='|'+pnts.length;
+            charts.each(function(chart){
+                chart.drawstrip(jsondata.station[i]+" ("+jsondata.unit+")");
+            });
         }
     }else{
         $('p_status').innerHTML="no JSON object";
