@@ -1,7 +1,7 @@
 <?php
 
-  class jsonException extends Exception
-  {}
+//  class jsonException extends Exception
+//  {}
 
   
   function listsensors($sensors){
@@ -69,7 +69,10 @@ if($_GET['a']=='tempdata'){
     throw new jsonException("missing stream-parameter");
   }
   $stepline=false;
-  $splitchar="_";
+  $splitchar="!";
+  if (isset($_GET['splitchar'])){
+    $splitchar=substr($_GET['splitchar'],0,1);
+  }
   $sensor=explode($splitchar,$_GET['stream']);
   $from=explode($splitchar,$_GET['from']);
   $to=explode($splitchar,$_GET['to']);
@@ -78,7 +81,7 @@ if($_GET['a']=='tempdata'){
     $params=array($sensorid,$from[$i]);
     if($_GET['aggtype']=='none' || $_GET['average']=='none'){
         $sql='select value, at from sensormeasurement where sensorid=? and datetime>? ';
-        if(strlen($_GET['to'])>0){
+        if(strlen($to[$i])>4){
             $params[]=$to[$i];
             $sql.=' and datetime <= ?';
         }
@@ -108,9 +111,11 @@ if($_GET['a']=='tempdata'){
     }
     $data['sql']=$sql;
     $unitq=$dbh->prepare('select unit from sensors where id=?');
-    $unitq->execute(array($stream[$i]));
-    $unit=$unitq->fetchAll(PDO::FETCH_ASSOC);
-    $unit=$unit[0]['unit'];
+    $unitq->execute(array($sensorid));
+    $unitd=$unitq->fetchAll(PDO::FETCH_ASSOC);
+    //print_r($unitd);
+    $unit=$unitd[0]['unit'];
+    //print
     $sqh=$dbh->prepare($sql);
     $sqh->execute($params);
     $retdata=$sqh->fetchAll(PDO::FETCH_ASSOC);
@@ -135,6 +140,7 @@ if($_GET['a']=='tempdata'){
     $data['debug']['sql']=$sql;
     $data['debug']['name']=$_GET['stream'];
     $data['debug']['from']=$_GET['from'];
+    $data['debug']['splitchar']=$splitchar;
     $data['params']=$params;
   }	
   print(json_encode($data));

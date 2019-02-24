@@ -23,6 +23,8 @@ var stream="Ute";
 var prevfrom= new Date();
 var prevto=new Date();
 var exdays=1;  // days before cookies expires
+var streams=[];
+var splitchar="!"; 
 
 
 
@@ -219,17 +221,37 @@ function btstartstrip(event){
 var prevsent; // the dataset id it was asked for last time
 
 function fetchData(event){ // This may be called by a periodical executer
-    $('spinner').style.visibility="visible";
+    if (!($('adddata').checked)){
+        streams=[];
+    }
     var sensorid=$('paramchoose0').value;
+    var newstream={stream: sensorid
+	,from: $('from').value
+	,to: $('to').value};
+	streams.push(newstream);
+    $('spinner').style.visibility="visible";
     document.cookie="sensorid="+sensorid; 
+    var sensors=[];
+    var tos=[];
+    var froms=[];
+    for (var i=0; i< streams.length; i++){
+        var s=streams[i];
+        sensors.push(s.stream);
+        tos.push(s.to);
+        froms.push(s.from);
+    }
+    var sensorpar=sensors.join(splitchar);
+    var topar=tos.join(splitchar);
+    var frompar=froms.join(splitchar);
     param=$H({ // All these values are dependent on the backend server...
  	a: 'tempdata'
-	,stream: sensorid
-	,from: $('from').value
-	,to: $('to').value
-	,add: $('adddata').checked
+	,stream: sensorpar
+	,from: frompar
+	,to: topar
+	// ,add: $('adddata').checked
 	,average: $('average').value
     ,aggtype: $('aggtype').value
+    ,splitchar: splitchar
     ,fool_ie: Math.random()
     });
     $('jsondata').href=url+"?"+param.toQueryString();
@@ -284,6 +306,9 @@ function hHR_receiveddata(response,json){ // The response function to the ajax c
             datasetsize=dataset[0].size();
         }
         var nsets=dataset.length;
+        charts.each(function(chart){
+                        chart.resetpnts();
+                    });
         for (var i=0; i<nsets; i++){
             charts.each(function(chart){
                     if(!$('adddata').checked){
@@ -319,7 +344,7 @@ function hHR_receiveddata(response,json){ // The response function to the ajax c
             });
             //$('p_status'+chartid).innerHTML+='|'+pnts.length;
             charts.each(function(chart){
-                chart.drawstrip(jsondata.station[i]+" ("+jsondata.unit+")");
+                chart.drawstrip(jsondata.station[i]+" ("+jsondata.unit[i]+")");
             });
         }
     }else{
