@@ -80,7 +80,7 @@ if($_GET['a']=='tempdata'){
     $sensorid=$sensor[$i];
     $params=array($sensorid,$from[$i]);
     if($_GET['aggtype']=='none' || $_GET['average']=='none'){
-        $sql='select value, at from sensormeasurement where sensorid=? and datetime>? ';
+        $sql='select value, at from sensormeasurement where sensorid=? and datetime>=? ';
         if(strlen($to[$i])>4){
             $params[]=$to[$i];
             $sql.=' and datetime <= ?';
@@ -101,7 +101,7 @@ if($_GET['a']=='tempdata'){
         to_char(timezone('UTC'::text, date_trunc('${_GET['average']}',measure.datetime)), 'yyyy-mm-dd\"T\"HH24:MI:SS\"Z\"'::text) AS at, measure.datetime
         FROM sensor,measure
         WHERE sensor.typeid = measure.type AND sensor.senderid = measure.sensorid AND measure.use = true";
-        $sql="WITH innersql as ($innersql) select ${_GET['aggtype']}(value) as value, at from innersql where sensorid=? and datetime>? ";
+        $sql="WITH innersql as ($innersql) select ${_GET['aggtype']}(value) as value, at from innersql where sensorid=? and datetime>=? ";
         if(strlen($_GET['to'])>0){
             $params[]=$to[$i];
             $sql.=' and datetime <= ?';
