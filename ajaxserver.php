@@ -80,7 +80,7 @@ if($_GET['a']=='tempdata'){
     $sensorid=$sensor[$i];
     $params=array($sensorid,$from[$i]);
     if($_GET['aggtype']=='none' || $_GET['average']=='none'){
-        $sql='select value, at from sensormeasurement where sensorid=? and datetime>=? ';
+        $sql='select epoch as at ,value from sensormeasurement where sensorid=? and datetime>=? ';
         if(strlen($to[$i])>4){
             $params[]=$to[$i];
             $sql.=' and datetime <= ?';
@@ -92,7 +92,7 @@ if($_GET['a']=='tempdata'){
         $validtimes=array('hour'=>1,'day'=>1);
         if (!(array_key_exists($_GET['aggtype'],$validtypes))){ throw new jsonException("Unknown average type");}
         if (!(array_key_exists($_GET['average'],$validtimes))){ throw new jsonException("Unknown time");}
-        
+        // Does not work - need to redo the calc of epoch timestamp 
         $innersql="SELECT sensor.id AS sensorid,
         CASE
             WHEN measure.value > 40000000::double precision THEN (measure.value - 4294967296::bigint::double precision) / sensor.factor
@@ -101,7 +101,7 @@ if($_GET['a']=='tempdata'){
         to_char(timezone('UTC'::text, date_trunc('${_GET['average']}',measure.datetime)), 'yyyy-mm-dd\"T\"HH24:MI:SS\"Z\"'::text) AS at, measure.datetime
         FROM sensor,measure
         WHERE sensor.typeid = measure.type AND sensor.senderid = measure.sensorid AND measure.use = true";
-        $sql="WITH innersql as ($innersql) select ${_GET['aggtype']}(value) as value, at from innersql where sensorid=? and datetime>=? ";
+        $sql="WITH innersql as ($innersql) select epoch as at, ${_GET['aggtype']}(value) as value from innersql where sensorid=? and datetime>=? ";
         if(strlen($_GET['to'])>0){
             $params[]=$to[$i];
             $sql.=' and datetime <= ?';
@@ -118,11 +118,11 @@ if($_GET['a']=='tempdata'){
     //print
     $sqh=$dbh->prepare($sql);
     $sqh->execute($params);
-    $retdata=$sqh->fetchAll(PDO::FETCH_ASSOC);
+    $retdata=$sqh->fetchAll(PDO::FETCH_NUM);
     #print_r($retdata);
-    $starttime=$retdata[1]['at'];
+    $starttime=$retdata[1][0];
     $last=end($retdata);
-    $stoptime=$last['at'];
+    $stoptime=$last[0];
     $data['datapoints'][]=$retdata;
     $data['unit'][]=$unit;
     $sql="select station.name from station  left join sensor on station.id=stationid where sensor.id=?";

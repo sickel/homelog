@@ -25,9 +25,11 @@ var prevto=new Date();
 var exdays=1;  // days before cookies expires
 var streams=[];
 var splitchar="!"; 
-
-
-
+var datasets=[];
+var svgwidth;
+var svgheight;
+var svgxoffset;
+var svgyoffset;
 
 function setCookie(cname, cvalue, exdays) {
     var d = new Date();
@@ -59,7 +61,13 @@ function pageonload(event){
     Event.observe($('btLastMonth'),'click',loadtimespan);
     Event.observe($('btLastYear'),'click',loadtimespan);
     Event.observe($('btLastDay'),'click',loadtimespan);
-    svginit(event);
+    
+    var svg=document.getElementById('svg');
+    svgwidth=svg.getAttribute("width")*0.95;
+    svgxoffset=Math.floor(svg.getAttribute("width")*0.025);
+    svgheight=svg.getAttribute("height")*0.95;
+    svgyoffset=Math.floor(svg.getAttribute("height")*0.025);
+//    svginit(event);
     $$('.paramchooser').each(function(chooser){
 	Event.observe(chooser,'change',setparam);
     });
@@ -69,7 +77,7 @@ function pageonload(event){
     	settimespan(event);
     }
 //    alert(document.cookie);
-    fetchData(event); 
+    fetchData(event);
     
 }
 
@@ -291,6 +299,50 @@ function convertdate(tzdate,defaultval){
 
 
 function hHR_receiveddata(response,json){ // The response function to the ajax call
+    if(Object.inspect(json)){
+        var jsondata=response.responseText.evalJSON();
+        if(jsondata.error>''){
+            $('error').innerHTML=jsondata.error;
+        }
+        if (!($('adddata').checked)){
+            $('from').value=convertdate(jsondata.starttime,$('from').value);
+            $('to').value=convertdate(jsondata.stoptime,$('to').value);
+        }
+        var dataset=$A(jsondata.datapoints);
+        if(dataset[0].size()>1){
+            $('log').innerHTML=dataset[0].size()+" datapoints";
+            datasetsize=dataset[0].size();
+        }
+        var nsets=dataset.length;
+        
+        for(var i=0;i<nsets; i++){
+            var xmin=1E99;
+            var ymin=1E99;
+            var xmax=-1E99;
+            var ymax=-1E99;
+            for(var j=0;j<dataset[i].length;j++){
+                xmin=Math.min(xmin,dataset[i][j][0]);
+                xmax=Math.max(xmax,dataset[i][j][0]);
+                ymin=Math.min(ymin,dataset[i][j][1]);
+                ymax=Math.max(ymax,dataset[i][j][1]);
+            }
+        }
+        var xfact=svgwidth/(xmax-xmin);
+        var yfact=svgheight/(ymax-ymin);
+        var coords=[];
+        for (var i=0; i<dataset[0].length; i++){
+            var coord=Math.floor(svgxoffset+(dataset[0][i][0]-xmin)*xfact).toString()+","+Math.floor(svgyoffset+(dataset[0][i][1]-ymin)*yfact).toString();
+            coords.push(coord);
+        }
+        var polyline = document.createElementNS('http://www.w3.org/2000/svg','polyline');
+        polyline.setAttribute("points",coords.join(" "));
+        polyline.setAttribute('style','fill:none;stroke:rgb(0,255,255);stroke-width:2');
+        document.getElementById("svg").append(polyline);
+        $('spinner').style.visibility="hidden";
+    }
+}
+
+function hHR_receiveddata_old(response,json){ // The response function to the ajax call
     if(Object.inspect(json)){
         var jsondata=response.responseText.evalJSON();
         if(jsondata.error>''){
