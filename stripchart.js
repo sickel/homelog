@@ -30,7 +30,9 @@ var svgwidth;
 var svgheight;
 var svgxoffset;
 var svgyoffset;
-
+var lmargin=50;
+var rmargin=50;
+var bmargin=50;
 function setCookie(cname, cvalue, exdays) {
     var d = new Date();
     d.setTime(d.getTime() + (exdays*24*60*60*1000));
@@ -61,12 +63,29 @@ function pageonload(event){
     Event.observe($('btLastMonth'),'click',loadtimespan);
     Event.observe($('btLastYear'),'click',loadtimespan);
     Event.observe($('btLastDay'),'click',loadtimespan);
-    
+    Event.observe($('btClear'),'click',cleargraph);
     var svg=document.getElementById('svg');
-    svgwidth=svg.getAttribute("width")*0.95;
-    svgxoffset=Math.floor(svg.getAttribute("width")*0.025);
-    svgheight=svg.getAttribute("height")*0.95;
-    svgyoffset=Math.floor(svg.getAttribute("height")*0.025);
+    svgwidth=svg.getAttribute("width");
+    svgxoffset=lmargin;
+    svgheight=svg.getAttribute("height");
+    svgyoffset=0;
+    var outerbox=document.createElementNS('http://www.w3.org/2000/svg','rect');
+    outerbox.setAttribute("x",0);
+    outerbox.setAttribute("y",0);
+    outerbox.setAttribute("width",svgwidth);
+    outerbox.setAttribute("height",svgheight);
+    outerbox.setAttribute('style','stroke-width:1;fill:lightgray;stroke:black');
+    svg.append(outerbox);
+    svgwidth-=(lmargin+rmargin);
+    svgheight-=bmargin;
+    var outerbox=document.createElementNS('http://www.w3.org/2000/svg','rect');
+    outerbox.setAttribute("x",lmargin);
+    outerbox.setAttribute("y",0);
+    outerbox.setAttribute("width",svgwidth);
+    outerbox.setAttribute("height",svgheight);
+    outerbox.setAttribute('style','stroke-width:1;fill:white;stroke:black');
+    svg.append(outerbox);
+    
 //    svginit(event);
     $$('.paramchooser').each(function(chooser){
 	Event.observe(chooser,'change',setparam);
@@ -80,6 +99,16 @@ function pageonload(event){
     fetchData(event);
     
 }
+
+function cleargraph(event){
+    var svg=document.getElementById("svg");
+    var lines = svg.getElementsByTagName("polyline");
+    while(lines.length>0){
+        svg.removeChild(lines[lines.length-1]);
+    }
+    datasets=[];
+    
+}    
 
 function loadtimespan(event){
     settimespan(event);
@@ -313,34 +342,42 @@ function hHR_receiveddata(response,json){ // The response function to the ajax c
             $('log').innerHTML=dataset[0].size()+" datapoints";
             datasetsize=dataset[0].size();
         }
-        var nsets=dataset.length;
+        datasets.push(dataset[0]);
+        
+        var nsets=datasets.length;
         
         for(var i=0;i<nsets; i++){
             var xmin=1E99;
             var ymin=1E99;
             var xmax=-1E99;
             var ymax=-1E99;
-            for(var j=0;j<dataset[i].length;j++){
-                xmin=Math.min(xmin,dataset[i][j][0]);
-                xmax=Math.max(xmax,dataset[i][j][0]);
-                ymin=Math.min(ymin,dataset[i][j][1]);
-                ymax=Math.max(ymax,dataset[i][j][1]);
+            for(var j=0;j<datasets[i].length;j++){
+                xmin=Math.min(xmin,datasets[i][j][0]);
+                xmax=Math.max(xmax,datasets[i][j][0]);
+                ymin=Math.min(ymin,datasets[i][j][1]);
+                ymax=Math.max(ymax,datasets[i][j][1]);
             }
         }
         var xfact=svgwidth/(xmax-xmin);
         var yfact=svgheight/(ymax-ymin);
+        
         var coords=[];
         for (var i=0; i<dataset[0].length; i++){
-            var coord=Math.floor(svgxoffset+(dataset[0][i][0]-xmin)*xfact).toString()+","+Math.floor(svgyoffset+(dataset[0][i][1]-ymin)*yfact).toString();
+            var x=Math.floor(svgxoffset+(dataset[0][i][0]-xmin)*xfact);
+            var y=Math.floor(svgyoffset+(dataset[0][i][1]-ymin)*yfact); 
+            y=svgheight-y// origin in upper left corner
+            var coord=x.toString()+","+y.toString();
             coords.push(coord);
         }
         var polyline = document.createElementNS('http://www.w3.org/2000/svg','polyline');
         polyline.setAttribute("points",coords.join(" "));
-        polyline.setAttribute('style','fill:none;stroke:rgb(0,255,255);stroke-width:2');
+        polyline.setAttribute('style','stroke-width:1;fill:none;stroke:'+linecolors[nsets-1]);
         document.getElementById("svg").append(polyline);
         $('spinner').style.visibility="hidden";
     }
 }
+
+var linecolors=['blue','green','red','gray','yellow','orange','black']
 
 function hHR_receiveddata_old(response,json){ // The response function to the ajax call
     if(Object.inspect(json)){

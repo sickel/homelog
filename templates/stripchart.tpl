@@ -2,7 +2,7 @@
 <div id="main">
 <label for="from">From</label><input value="{$fromvalue}" id="from"><br />
 <label for="to">To</label><input id="to" value="{$tvalue}">
-<button id="btLoad">Load Data</button><input type="checkbox" id="adddata" /> Add data<br />
+<button id="btLoad">Load Data</button><input type="checkbox" id="adddata" /> Add data<button id="btClear">Clear</button><br />
 <button id="btBack">&lt;-</button>
 <button id="bt2xBack">2x</button>
 <button id="btLastDay">Last Day</button>
