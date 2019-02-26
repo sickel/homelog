@@ -33,23 +33,6 @@ var svgyoffset;
 var lmargin=50;
 var rmargin=50;
 var bmargin=50;
-function setCookie(cname, cvalue, exdays) {
-    var d = new Date();
-    d.setTime(d.getTime() + (exdays*24*60*60*1000));
-    var expires = "expires="+d.toUTCString();
-    document.cookie = cname + "=" + cvalue + "; " + expires;
-}
-
-function getCookie(cname) {
-    var name = cname + "=";
-    var ca = document.cookie.split(';');
-    for(var i=0; i<ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0)==' ') c = c.substring(1);
-        if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
-    }
-    return "";
-}
 
 
 function pageonload(event){
@@ -99,6 +82,27 @@ function pageonload(event){
     fetchData(event);
     
 }
+
+
+function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires="+d.toUTCString();
+    document.cookie = cname + "=" + cvalue + "; " + expires;
+}
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0; i<ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1);
+        if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
+    }
+    return "";
+}
+
+
 
 function cleargraph(event){
     var svg=document.getElementById("svg");
@@ -342,29 +346,37 @@ function hHR_receiveddata(response,json){ // The response function to the ajax c
             $('log').innerHTML=dataset[0].size()+" datapoints";
             datasetsize=dataset[0].size();
         }
-        datasets.push(dataset[0]);
-        
-        var nsets=datasets.length;
-        
-        for(var i=0;i<nsets; i++){
-            var xmin=1E99;
-            var ymin=1E99;
-            var xmax=-1E99;
-            var ymax=-1E99;
-            for(var j=0;j<datasets[i].length;j++){
-                xmin=Math.min(xmin,datasets[i][j][0]);
-                xmax=Math.max(xmax,datasets[i][j][0]);
-                ymin=Math.min(ymin,datasets[i][j][1]);
-                ymax=Math.max(ymax,datasets[i][j][1]);
-            }
+        for (var i=0;i<dataset.length;i++){
+            datasets.push(dataset[i]);
         }
-        var xfact=svgwidth/(xmax-xmin);
-        var yfact=svgheight/(ymax-ymin);
-        
+        drawgraphs();
+    }
+}
+function drawgraphs(){
+    var nsets=datasets.length;
+    
+    for(var i=0;i<nsets; i++){
+        var xmin=1E99;
+        var ymin=1E99;
+        var xmax=-1E99;
+        var ymax=-1E99;
+        for(var j=0;j<datasets[i].length;j++){
+            xmin=Math.min(xmin,datasets[i][j][0]);
+            xmax=Math.max(xmax,datasets[i][j][0]);
+            ymin=Math.min(ymin,datasets[i][j][1]);
+            ymax=Math.max(ymax,datasets[i][j][1]);
+        }
+    }
+    var xfact=svgwidth/(xmax-xmin);
+    var yfact=svgheight/(ymax-ymin);
+    
+    
+    
+    for (var i=0;i< datasets.length; i++){
         var coords=[];
-        for (var i=0; i<dataset[0].length; i++){
-            var x=Math.floor(svgxoffset+(dataset[0][i][0]-xmin)*xfact);
-            var y=Math.floor(svgyoffset+(dataset[0][i][1]-ymin)*yfact); 
+        for (var j=0; j<datasets[i].length; j++){
+            var x=Math.floor(svgxoffset+(datasets[i][j][0]-xmin)*xfact);
+            var y=Math.floor(svgyoffset+(datasets[i][j][1]-ymin)*yfact); 
             y=svgheight-y// origin in upper left corner
             var coord=x.toString()+","+y.toString();
             coords.push(coord);
@@ -373,8 +385,9 @@ function hHR_receiveddata(response,json){ // The response function to the ajax c
         polyline.setAttribute("points",coords.join(" "));
         polyline.setAttribute('style','stroke-width:1;fill:none;stroke:'+linecolors[nsets-1]);
         document.getElementById("svg").append(polyline);
-        $('spinner').style.visibility="hidden";
+        
     }
+    $('spinner').style.visibility="hidden";
 }
 
 var linecolors=['blue','green','red','gray','yellow','orange','black']
