@@ -33,6 +33,8 @@ var svgyoffset;
 var lmargin=50;
 var rmargin=50;
 var bmargin=50;
+var spans={};
+var timespan=[1E99,0];
 
 
 function pageonload(event){
@@ -110,9 +112,8 @@ function cleargraph(event){
     while(lines.length>0){
         svg.removeChild(lines[lines.length-1]);
     }
-    datasets=[];
-    units=[];
-    
+    spans={};
+    timespan=[1E99,0];
 }    
 
 function loadtimespan(event){
@@ -265,6 +266,8 @@ var prevsent; // the dataset id it was asked for last time
 function fetchData(event){ // This may be called by a periodical executer
     if (!($('adddata').checked)){
         streams=[];
+        datasets=[];
+    
     }
     var sensorid=$('paramchoose0').value;
     var newstream={stream: sensorid
@@ -358,7 +361,7 @@ function hHR_receiveddata(response,json){ // The response function to the ajax c
             set['first']=Number.POSITIVE_INFINITY;
             set['max']=Number.NEGATIVE_INFINITY;
             set['last']=Number.NEGATIVE_INFINITY;
-            for (e of d){
+            for (var e of d){
                 time.push(e[0]);
                 value.push(e[1]);
                 set['min']=Math.min(set['min'],e[1]);
@@ -370,14 +373,25 @@ function hHR_receiveddata(response,json){ // The response function to the ajax c
             set['value']=value;
             set['unit']=jsondata.unit[i];
             set['station']=jsondata.station[i];
-            datasets.push(set);
+            // Do not want to push the same dataset twice:
+            var dopush=true;
+            for (var ds of datasets){
+                var equals=true;
+                var checkfiels=['station','unit','first','last'];
+                for (var cf of checkfiels){
+                    equals=equals && set[cf]==ds[cf];
+                }
+                dopush=dopush && ! equals;
+            }
+            if (dopush){
+                datasets.push(set);
+            }
         }
+        streams=[];
         drawgraphs();
     }
 }
 
-var spans={};
-var timespan=[1E99,0];
     
 function drawgraphs(){
     var nsets=datasets.length;
