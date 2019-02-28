@@ -111,6 +111,7 @@ function cleargraph(event){
         svg.removeChild(lines[lines.length-1]);
     }
     datasets=[];
+    units=[];
     
 }    
 
@@ -330,8 +331,10 @@ function convertdate(tzdate,defaultval){
     return(retvalue);
 }
 
+var units=[];
 
 function hHR_receiveddata(response,json){ // The response function to the ajax call
+    cleargraph(null);
     if(Object.inspect(json)){
         var jsondata=response.responseText.evalJSON();
         if(jsondata.error>''){
@@ -347,43 +350,64 @@ function hHR_receiveddata(response,json){ // The response function to the ajax c
             datasetsize=dataset[0].size();
         }
         for (var i=0;i<dataset.length;i++){
-            datasets.push(dataset[i]);
+            var set={};
+            var d=dataset[i];
+            var time=[];
+            var value=[];
+            set['min']=Number.POSITIVE_INFINITY;
+            set['first']=Number.POSITIVE_INFINITY;
+            set['max']=Number.NEGATIVE_INFINITY;
+            set['last']=Number.NEGATIVE_INFINITY;
+            for (e of d){
+                time.push(e[0]);
+                value.push(e[1]);
+                set['min']=Math.min(set['min'],e[1]);
+                set['max']=Math.max(set['max'],e[1]);
+                set['first']=Math.min(set['first'],e[0]);
+                set['last']=Math.max(set['last'],e[0]);
+            }
+            set['time']=time;
+            set['value']=value;
+            set['unit']=jsondata.unit[i];
+            set['station']=jsondata.station[i];
+            datasets.push(set);
         }
         drawgraphs();
     }
 }
+
+var spans={};
+var timespan=[1E99,0];
+    
 function drawgraphs(){
     var nsets=datasets.length;
-    
     for(var i=0;i<nsets; i++){
-        var xmin=1E99;
-        var ymin=1E99;
-        var xmax=-1E99;
-        var ymax=-1E99;
-        for(var j=0;j<datasets[i].length;j++){
-            xmin=Math.min(xmin,datasets[i][j][0]);
-            xmax=Math.max(xmax,datasets[i][j][0]);
-            ymin=Math.min(ymin,datasets[i][j][1]);
-            ymax=Math.max(ymax,datasets[i][j][1]);
+        var u=datasets[i].unit;
+       // if (typeof(spans[u]=="Undefined")){
+       //     spans[u]=[datasets[i]['min'],datasets[i]['max']];
+       // }else{
+        try{
+            spans[u]=[Math.min(spans[u][0],datasets[i]['min']),Math.max(spans[u][1],datasets[i]['max'])];
+        }catch(e){
+            spans[u]=[datasets[i]['min'],datasets[i]['max']];
         }
+        timespan=[Math.min(timespan[0],datasets[i]['first']),Math.max(timespan[1],datasets[i]['last'])];
     }
-    var xfact=svgwidth/(xmax-xmin);
-    var yfact=svgheight/(ymax-ymin);
-    
-    
-    
+    var xfact=svgwidth/(timespan[1]-timespan[0]);
     for (var i=0;i< datasets.length; i++){
+        var sp=spans[datasets[i]['unit']];
+        var yfact=svgheight/(sp[1]-sp[0]);
         var coords=[];
-        for (var j=0; j<datasets[i].length; j++){
-            var x=Math.floor(svgxoffset+(datasets[i][j][0]-xmin)*xfact);
-            var y=Math.floor(svgyoffset+(datasets[i][j][1]-ymin)*yfact); 
+        for (var j=0; j<datasets[i]['value'].length; j++){
+            var x=Math.floor(svgxoffset+(datasets[i]['time'][j]-timespan[0])*xfact);
+            var y=Math.floor(svgyoffset+(datasets[i]['value'][j]-sp[0])*yfact); 
             y=svgheight-y// origin in upper left corner
             var coord=x.toString()+","+y.toString();
             coords.push(coord);
         }
         var polyline = document.createElementNS('http://www.w3.org/2000/svg','polyline');
         polyline.setAttribute("points",coords.join(" "));
-        polyline.setAttribute('style','stroke-width:1;fill:none;stroke:'+linecolors[nsets-1]);
+        polyline.setAttribute('style','stroke-width:1;fill:none;stroke:'+linecolors[i]);
         document.getElementById("svg").append(polyline);
         
     }
