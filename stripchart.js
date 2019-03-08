@@ -35,7 +35,7 @@ var rmargin=50;
 var bmargin=50;
 var spans={};
 var timespan=[1E99,0];
-
+var svg;
 
 function pageonload(event){
 //    $('btLoad').onclick=fetchdata;
@@ -112,6 +112,15 @@ function cleargraph(event){
     while(lines.length>0){
         svg.removeChild(lines[lines.length-1]);
     }
+    lines = svg.getElementsByClassName("ROIline");
+    while(lines.length>0){
+        svg.removeChild(lines[lines.length-1]);
+    }
+    lines = svg.getElementsByClassName("axistext");
+    while(lines.length>0){
+        svg.removeChild(lines[lines.length-1]);
+    }
+    
     spans={};
     timespan=[1E99,0];
 }    
@@ -408,6 +417,7 @@ function drawgraphs(){
         timespan=[Math.min(timespan[0],datasets[i]['first']),Math.max(timespan[1],datasets[i]['last'])];
     }
     var xfact=svgwidth/(timespan[1]-timespan[0]);
+    var svg=document.getElementById("svg");
     for (var i=0;i< datasets.length; i++){
         var sp=spans[datasets[i]['unit']];
         var yfact=svgheight/(sp[1]-sp[0]);
@@ -422,11 +432,90 @@ function drawgraphs(){
         var polyline = document.createElementNS('http://www.w3.org/2000/svg','polyline');
         polyline.setAttribute("points",coords.join(" "));
         polyline.setAttribute('style','stroke-width:1;fill:none;stroke:'+linecolors[i]);
-        document.getElementById("svg").append(polyline);
+        svg.append(polyline);
         
+    }
+    var days=((timespan[1]-timespan[0])/(24*3600)).round()
+    var vlinedist=24*3600;
+    var xtime=Math.ceil(timespan[0]/vlinedist)*vlinedist;
+    var x=svgxoffset+(xtime-timespan[0])*xfact;
+    for (var i=0;i<days;i++){
+        svg.append(createline(x,x,svgyoffset,svgheight));
+        svg.append(createtext(formatdate(new Date(xtime*1000),false),x,svgheight+15,"middle","axistext"));
+        xtime+=vlinedist;
+        x=x+vlinedist*xfact;
+        
+    }
+    var first=true;
+    for (var key in spans){
+        var sp=spans[key]
+        var x;
+        if (first){
+            x=5;
+        }else{
+            x=svgwidth-rmargin+5;
+        }
+        var nlines=6;
+        var span=sp[1]-sp[0];
+        var oomspan=Math.floor(Math.log(span)/Math.log(10))-1;
+        var roundfact=Math.pow(10,oomspan);
+        var hlinedist=span/nlines;
+        var yval=sp[1]-hlinedist/2;
+        var y=svgyoffset+(yval-sp[0])*yfact+7;
+        
+        y=svgheight-y;
+        for (j=0;j<nlines;j++){
+            svg.append(createline(svgxoffset,svgwidth-rmargin,y,y));
+            var label=Math.floor(yval/roundfact)*roundfact;
+            if(oomspan < 0){
+                label=label.toFixed(-1*oomspan);
+            }
+            if (roundfact<0){
+                Math.round(label,-roundfact);
+            }
+            svg.append(createtext(label,x,y,"left","axistext"));
+            yval+=hlinedist;
+            y+=hlinedist*yfact;
+        }
     }
     $('spinner').style.visibility="hidden";
 }
+
+function formatdate(d,year){
+    var datestring;
+    if (year){
+        datestring=''+(d.getYear()+1900)+"-"+d.getDate()+'/'+(d.getMonth()+1);
+    }else{
+        datestring=''+d.getDate()+'/'+(d.getMonth()+1);
+    }
+    return(datestring);
+}
+
+function createtext(text,x,y,align,classname){
+    var textnode=document.createElementNS("http://www.w3.org/2000/svg",'text');
+    textnode.appendChild(document.createTextNode(text));
+    textnode.setAttribute("text-anchor",align);
+    textnode.setAttribute("x",x);
+    textnode.setAttribute("y",y);
+    textnode.setAttribute("font-size",12);
+    textnode.setAttribute("class",classname);
+    return(textnode);
+}
+
+function createline(x1,x2,y1,y2,svg,color){
+    color=typeof color !== 'undefined' ? color : 'blue';
+    //line=svg.createElementNS("http://www.w3.org/2000/svg",'line');
+    line=document.createElementNS("http://www.w3.org/2000/svg",'line');
+    line.setAttribute('x1',x1);
+    line.setAttribute('x2',x2);
+    line.setAttribute('y1',y1);
+    line.setAttribute('y2',y2);
+    line.setAttribute('class','ROIline');
+    line.setAttribute('stroke',color);
+    line.setAttribute('stroke-width','0.1');
+    return line;
+}  
+
 
 var linecolors=['blue','green','red','gray','yellow','orange','black']
 
