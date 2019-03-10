@@ -451,16 +451,17 @@ function drawgraphs(){
         xtime+=vlinedist;
         x=x+vlinedist*xfact;
     }
-    var firstdataset=true;
+    var n=0;
     for (var key in spans){
         var sp=spans[key]
         var yfact=graphheight/(sp[1]-sp[0]);
         var x;
-        if (firstdataset){
+        if (n%2==0){
             x=5;
         }else{
             x=svgwidth-rmargin+5;
         }
+        var yoffset=5+Math.floor(n/2)*13;
         var nlines=6;
         var span=sp[1]-sp[0];
         var oomspan=Math.floor(Math.log(span)/Math.log(10))-1;
@@ -486,11 +487,11 @@ function drawgraphs(){
             if (roundfact<0){
                 Math.round(label,-roundfact);
             }
-            svg.append(createtext(label,x,y+5,"left","axistext"));
+            svg.append(createtext(label,x,y+yoffset,"left","axistext"));
             yval-=hlinedist;
             y+=hlinedist*yfact;
         }
-        firstdataset=false;
+        n=n+1;
     }
     $('spinner').style.visibility="hidden";
 }
