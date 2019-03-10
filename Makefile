@@ -1,4 +1,4 @@
-INSTALLDIR=/var/www/html/$(DESTDIR)homelog
+INSTALLDIR=/var/www/html/$(DESTDIR)/homelog
 
 
 FILES= ajaxserver.php connect_db.php dbconn.php  last_voltage.php  maintenance.php index.php last.php  list.php stripchart.php ajax-bar.gif chart.js  homelog.js  stripchart.js stripchart.svg handheld.css  msi_smarty.css  print.css  svgstyle.css  tempdata.css

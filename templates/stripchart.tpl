@@ -31,7 +31,7 @@ over :
 </select> 
 <img id="spinner" src="ajax-bar.gif" /><br />
 <span id="reportvals"></span><span id="mousex0" ></span>&nbsp;<span id="mousey0" ></span><br />
-<svg  id="svg" width="600" height="400" />
+<svg  id="svg" width="828" height="450" />
 <a href="{$weatherdata}" target="yr"><img src="{$meteogram}" /></a><br/>
 Minimum: <span id="minval"></span><br/>Maximum: <span id="maxval"> </span><br />Last value: <span id="logvalue0"></span> 
 <p><a href="" id="jsondata" target="jsondata">JSON</a> <span id="log"> </span> <span id="error" class="errormsg"> </span><span id="p_status"> </span>

@@ -28,10 +28,12 @@ var splitchar="!";
 var datasets=[];
 var svgwidth;
 var svgheight;
+var graphheight;
+var graphwidth
 var svgxoffset;
 var svgyoffset;
-var lmargin=50;
-var rmargin=50;
+var lmargin=70;
+var rmargin=70;
 var bmargin=50;
 var spans={};
 var timespan=[1E99,0];
@@ -61,13 +63,13 @@ function pageonload(event){
     outerbox.setAttribute("height",svgheight);
     outerbox.setAttribute('style','stroke-width:1;fill:lightgray;stroke:black');
     svg.append(outerbox);
-    svgwidth-=(lmargin+rmargin);
-    svgheight-=bmargin;
+    graphwidth=svgwidth-(lmargin+rmargin);
+    graphheight=svgheight-bmargin;
     var outerbox=document.createElementNS('http://www.w3.org/2000/svg','rect');
     outerbox.setAttribute("x",lmargin);
     outerbox.setAttribute("y",0);
-    outerbox.setAttribute("width",svgwidth);
-    outerbox.setAttribute("height",svgheight);
+    outerbox.setAttribute("width",graphwidth);
+    outerbox.setAttribute("height",graphheight);
     outerbox.setAttribute('style','stroke-width:1;fill:white;stroke:black');
     svg.append(outerbox);
     
@@ -416,16 +418,16 @@ function drawgraphs(){
         }
         timespan=[Math.min(timespan[0],datasets[i]['first']),Math.max(timespan[1],datasets[i]['last'])];
     }
-    var xfact=svgwidth/(timespan[1]-timespan[0]);
+    var xfact=graphwidth/(timespan[1]-timespan[0]);
     var svg=document.getElementById("svg");
     for (var i=0;i< datasets.length; i++){
         var sp=spans[datasets[i]['unit']];
-        var yfact=svgheight/(sp[1]-sp[0]);
+        var yfact=graphheight/(sp[1]-sp[0]);
         var coords=[];
         for (var j=0; j<datasets[i]['value'].length; j++){
             var x=Math.floor(svgxoffset+(datasets[i]['time'][j]-timespan[0])*xfact);
             var y=Math.floor(svgyoffset+(datasets[i]['value'][j]-sp[0])*yfact); 
-            y=svgheight-y// origin in upper left corner
+            y=graphheight-y// origin in upper left corner
             var coord=x.toString()+","+y.toString();
             coords.push(coord);
         }
@@ -436,21 +438,25 @@ function drawgraphs(){
         
     }
     var days=((timespan[1]-timespan[0])/(24*3600)).round()
-    var vlinedist=24*3600;
+    var vlinedist=1;
+    if( days > 20 ){
+        vlinedist = Math.ceil(vlinedist*days/10)
+    }
+    vlinedist*=24*3600; 
     var xtime=Math.ceil(timespan[0]/vlinedist)*vlinedist;
     var x=svgxoffset+(xtime-timespan[0])*xfact;
-    for (var i=0;i<days;i++){
-        svg.append(createline(x,x,svgyoffset,svgheight));
-        svg.append(createtext(formatdate(new Date(xtime*1000),false),x,svgheight+15,"middle","axistext"));
+    while(xtime < timespan[1]){
+        svg.append(createline(x,x,svgyoffset,graphheight));
+        svg.append(createtext(formatdate(new Date(xtime*1000),false),x,graphheight+15,"middle","axistext"));
         xtime+=vlinedist;
         x=x+vlinedist*xfact;
-        
     }
-    var first=true;
+    var firstdataset=true;
     for (var key in spans){
         var sp=spans[key]
+        var yfact=graphheight/(sp[1]-sp[0]);
         var x;
-        if (first){
+        if (firstdataset){
             x=5;
         }else{
             x=svgwidth-rmargin+5;
@@ -463,20 +469,28 @@ function drawgraphs(){
         var yval=sp[1]-hlinedist/2;
         var y=svgyoffset+(yval-sp[0])*yfact+7;
         
-        y=svgheight-y;
-        for (j=0;j<nlines;j++){
-            svg.append(createline(svgxoffset,svgwidth+lmargin,y,y));
+        y=graphheight-y;
+        var firstline = true;
+        while(y<graphheight){
+            if(firstdataset){
+                svg.append(createline(svgxoffset,svgwidth-rmargin,y,y));
+            }
             var label=Math.floor(yval/roundfact)*roundfact;
             if(oomspan < 0){
                 label=label.toFixed(-1*oomspan);
             }
+            if (firstline){
+                label=""+label+" ("+key+")";
+                firstline=false;
+            }
             if (roundfact<0){
                 Math.round(label,-roundfact);
             }
-            svg.append(createtext(label,x,y,"left","axistext"));
+            svg.append(createtext(label,x,y+5,"left","axistext"));
             yval-=hlinedist;
             y+=hlinedist*yfact;
         }
+        firstdataset=false;
     }
     $('spinner').style.visibility="hidden";
 }
