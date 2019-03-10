@@ -408,18 +408,19 @@ function drawgraphs(){
     var nsets=datasets.length;
     for(var i=0;i<nsets; i++){
         var u=datasets[i].unit;
-       // if (typeof(spans[u]=="Undefined")){
-       //     spans[u]=[datasets[i]['min'],datasets[i]['max']];
-       // }else{
         try{
             spans[u]=[Math.min(spans[u][0],datasets[i]['min']),Math.max(spans[u][1],datasets[i]['max'])];
         }catch(e){
+            #To catch up the first attempt
             spans[u]=[datasets[i]['min'],datasets[i]['max']];
         }
         timespan=[Math.min(timespan[0],datasets[i]['first']),Math.max(timespan[1],datasets[i]['last'])];
     }
     var xfact=graphwidth/(timespan[1]-timespan[0]);
     var svg=document.getElementById("svg");
+    #
+    #    To create the graph lines
+    #
     for (var i=0;i< datasets.length; i++){
         var sp=spans[datasets[i]['unit']];
         var yfact=graphheight/(sp[1]-sp[0]);
@@ -435,9 +436,12 @@ function drawgraphs(){
         polyline.setAttribute("points",coords.join(" "));
         polyline.setAttribute('style','stroke-width:1;fill:none;stroke:'+linecolors[i]);
         svg.append(polyline);
-        
     }
+    #
+    #    To create the labels on the x-axis:
+    #
     var days=((timespan[1]-timespan[0])/(24*3600)).round()
+    # This will not work properly on plots of less than one day
     var vlinedist=1;
     if( days > 20 ){
         vlinedist = Math.ceil(vlinedist*days/10)
@@ -451,33 +455,43 @@ function drawgraphs(){
         xtime+=vlinedist;
         x=x+vlinedist*xfact;
     }
+    #
+    #     To create the labels along the y-axis:
+    #
     var n=0;
     for (var key in spans){
+        # Go through the relevant units. 
+        #
         var sp=spans[key]
         var yfact=graphheight/(sp[1]-sp[0]);
         var x;
+        # x: Where to put the label - each second on left and right side
         if (n%2==0){
             x=5;
         }else{
             x=svgwidth-rmargin+5;
         }
         var yoffset=5+Math.floor(n/2)*13;
+        # The last part to offset labels vertically if there are more labels on one axis
         var nlines=6;
         var span=sp[1]-sp[0];
         var oomspan=Math.floor(Math.log(span)/Math.log(10))-1;
         var roundfact=Math.pow(10,oomspan);
         var hlinedist=span/nlines;
+        # Want the first line half the line distance down from the top:
         var yval=sp[1]-hlinedist/2;
         var y=svgyoffset+(yval-sp[0])*yfact+7;
-        
         y=graphheight-y;
         var firstline = true;
         while(y<graphheight){
-            if(firstdataset){
+            if(firstdataset){ 
+            # Do not want to redraw lines. They are supposed to end up the same place,
+            # But may be bitten by rounding errors
                 svg.append(createline(svgxoffset,svgwidth-rmargin,y,y));
             }
             var label=Math.floor(yval/roundfact)*roundfact;
             if(oomspan < 0){
+                # Need this to clean up decimals if there should be any: 
                 label=label.toFixed(-1*oomspan);
             }
             if (firstline){
@@ -534,66 +548,3 @@ function createline(x1,x2,y1,y2,svg,color){
 
 var linecolors=['blue','green','red','gray','yellow','orange','black']
 
-function hHR_receiveddata_old(response,json){ // The response function to the ajax call
-    if(Object.inspect(json)){
-        var jsondata=response.responseText.evalJSON();
-        if(jsondata.error>''){
-            $('error').innerHTML=jsondata.error;
-        }
-        if (!($('adddata').checked)){
-            $('from').value=convertdate(jsondata.starttime,$('from').value);
-            $('to').value=convertdate(jsondata.stoptime,$('to').value);
-        }
-        var dataset=$A(jsondata.datapoints);
-        if(dataset[0].size()>1){
-            $('log').innerHTML=dataset[0].size()+" datapoints";
-            datasetsize=dataset[0].size();
-        }
-        var nsets=dataset.length;
-        charts.each(function(chart){
-                        chart.resetpnts();
-                    });
-        for (var i=0; i<nsets; i++){
-            charts.each(function(chart){
-                    if(!$('adddata').checked){
-                        chart.resetpnts();
-                    }else{
-                        chart.pnts=new Array();
-                        chart.timestamps=new Array(); 
-                        chart.maxvalue=-1E9;
-                        chart.minvalue=1E9;
-            
-                    }
-        //	    chart.drawstrip();
-                chart.setunit(jsondata.unit[i]);
-                chart.setstepline(jsondata.stepline);
-            });
-            $('adddata').checked=nsets>1;
-            /* TODO - check out how to add options...
-            var paramid=$('paramchoose1');
-            if(paramid.options.length<2){  // sets new parameters to choose for the strip charts
-            var ks=$A($H(dataset[0]).keys());
-            //	var chs=$$('.paramchooser');
-            //	chs.each(function(ch){
-            ks.each(function(key){
-            paramid.options.push(key);
-            });
-            //	});
-            }*/
-            dataset[i].each(function(val){
-                    
-                charts.each(function(chart){
-                chart.addpoint(val); // sends the entire set to each chart, the chart is responsible of selecting the right point
-                });
-            });
-            //$('p_status'+chartid).innerHTML+='|'+pnts.length;
-            charts.each(function(chart){
-                chart.drawstrip(jsondata.station[i]+" ("+jsondata.unit[i]+")");
-            });
-        }
-    }else{
-        $('p_status').innerHTML="no JSON object";
-    }
-    $('spinner').style.visibility="hidden";
-
-}
