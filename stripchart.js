@@ -465,7 +465,7 @@ function drawgraphs(){
         
         y=svgheight-y;
         for (j=0;j<nlines;j++){
-            svg.append(createline(svgxoffset,svgwidth-rmargin,y,y));
+            svg.append(createline(svgxoffset,svgwidth+lmargin,y,y));
             var label=Math.floor(yval/roundfact)*roundfact;
             if(oomspan < 0){
                 label=label.toFixed(-1*oomspan);
@@ -474,7 +474,7 @@ function drawgraphs(){
                 Math.round(label,-roundfact);
             }
             svg.append(createtext(label,x,y,"left","axistext"));
-            yval+=hlinedist;
+            yval-=hlinedist;
             y+=hlinedist*yfact;
         }
     }
