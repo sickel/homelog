@@ -34,7 +34,7 @@ var svgxoffset;
 var svgyoffset;
 var lmargin=70;
 var rmargin=70;
-var bmargin=50;
+var bmargin=70;
 var spans={};
 var timespan=[1E99,0];
 var svg;
@@ -61,7 +61,7 @@ function pageonload(event){
     outerbox.setAttribute("y",0);
     outerbox.setAttribute("width",svgwidth);
     outerbox.setAttribute("height",svgheight);
-    outerbox.setAttribute('style','stroke-width:1;fill:lightgray;stroke:black');
+    outerbox.setAttribute('style','stroke-width:1;fill:white;stroke:black');
     svg.append(outerbox);
     graphwidth=svgwidth-(lmargin+rmargin);
     graphheight=svgheight-bmargin;
@@ -110,19 +110,26 @@ function getCookie(cname) {
 
 function cleargraph(event){
     var svg=document.getElementById("svg");
-    var lines = svg.getElementsByTagName("polyline");
-    while(lines.length>0){
-        svg.removeChild(lines[lines.length-1]);
+    var elems = svg.getElementsByTagName("polyline");
+    while(elems.length>0){
+        svg.removeChild(elems[elems.length-1]);
     }
-    lines = svg.getElementsByClassName("ROIline");
-    while(lines.length>0){
-        svg.removeChild(lines[lines.length-1]);
+    elems = svg.getElementsByClassName("ROIline");
+    while(elems.length>0){
+        svg.removeChild(elems[elems.length-1]);
     }
-    lines = svg.getElementsByClassName("axistext");
-    while(lines.length>0){
-        svg.removeChild(lines[lines.length-1]);
+    elems = svg.getElementsByClassName("axistext");
+    while(elems.length>0){
+        svg.removeChild(elems[elems.length-1]);
     }
-    
+    elems = svg.getElementsByClassName("legendline");
+    while(elems.length>0){
+        svg.removeChild(elems[elems.length-1]);
+    }
+    elems = svg.getElementsByClassName("legendtext");
+    while(elems.length>0){
+        svg.removeChild(elems[elems.length-1]);
+    }
     spans={};
     timespan=[1E99,0];
 }    
@@ -411,16 +418,19 @@ function drawgraphs(){
         try{
             spans[u]=[Math.min(spans[u][0],datasets[i]['min']),Math.max(spans[u][1],datasets[i]['max'])];
         }catch(e){
-            #To catch up the first attempt
+            // To catch the first attempt
             spans[u]=[datasets[i]['min'],datasets[i]['max']];
         }
         timespan=[Math.min(timespan[0],datasets[i]['first']),Math.max(timespan[1],datasets[i]['last'])];
     }
     var xfact=graphwidth/(timespan[1]-timespan[0]);
     var svg=document.getElementById("svg");
-    #
-    #    To create the graph lines
-    #
+    //
+    //    To create the graph lines
+    //
+    var nlegs=4;
+    var legwidth=200;
+    var legheight=15
     for (var i=0;i< datasets.length; i++){
         var sp=spans[datasets[i]['unit']];
         var yfact=graphheight/(sp[1]-sp[0]);
@@ -434,14 +444,23 @@ function drawgraphs(){
         }
         var polyline = document.createElementNS('http://www.w3.org/2000/svg','polyline');
         polyline.setAttribute("points",coords.join(" "));
-        polyline.setAttribute('style','stroke-width:1;fill:none;stroke:'+linecolors[i]);
+        var color=linecolors[i];
+        polyline.setAttribute('style','stroke-width:1;fill:none;stroke:'+color);
         svg.append(polyline);
+        var legx=i%nlegs;
+        var legy=Math.floor(i/nlegs);
+        legx=legx*legwidth+10;
+        legy=legy*15+25+graphheight;
+        var legtext=datasets[i]['station']+" ("+datasets[i]['unit']+")";
+        svg.append(createline(legx,legx+50,legy,legy,color,"legendline",1));
+        svg.append(createtext(legtext,legx+55,legy+5,"left","legendtext"));
     }
-    #
-    #    To create the labels on the x-axis:
-    #
+    
+    //
+    //    To create the labels on the x-axis:
+    //
     var days=((timespan[1]-timespan[0])/(24*3600)).round()
-    # This will not work properly on plots of less than one day
+    // This will not work properly on plots of less than one day
     var vlinedist=1;
     if( days > 20 ){
         vlinedist = Math.ceil(vlinedist*days/10)
@@ -455,43 +474,44 @@ function drawgraphs(){
         xtime+=vlinedist;
         x=x+vlinedist*xfact;
     }
-    #
-    #     To create the labels along the y-axis:
-    #
+    //
+    //     To create the labels along the y-axis:
+    //
     var n=0;
+    var firstdataset=true;
     for (var key in spans){
-        # Go through the relevant units. 
-        #
+        // Go through the relevant units. 
+        //
         var sp=spans[key]
         var yfact=graphheight/(sp[1]-sp[0]);
         var x;
-        # x: Where to put the label - each second on left and right side
+        // x: Where to put the label - each second on left and right side
         if (n%2==0){
             x=5;
         }else{
             x=svgwidth-rmargin+5;
         }
         var yoffset=5+Math.floor(n/2)*13;
-        # The last part to offset labels vertically if there are more labels on one axis
+        // The last part to offset labels vertically if there are more labels on one axis
         var nlines=6;
         var span=sp[1]-sp[0];
         var oomspan=Math.floor(Math.log(span)/Math.log(10))-1;
         var roundfact=Math.pow(10,oomspan);
         var hlinedist=span/nlines;
-        # Want the first line half the line distance down from the top:
+        // Want the first line half the line distance down from the top:
         var yval=sp[1]-hlinedist/2;
         var y=svgyoffset+(yval-sp[0])*yfact+7;
         y=graphheight-y;
         var firstline = true;
         while(y<graphheight){
             if(firstdataset){ 
-            # Do not want to redraw lines. They are supposed to end up the same place,
-            # But may be bitten by rounding errors
+            // Do not want to redraw lines. They are supposed to end up the same place,
+            // But may be bitten by rounding errors
                 svg.append(createline(svgxoffset,svgwidth-rmargin,y,y));
             }
             var label=Math.floor(yval/roundfact)*roundfact;
             if(oomspan < 0){
-                # Need this to clean up decimals if there should be any: 
+                // Need this to clean up decimals if there should be any: 
                 label=label.toFixed(-1*oomspan);
             }
             if (firstline){
@@ -506,6 +526,7 @@ function drawgraphs(){
             y+=hlinedist*yfact;
         }
         n=n+1;
+        firstdataset=false;
     }
     $('spinner').style.visibility="hidden";
 }
@@ -531,8 +552,11 @@ function createtext(text,x,y,align,classname){
     return(textnode);
 }
 
-function createline(x1,x2,y1,y2,svg,color){
+function createline(x1,x2,y1,y2,color,classname,strokewidth){
     color=typeof color !== 'undefined' ? color : 'blue';
+    classname=typeof classname !== 'undefined' ? classname: 'noclass';
+    strokewidth=typeof strokewidth !== 'undefined' ? strokewidth : 0.1;
+    
     //line=svg.createElementNS("http://www.w3.org/2000/svg",'line');
     line=document.createElementNS("http://www.w3.org/2000/svg",'line');
     line.setAttribute('x1',x1);
@@ -541,7 +565,8 @@ function createline(x1,x2,y1,y2,svg,color){
     line.setAttribute('y2',y2);
     line.setAttribute('class','ROIline');
     line.setAttribute('stroke',color);
-    line.setAttribute('stroke-width','0.1');
+    line.setAttribute('stroke-width',strokewidth);
+    line.setAttribute('class',classname);
     return line;
 }  
 

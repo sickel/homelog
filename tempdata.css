@@ -17,3 +17,8 @@ td.right{
 #footer{
     clear: both;
 }
+
+
+.legendline{
+    stroke: 1;
+}
