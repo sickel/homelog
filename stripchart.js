@@ -122,6 +122,15 @@ function cleargraph(event){
 
 function loadtimespan(event){
     settimespan(event);
+    for (var i=0; i< streams.length;i++){
+        // Adjusting all streams to the same time span
+        // TODO: Fix if there are streams starting at different times, 
+        // keep start time, adjust timespan
+        streams[i].from = $('from').value;
+	    streams[i].to =$('to').value;
+        streams[i].fetched=false;
+    }
+    datasets=[];
     fetchData(event);
 }
 
@@ -181,13 +190,13 @@ function pagetime(event){
 	}
 	// Should not allow times entirely in the future...
     }else if (id=="bt2xBack"){
-	fromtime.setTime(totime.getTime()-2*timespan);
+        fromtime.setTime(totime.getTime()-2*timespan);
 	$('from').value=formattime(fromtime);
     }else if (id=="bt2xForward"){
-	if(stringtodate($('to').value).getTime()<Date.now()){
-	    totime.setTime(fromtime.getTime()+2*timespan);
-	    $('to').value=formattime(totime);
-	}
+        if(stringtodate($('to').value).getTime()<Date.now()){
+            totime.setTime(fromtime.getTime()+2*timespan);
+            $('to').value=formattime(totime);
+        }
     }
     fetchData(event);
 }
@@ -237,79 +246,62 @@ function svginit(event){
 }	
 
 
-function btstartstrip(event){
-	if(running){ 
-		pe.stop();
-		$('btStart').innerHTML='Start';
-		comp='eq';
-	}else{
-		if($('fileid').value != oldfileid){
-			
-			// Must set up for a new dataset clears up
-			charts.each(function(chart){
-				chart.resetpnts(); // clears the chart
-			});
-			oldfileid=$('fileid').value;
-			$('p_status').innerHTML='&nbsp;';
-			lastid=0;
-			n=0;
-			comp='gt';
-			
-		}
-		pe=new PeriodicalExecuter(fetchData, 2);
-		$('btStart').innerHTML='Pause';
-		$('error').innerHTML='';
-	}
-	running=!(running);
-}
-
-
-
 var prevsent; // the dataset id it was asked for last time
 
 function fetchData(event){ // This may be called by a periodical executer
     if (!($('adddata').checked)){
         streams=[];
         datasets=[];
-    
     }
     var sensorid=$('paramchoose0').value;
     var newstream={stream: sensorid
 	,from: $('from').value
-	,to: $('to').value};
-	streams.push(newstream);
+	,to: $('to').value
+    ,fetched: false
+    };
+    var existing = false;
+    for (var i=0; i< streams.length;i++){
+        existing = existing || (streams[i].stream==newstream.stream  
+            && (streams[i].from == newstream.from
+             || streams[i].to ==newstream.to))
+             // Do not want the same dataset twice
+    }
+    if (!existing){
+        streams.push(newstream);
+    }
     $('spinner').style.visibility="visible";
     document.cookie="sensorid="+sensorid; 
     var sensors=[];
     var tos=[];
     var froms=[];
+    var graphids=[];
     for (var i=0; i< streams.length; i++){
-        var s=streams[i];
-        sensors.push(s.stream);
-        tos.push(s.to);
-        froms.push(s.from);
+        if (!(streams[i].fetched)){
+            var s=streams[i];
+            sensors.push(s.stream);
+            tos.push(s.to);
+            froms.push(s.from);
+            graphids.push(i);
+        }
     }
-    var sensorpar=sensors.join(splitchar);
-    var topar=tos.join(splitchar);
-    var frompar=froms.join(splitchar);
     param=$H({ // All these values are dependent on the backend server...
- 	a: 'tempdata'
-	,stream: sensorpar
-	,from: frompar
-	,to: topar
-	// ,add: $('adddata').checked
-	,average: $('average').value
-    ,aggtype: $('aggtype').value
-    ,splitchar: splitchar
-    ,fool_ie: Math.random()
+        a: 'tempdata'
+        ,stream: sensors.join(splitchar)
+        ,from: froms.join(splitchar)
+        ,to: tos.join(splitchar)
+        ,graphids: graphids.join(splitchar)
+        ,average: $('average').value
+        ,aggtype: $('aggtype').value
+        ,splitchar: splitchar
+        ,fool_ie: Math.random()
     });
     $('jsondata').href=url+"?"+param.toQueryString();
     // simplest way to stop internet explorer from caching
     ajax=new Ajax.Request(url,
-			  {method:'get',
-			   parameters: param.toQueryString(),
-			   onComplete: hHR_receiveddata}
-			 );
+        {method:'get',
+        parameters: param.toQueryString(),
+        onComplete: hHR_receiveddata}
+    );
 }
 
 function pad10(input){
@@ -357,6 +349,7 @@ function hHR_receiveddata(response,json){ // The response function to the ajax c
             datasetsize=dataset[0].size();
         }
         for (var i=0;i<dataset.length;i++){
+            streams[i].fetched=true;
             var set={};
             var d=dataset[i];
             var time=[];
@@ -391,7 +384,6 @@ function hHR_receiveddata(response,json){ // The response function to the ajax c
                 datasets.push(set);
             }
         }
-        streams=[];
         drawgraphs();
     }
 }
@@ -424,7 +416,7 @@ function drawgraphs(){
         for (var j=0; j<datasets[i]['value'].length; j++){
             var x=Math.floor(svgxoffset+(datasets[i]['time'][j]-timespan[0])*xfact);
             var y=Math.floor(svgyoffset+(datasets[i]['value'][j]-sp[0])*yfact); 
-            y=graphheight-y// origin in upper left corner
+            y=graphheight-y;// origin in upper left corner
             var coord=x.toString()+","+y.toString();
             coords.push(coord);
         }

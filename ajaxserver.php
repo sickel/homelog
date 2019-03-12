@@ -76,6 +76,7 @@ if($_GET['a']=='tempdata'){
   $sensor=explode($splitchar,$_GET['stream']);
   $from=explode($splitchar,$_GET['from']);
   $to=explode($splitchar,$_GET['to']);
+  $graphid=explode($splitchar,$_GET['graphids']);
   for ($i=0;$i<count($sensor);$i++) {
     $sensorid=$sensor[$i];
     $params=array($sensorid,$from[$i]);
@@ -131,6 +132,7 @@ if($_GET['a']=='tempdata'){
     $f=$sqh->fetchAll(PDO::FETCH_ASSOC);
     //print_r($f);
     $data['station'][]=$f[0]['name'];
+    $data['graphid'][]=$graphid[$i];
   
   }
   $data['starttime']=$starttime;
