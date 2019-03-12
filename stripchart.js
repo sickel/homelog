@@ -106,29 +106,15 @@ function getCookie(cname) {
     return "";
 }
 
-
+var clearclassnames=[];
 
 function cleargraph(event){
     var svg=document.getElementById("svg");
-    var elems = svg.getElementsByTagName("polyline");
-    while(elems.length>0){
-        svg.removeChild(elems[elems.length-1]);
-    }
-    elems = svg.getElementsByClassName("ROIline");
-    while(elems.length>0){
-        svg.removeChild(elems[elems.length-1]);
-    }
-    elems = svg.getElementsByClassName("axistext");
-    while(elems.length>0){
-        svg.removeChild(elems[elems.length-1]);
-    }
-    elems = svg.getElementsByClassName("legendline");
-    while(elems.length>0){
-        svg.removeChild(elems[elems.length-1]);
-    }
-    elems = svg.getElementsByClassName("legendtext");
-    while(elems.length>0){
-        svg.removeChild(elems[elems.length-1]);
+    for(var i=0; i< clearclassnames.length; i++){
+        var elems = svg.getElementsByClassName(clearclassnames[i]);
+        while(elems.length>0){
+            svg.removeChild(elems[elems.length-1]);
+        }
     }
     spans={};
     timespan=[1E99,0];
@@ -446,6 +432,7 @@ function drawgraphs(){
         polyline.setAttribute("points",coords.join(" "));
         var color=linecolors[i];
         polyline.setAttribute('style','stroke-width:1;fill:none;stroke:'+color);
+        polyline.setAttribute("class","graphline");
         svg.append(polyline);
         var legx=i%nlegs;
         var legy=Math.floor(i/nlegs);
@@ -455,6 +442,9 @@ function drawgraphs(){
         svg.append(createline(legx,legx+50,legy,legy,color,"legendline",1));
         svg.append(createtext(legtext,legx+55,legy+5,"left","legendtext"));
     }
+    clearclassnames.push("legendline");
+    clearclassnames.push("legendtext");
+    clearclassnames.push("graphline");
     
     //
     //    To create the labels on the x-axis:
@@ -469,11 +459,13 @@ function drawgraphs(){
     var xtime=Math.ceil(timespan[0]/vlinedist)*vlinedist;
     var x=svgxoffset+(xtime-timespan[0])*xfact;
     while(xtime < timespan[1]){
-        svg.append(createline(x,x,svgyoffset,graphheight));
+        svg.append(createline(x,x,svgyoffset,graphheight,"blue","axisline"));
         svg.append(createtext(formatdate(new Date(xtime*1000),false),x,graphheight+15,"middle","axistext"));
         xtime+=vlinedist;
         x=x+vlinedist*xfact;
     }
+    clearclassnames.push("axistext");
+        
     //
     //     To create the labels along the y-axis:
     //
@@ -507,7 +499,7 @@ function drawgraphs(){
             if(firstdataset){ 
             // Do not want to redraw lines. They are supposed to end up the same place,
             // But may be bitten by rounding errors
-                svg.append(createline(svgxoffset,svgwidth-rmargin,y,y));
+                svg.append(createline(svgxoffset,svgwidth-rmargin,y,y,"blue","axisline"));
             }
             var label=Math.floor(yval/roundfact)*roundfact;
             if(oomspan < 0){
@@ -528,6 +520,9 @@ function drawgraphs(){
         n=n+1;
         firstdataset=false;
     }
+    clearclassnames.push("axisline");
+    clearclassnames.push("axistext");
+    
     $('spinner').style.visibility="hidden";
 }
 
