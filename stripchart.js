@@ -56,14 +56,12 @@ function pageonload(event){
     outerbox.setAttribute("height",graphheight);
     outerbox.setAttribute('style','stroke-width:1;fill:white;stroke:black');
     svg.append(outerbox);
-    
     // sets default: Fetches data for the last week
     // TODO: use get-parameters
     if($('from').value==''){
     	settimespan(event);
     }
     fetchData(event);
-    
 }
 
 
@@ -346,7 +344,11 @@ function drawgraphs(){
         legy=legy*15+25+graphheight;
         var legtext=datasets[i]['station']+" ("+datasets[i]['unit']+")";
         svg.append(createline(legx,legx+50,legy,legy,color,"legendline",1));
-        svg.append(createtext(legtext,legx+55,legy+5,"left","legendtext"));
+        var legelem=createtext(legtext,legx+55,legy+5,"left","legendtext");
+        legelem.style = "cursor: pointer;";
+        legelem.id="legtext_"+i;
+        legelem.onclick=removegraph;
+        svg.append(legelem);
     }
     clearclassnames.push("legendline");
     clearclassnames.push("legendtext");
@@ -459,6 +461,20 @@ function createtext(text,x,y,align,classname){
     textnode.setAttribute("font-size",12);
     textnode.setAttribute("class",classname);
     return(textnode);
+}
+
+function removegraph(event){
+    var target=event.element();
+    var id=target.id;
+    var elems=id.split("_");
+    var removeid=parseInt(elems[1]);
+    if(confirm("Delete graph?")){
+        datasets.splice(removeid,1);
+        streams.splice(removeid,1);
+        cleargraph();
+        drawgraphs();
+    }
+    
 }
 
 function createline(x1,x2,y1,y2,color,classname,strokewidth){
