@@ -3,7 +3,6 @@
 (c) Morten Sickel February 2011 licenced under the GNU GPL 2 or later
 */
 
-window.addEventListener('SVGLoad', svginit , false)
 window.onload=pageonload;
 
 
@@ -40,7 +39,6 @@ var timespan=[1E99,0];
 var svg;
 
 function pageonload(event){
-//    $('btLoad').onclick=fetchdata;
     Event.observe($('btLoad'),'click',fetchData);
     Event.observe($('btLastWeek'),'click',loadtimespan);
     Event.observe($('btBack'),'click',pagetime);
@@ -73,38 +71,15 @@ function pageonload(event){
     outerbox.setAttribute('style','stroke-width:1;fill:white;stroke:black');
     svg.append(outerbox);
     
-//    svginit(event);
-    $$('.paramchooser').each(function(chooser){
-	Event.observe(chooser,'change',setparam);
-    });
     // sets default: Fetches data for the last week
     // TODO: use get-parameters
     if($('from').value==''){
     	settimespan(event);
     }
-//    alert(document.cookie);
     fetchData(event);
     
 }
 
-
-function setCookie(cname, cvalue, exdays) {
-    var d = new Date();
-    d.setTime(d.getTime() + (exdays*24*60*60*1000));
-    var expires = "expires="+d.toUTCString();
-    document.cookie = cname + "=" + cvalue + "; " + expires;
-}
-
-function getCookie(cname) {
-    var name = cname + "=";
-    var ca = document.cookie.split(';');
-    for(var i=0; i<ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0)==' ') c = c.substring(1);
-        if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
-    }
-    return "";
-}
 
 var clearclassnames=[];
 
@@ -161,10 +136,7 @@ function stringtodate(string){
     return(strtime);
 }
 
-
-function savetimes()
-    {}
-    
+   
     
 function pagetime(event){
     var target=event.element();
@@ -201,49 +173,6 @@ function pagetime(event){
     fetchData(event);
 }
 
-
-
-function setparam(event){
-  /*  var target=event.element();
-    //alert(target.value);
- //   var chartid=target.parentNode.next('object').id;
-    var targetchart;
-    charts.each(function(chart){
-	// must find the right object to work on
-//	if(chart.getsvgid()==chartid){
-			targetchart=chart;
-	}
-    }); 
-  //  targetchart.setparameter(target.value);
-    */
-}
-
-function setmax(event){
-	// Called when the max value field is changed for a chart
-    var target=event.element();
-    var chartid=target.parentNode.next('object').id;
-    var targetchart;
-    charts.each(function(chart){
-	// must find the right object to work on
-	if(chart.getsvgid()==chartid){
-	    targetchart=chart;
-	}
-    });
-    targetchart.setmax(target.value);
-	
-}
-
-function svginit(event){
-/* 	Sets up the charts. the first parameter is the id of the svg file, the secound is the
-	id of a field used for logging 
-*/
-	for(i=0;i<1;i++){
-		charts[i]=new chart('stripchart'+i,'logvalue'+i);
-		charts[i].setparameter($('paramchoose'+i).value);
-	    //	charts[i].setmax($('stripchart'+i+'max').value);
-		charts[i].setmax(100);
-	}
-}	
 
 
 var prevsent; // the dataset id it was asked for last time
@@ -551,8 +480,6 @@ function createline(x1,x2,y1,y2,color,classname,strokewidth){
     color=typeof color !== 'undefined' ? color : 'blue';
     classname=typeof classname !== 'undefined' ? classname: 'noclass';
     strokewidth=typeof strokewidth !== 'undefined' ? strokewidth : 0.1;
-    
-    //line=svg.createElementNS("http://www.w3.org/2000/svg",'line');
     line=document.createElementNS("http://www.w3.org/2000/svg",'line');
     line.setAttribute('x1',x1);
     line.setAttribute('x2',x2);
