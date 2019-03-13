@@ -7,21 +7,7 @@ window.onload=pageonload;
 
 
 
-var pe;            // the periodical executer - must be available
-var running=false; // flags if the pe is running - or can check if it exists
 var url="ajaxserver.php";  // The url of the program that serves the data to be presented
-var lastid=0;         // id of the last fetched dataset
-var maxlength=418;    // maximum length of the polyline
-var datasetsize=0;        // size of dataset
-var comp="eq";        // used by the server 
-var oldfileid=-1;     // id of datafile in which the last set did belong
-var n=0;              // counts number of datasets fetched in the present file
-var charts=new Array();  // array to hold the chart objects
-var calid=0;          // used by the server
-var stream="Ute";
-var prevfrom= new Date();
-var prevto=new Date();
-var exdays=1;  // days before cookies expires
 var streams=[];
 var splitchar="!"; 
 var datasets=[];
@@ -34,7 +20,7 @@ var svgyoffset;
 var lmargin=70;
 var rmargin=70;
 var bmargin=70;
-var spans={};
+var spans={}; // range per unit
 var timespan=[1E99,0];
 var svg;
 
@@ -81,7 +67,7 @@ function pageonload(event){
 }
 
 
-var clearclassnames=[];
+var clearclassnames=[]; // classes to be cleared out when the graph is being reset.
 
 function cleargraph(event){
     var svg=document.getElementById("svg");
@@ -275,7 +261,6 @@ function hHR_receiveddata(response,json){ // The response function to the ajax c
         var dataset=$A(jsondata.datapoints);
         if(dataset[0].size()>1){
             $('log').innerHTML=dataset[0].size()+" datapoints";
-            datasetsize=dataset[0].size();
         }
         for (var i=0;i<dataset.length;i++){
             streams[i].fetched=true;
