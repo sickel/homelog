@@ -447,12 +447,20 @@ function drawgraphs(){
     if( days > 20 ){
         vlinedist = Math.ceil(vlinedist*days/10)
     }
-    vlinedist*=24*3600; 
+    vlinedist*=24*3600;
+    if (days < 3){
+        vlinedist=6*3600;
+    }
     var xtime=Math.ceil(timespan[0]/vlinedist)*vlinedist;
     var x=svgxoffset+(xtime-timespan[0])*xfact;
     while(xtime < timespan[1]){
         svg.append(createline(x,x,svgyoffset,graphheight,"blue","axisline"));
-        svg.append(createtext(formatdate(new Date(xtime*1000),false),x,graphheight+15,"middle","axistext"));
+        var timetext=""
+        if (xtime%(24*3600)==0){ 
+            timetext=formatdate(new Date(xtime*1000),false);
+        }
+        // else - time of day
+        svg.append(createtext(timetext,x,graphheight+15,"middle","axistext"));
         xtime+=vlinedist;
         x=x+vlinedist*xfact;
     }
